@@ -20,6 +20,7 @@ class AuthManager:
 
     def __init__(self):
         self.current_pin: str = f"{random.randint(1000, 9999)}"
+        self.last_pin_generated_time: float = time.time()
         # Dicionário de sessões ativas: token -> expires_at_timestamp
         self.active_sessions: Dict[str, float] = {}
         self.last_pin_generated_at = datetime.now(timezone.utc)
@@ -55,10 +56,19 @@ class AuthManager:
     def generate_pin(self, notify: bool = True) -> str:
         """Gera um novo PIN de 4 dígitos aleatório e imprime o banner limpo."""
         self.current_pin = f"{random.randint(1000, 9999)}"
+        self.last_pin_generated_time = time.time()
         self.last_pin_generated_at = datetime.now(timezone.utc)
         if notify:
             self.print_pin_banner()
         return self.current_pin
+
+    def check_pin_rotation(self) -> bool:
+        """Verifica se o PIN atual tem mais de 24 horas e rotaciona automaticamente se necessário."""
+        now = time.time()
+        if (now - self.last_pin_generated_time) >= SESSION_TTL_SECONDS:
+            self.generate_pin(notify=True)
+            return True
+        return False
 
     def print_pin_banner(self):
         """Exibe o PIN de 4 dígitos no terminal do PC de forma limpa e sem repetições."""
@@ -70,7 +80,8 @@ class AuthManager:
         pass
 
     def verify(self, pin: str) -> Optional[Dict[str, Any]]:
-        """Valida o PIN digitado. Se correto, emite token com validade de 24 horas."""
+        """Valida o PIN digitado. Se correto, emite token com validade estrita de 24 horas."""
+        self.check_pin_rotation()
         clean_pin = str(pin).strip()
         if clean_pin == self.current_pin:
             token = secrets.token_hex(16)
@@ -92,25 +103,30 @@ class AuthManager:
             return None
 
     def is_valid_token(self, token: Optional[str]) -> bool:
-        """Verifica se o token ou PIN fornecido é válido e está dentro da janela de 24 horas."""
+        """Verifica se o token ou PIN fornecido é válido e está rigorosamente dentro da janela de 24 horas."""
         if not token:
             return False
         clean = token.strip()
         now = time.time()
 
-        # Aceita o PIN mestre ativo diretamente
-        if clean == self.current_pin:
-            return True
+        # Verifica se o PIN atual no servidor precisa de renovação de 24h
+        self.check_pin_rotation()
 
         # Valida token de sessão em cache
         if clean in self.active_sessions:
             if now < self.active_sessions[clean]:
                 return True
             else:
-                # Sessão expirou após 24 horas
+                # Sessão expirou após 24 horas: descarta do cache e salva
                 del self.active_sessions[clean]
                 self.save_sessions()
                 return False
+
+        # Valida PIN mestre ativo
+        if clean == self.current_pin:
+            return True
+
+        return False
 
         return False
 

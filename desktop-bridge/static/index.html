@@ -2581,6 +2581,21 @@
             chatFeed.appendChild(container);
         }
 
+        function handleSessionExpired() {
+            authToken = "";
+            try {
+                localStorage.removeItem("antigravity_auth_token");
+                localStorage.removeItem("antigravity_auth_expiry");
+            } catch(e) {}
+            if (ws) {
+                try { ws.close(); } catch(e) {}
+            }
+            pinScreen.classList.remove("hidden");
+            pinError.innerText = (currentI18n && currentI18n.pin_error) || "Sessão expirada após 24h. Digite o novo PIN.";
+            pinError.style.color = "#f87171";
+            requestNewPin(false);
+        }
+
         // CARREGAMENTO IMEDIATO VIA HTTP (Autenticado com token)
         async function fetchInitialData() {
             if (!authToken) return;
@@ -2588,6 +2603,7 @@
 
             try {
                 const qRes = await fetch("/api/quota" + authParam);
+                if (qRes.status === 401) { handleSessionExpired(); return; }
                 if (qRes.ok) {
                     const qData = await qRes.json();
                     updateQuota(qData);
@@ -2597,6 +2613,7 @@
 
             try {
                 const sRes = await fetch("/api/status" + authParam);
+                if (sRes.status === 401) { handleSessionExpired(); return; }
                 if (sRes.ok) {
                     const sData = await sRes.json();
                     if (sData.active_model && modelBadge) modelBadge.innerText = sData.active_model;
@@ -2607,6 +2624,7 @@
 
             try {
                 const mRes = await fetch("/api/messages" + authParam);
+                if (mRes.status === 401) { handleSessionExpired(); return; }
                 if (mRes.ok) {
                     const mData = await mRes.json();
                     if (mData.active_model && modelBadge) modelBadge.innerText = mData.active_model;
@@ -2745,15 +2763,7 @@
                 updateStatus("DESCONECTADO");
                 if (e.code === 4003) {
                     // Token inválido ou expirado após 24 horas
-                    authToken = "";
-                    try {
-                        localStorage.removeItem("antigravity_auth_token");
-                        localStorage.removeItem("antigravity_auth_expiry");
-                    } catch(e) {}
-                    pinScreen.classList.remove("hidden");
-                    pinError.innerText = (currentI18n && currentI18n.pin_error) || "Sessão expirada após 24h. Digite o PIN.";
-                    pinError.style.color = "#f87171";
-                    requestNewPin(false);
+                    handleSessionExpired();
                     return;
                 }
                 if (authToken) {
