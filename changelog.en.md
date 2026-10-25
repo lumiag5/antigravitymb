@@ -1,7 +1,7 @@
 # Changelog
 
 <p align="center">
-  <a href="changelog.md">Português</a>; <b>English</b> <a href="changelog.en.md">; <a href="CHANGELOG.es.md">Español</a>
+  <a href="changelog.md">Português</a> <b>English</b> <a href="changelog.en.md"> <a href="changelog.es.md">Español</a>
 </p>
 
 All notable changes to **Antigravity Mobile** will be documented in this file.
