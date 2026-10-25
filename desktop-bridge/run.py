@@ -118,7 +118,8 @@ def print_banner(local_ip: str):
     print("-" * 68, flush=True)
     
     # Exibe QR Code para conexão imediata via câmera do celular
-    target_url = tunnel_manager.public_url if tunnel_manager.public_url else f"http://{local_ip}:{port}"
+    base_target = tunnel_manager.public_url if tunnel_manager.public_url else f"http://{local_ip}:{port}"
+    target_url = f"{base_target}?pin={auth_manager.current_pin}"
     qr_title = t.get("terminal_qr_title", "[QR CODE - ESCANEIE COM A CÂMERA DO CELULAR PARA CONECTAR]:")
     print_qr_code(target_url, qr_title)
     print("-" * 68, flush=True)

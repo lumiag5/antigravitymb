@@ -10,6 +10,19 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
+## [2.4.2] - 2026-10-25 (Build 2420)
+
+### Añadido / Gestión de Sesión y Escáner de Cámara QR
+* **Protección de Sesión al Cerrar**: La app ahora siempre inicia en la pantalla de sesión al abrirse, pausando el feed activo por seguridad.
+* **Opción "Volver a la Sesión"**: Si el servidor ya fue configurado y sigue abierto en la PC, un solo toque reconecta al dashboard sin pedir nuevo PIN.
+* **Opción "Entrar con Código QR" vía Cámara Nativa**: Integración con escáner de cámara nativo (ZXing) con solicitud de permisos en tiempo de ejecución.
+* **Autenticación Automática por QR**: El código QR de la terminal ahora incluye el PIN dinámico (`?pin=XXXX`), permitiendo conexión y autorización inmediata.
+* **Opción "Nueva Sesión"**: Limpia el token anterior y permite ingresar con un nuevo PIN o cambiar de servidor.
+* **Botón "Cerrar Sesión" en el Menú**: Botón directo en `⚙️ Menú` para desconectar y volver a la pantalla de sesión.
+* **Diseño Minimalista OLED**: Eliminados todos los botones antiguos de atajos para una interfaz limpia en OLED Black `#000000`.
+
+---
+
 ## [2.4.1] - 2026-10-25 (Build 2419)
 
 ### Corregido / Aplicación Android Nativa

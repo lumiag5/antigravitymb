@@ -10,7 +10,7 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
 3. **Métricas Oficiais de Quota**: Exibição em tempo real da porcentagem de uso diário (5h) e semanal do modelo de IA via RPC interna com adaptação dinâmica entre grupos de modelos.
 4. **Conectividade Flexível**: Suporte à rede local (Wi-Fi) e acesso remoto global via túnel HTTPS seguro (Cloudflare) sem configuração de portas.
 
-## FUNCIONALIDADES IMPLEMENTADAS (v2.4.1 • Build 2419)
+## FUNCIONALIDADES IMPLEMENTADAS (v2.4.2 • Build 2420)
 - **Desktop Bridge Daemon (PC)** (`antrigavitymb/desktop-bridge/`):
   - **QR Code no Terminal**: Renderização de QR Code em ASCII compacto diretamente no console do PC para conexão instantânea pela câmera do celular.
   - **Detecção Dinâmica de Modelos de IA**: Detecção em tempo real de comutação entre modelos Gemini, Claude Sonnet e GPT durante a própria conversa via decodificação de tags Protobuf específicas (campo 28 `\xe2\x01` para Claude/GPT e campo 19 `\x9a\x01` para Gemini).
@@ -49,13 +49,14 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
   - `TUTORIAL.txt` (Guia passo a passo de conexão em pt, en, es).
 
 ## ÚLTIMA ALTERAÇÃO
-- **Correção de Protocolo HTTP/HTTPS, Presets Rápidos e Compatibilidade com Emuladores no APK (v2.4.1 • Build 2419)**:
-  - Implementada dedução inteligente de protocolo (`cleanServerUrl`) no APK: IPs locais (`192.168.x.x`, `10.0.2.2`, `localhost`) utilizam estritamente `http://` para evitar rejeição TLS do Uvicorn (`Invalid HTTP request received`).
-  - Auto-completar de porta `:8765` para IPs locais sem especificação de porta.
-  - Tela de conexão atualizada com 3 botões de atalho rápido: `💻 Emulador (10.0.2.2:8765)`, `📶 Wi-Fi Local (192.168.0.6:8765)` e `🌐 Túnel Cloudflare (https://)`.
-  - Adicionado botão dedicado para colar a URL da Área de Transferência (`btnPasteClipboard`).
-  - Diagnóstico aprimorado de erros de rede: exibe URL tentada e código de erro legível, prevenindo tela preta sem feedback.
-  - Intercepção de erro dupla garantindo compatibilidade com versões antigas do WebView em emuladores como LDPlayer (Android 7 a 9).
+- **Gerenciamento de Sessão com Logout ao Fechar, Leitura de QR Code via Câmera e Layout Minimalista (v2.4.2 • Build 2420)**:
+  - O app agora sempre inicia na tela de sessão ao ser aberto, deslogando a visualização direta por segurança.
+  - Adicionada opção **"Voltar à Sessão"**: se o servidor no PC continuar aberto, reconecta imediatamente sem pedir novo PIN.
+  - Adicionada opção **"Entrar com QR Code"**: ativa a câmera do celular/emulador para escanear o QR Code gerado no terminal do PC via biblioteca ZXing.
+  - O QR Code do console agora transporta o PIN dinâmico (`?pin=XXXX`), permitindo login 100% automático e instantâneo ao escanear com a câmera.
+  - Adicionada opção **"Nova Sessão"**: limpa a autenticação anterior e permite inserir novo PIN ou trocar de servidor.
+  - Adicionado botão **"Sair / Desconectar da Sessão"** dentro do modal de Configurações (`⚙️ Menu`).
+  - Removidos todos os atalhos rápidos antigos de emulador/rede, deixando a tela minimalista e focada em OLED Black.
 
 ## ESTADO ATUAL
-- Versão v2.4.1 (Build 2419) pronta para compilação automática no GitHub Actions com suporte total para emuladores e conexões locais e remotas.
+- Versão v2.4.2 (Build 2420) com controle avançado de ciclo de vida de sessão, scanner nativo de QR Code e compilação automatizada no GitHub Actions.

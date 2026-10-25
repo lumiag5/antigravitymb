@@ -11,8 +11,8 @@ android {
         applicationId = "com.lumiag5.antigravitymobile"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2419
-        versionName = "2.4.1"
+        versionCode = 2420
+        versionName = "2.4.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -53,4 +53,5 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.webkit:webkit:1.11.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 }

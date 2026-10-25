@@ -10,6 +10,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [2.4.2] - 2026-10-25 (Build 2420)
+
+### Added / Session Management & Camera QR Scanner
+* **App Lifecycle Session Guard**: App now automatically returns to the session gateway screen on fresh launch, protecting ongoing monitoring sessions.
+* **"Resume Session" Option**: If the desktop bridge is still running on the PC, a single tap resumes monitoring immediately without retyping a PIN.
+* **"Sign in with QR Code" Camera Scanner**: Native camera scanner integration (ZXing) with runtime camera permission to scan the terminal's ASCII QR code directly.
+* **Zero-Touch QR Authentication**: The PC terminal now encodes the active PIN into the QR code (`?pin=XXXX`), authenticating and connecting immediately upon scanning.
+* **"New Session" Option**: Flushes the previous cached token and brings up connection controls to authorize with a fresh PIN.
+* **"Disconnect Session" in Settings Menu**: Dedicated logout button added to the `⚙️ Menu` modal.
+* **Minimalist OLED Layout**: Removed all previous preset chips for a clean, distraction-free OLED True Black interface.
+
+---
+
 ## [2.4.1] - 2026-10-25 (Build 2419)
 
 ### Fixed / Native Android Application

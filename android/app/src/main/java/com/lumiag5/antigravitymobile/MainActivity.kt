@@ -22,6 +22,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanIntentResult
+import com.journeyapps.barcodescanner.ScanOptions
 import com.lumiag5.antigravitymobile.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -31,9 +34,20 @@ class MainActivity : AppCompatActivity() {
     private val PREFS_NAME = "antigravity_prefs"
     private val KEY_SERVER_URL = "server_url"
     private val NOTIFICATION_PERMISSION_CODE = 1001
+    private val CAMERA_PERMISSION_CODE = 1002
 
     private var hasError = false
     private var currentAttemptUrl = ""
+
+    // Lançador do Scanner de QR Code nativo (ZXing)
+    private val qrScanLauncher = registerForActivityResult(ScanContract()) { result: ScanIntentResult ->
+        if (result.contents != null) {
+            val scanned = result.contents.trim()
+            if (scanned.isNotBlank()) {
+                handleScannedUrl(scanned)
+            }
+        }
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,27 +67,21 @@ class MainActivity : AppCompatActivity() {
         setupListeners()
         requestNotificationPermission()
 
-        val savedUrl = prefs.getString(KEY_SERVER_URL, null)
-        if (savedUrl.isNullOrBlank()) {
-            showConnectScreen()
-        } else {
-            loadServerUrl(savedUrl)
-        }
+        // Exigência: Ao fechar e reabrir o app, sempre inicia deslogado na tela de gerenciamento de sessão
+        showConnectScreen()
 
         // Gerenciamento do botão Voltar do Android
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val hasSaved = !prefs.getString(KEY_SERVER_URL, "").isNullOrBlank()
-                if (binding.connectView.visibility == View.VISIBLE && hasSaved) {
-                    binding.connectView.visibility = View.GONE
-                    binding.swipeRefresh.visibility = View.VISIBLE
-                } else if (binding.errorView.visibility == View.VISIBLE && hasSaved) {
-                    showConnectScreen()
-                } else if (binding.webView.canGoBack()) {
-                    binding.webView.goBack()
-                } else {
+                if (binding.connectView.visibility == View.VISIBLE) {
+                    // Já na tela de sessão: encerra o app
                     isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
+                } else if (binding.errorView.visibility == View.VISIBLE) {
+                    showConnectScreen()
+                } else {
+                    // No dashboard: voltar desloga para a tela de sessão
+                    showConnectScreen()
                 }
             }
         })
@@ -94,6 +102,9 @@ class MainActivity : AppCompatActivity() {
         settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 
         binding.webView.setBackgroundColor(Color.BLACK)
+
+        // Interface Javascript para comunicação bidirecional com a web
+        binding.webView.addJavascriptInterface(AndroidBridge(), "AndroidBridge")
 
         binding.webView.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
@@ -129,7 +140,9 @@ class MainActivity : AppCompatActivity() {
 
                     val loadedUrl = currentAttemptUrl.ifBlank { url ?: "" }
                     if (loadedUrl.isNotBlank()) {
-                        prefs.edit().putString(KEY_SERVER_URL, loadedUrl).apply()
+                        // Persiste o endereço base do servidor (removendo parâmetros temporários)
+                        val baseUrl = cleanServerUrl(loadedUrl).substringBefore("?")
+                        prefs.edit().putString(KEY_SERVER_URL, baseUrl).apply()
                     }
                 }
             }
@@ -148,7 +161,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            // Tratamento legado de erros (Compatibilidade com Android 7/8/9 em emuladores)
+            // Tratamento legado de erros (Compatibilidade com emuladores)
             @Suppress("DEPRECATION")
             override fun onReceivedError(
                 view: WebView?,
@@ -208,7 +221,28 @@ class MainActivity : AppCompatActivity() {
             showConnectScreen()
         }
 
-        // Botão Colar da Área de Transferência
+        // Opção 1: Voltar à Sessão Ativa (Reconecta sem pedir novo PIN)
+        binding.btnResumeSession.setOnClickListener {
+            val saved = prefs.getString(KEY_SERVER_URL, null)
+            if (!saved.isNullOrBlank()) {
+                Toast.makeText(this, "Retomando sessão ativa...", Toast.LENGTH_SHORT).show()
+                loadServerUrl(saved)
+            } else {
+                showConnectScreen()
+            }
+        }
+
+        // Opção 2: Entrar com QR Code (abre a câmera para ler o QR Code do terminal do PC)
+        binding.btnScanQr.setOnClickListener {
+            startQrScanner()
+        }
+
+        // Opção 3: Nova Sessão (Limpa token anterior e abre formulário de conexão)
+        binding.btnNewSession.setOnClickListener {
+            startNewSession()
+        }
+
+        // Botão de Colar URL
         binding.btnPasteClipboard.setOnClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = clipboard.primaryClip
@@ -224,26 +258,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Atalhos rápidos
-        binding.btnPresetEmulator.setOnClickListener {
-            binding.editServerUrlInput.setText("http://10.0.2.2:8765")
-            binding.editServerUrlInput.setSelection(binding.editServerUrlInput.text.length)
-        }
-
-        binding.btnPresetWifi.setOnClickListener {
-            binding.editServerUrlInput.setText("http://192.168.0.6:8765")
-            binding.editServerUrlInput.setSelection(binding.editServerUrlInput.text.length)
-        }
-
-        binding.btnPresetCloudflare.setOnClickListener {
-            val curr = binding.editServerUrlInput.text.toString().trim()
-            if (!curr.startsWith("https://")) {
-                binding.editServerUrlInput.setText("https://")
-                binding.editServerUrlInput.setSelection(binding.editServerUrlInput.text.length)
-            }
-        }
-
-        // Botão Conectar
+        // Botão Conectar do formulário manual
         binding.btnConnectServer.setOnClickListener {
             val entered = binding.editServerUrlInput.text.toString().trim()
             if (entered.isNotBlank()) {
@@ -254,19 +269,81 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Toque longo na tela abre a tela de troca de servidor
+        // Toque longo na tela abre a tela de sessão
         binding.webView.setOnLongClickListener {
             showConnectScreen()
             true
         }
     }
 
-    private fun showConnectScreen() {
+    private fun startQrScanner() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                CAMERA_PERMISSION_CODE
+            )
+        } else {
+            launchScanner()
+        }
+    }
+
+    private fun launchScanner() {
+        try {
+            val options = ScanOptions().apply {
+                setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                setPrompt("Aponte para o QR Code no terminal do PC")
+                setCameraId(0)
+                setBeepEnabled(true)
+                setBarcodeImageEnabled(false)
+                setOrientationLocked(true)
+            }
+            qrScanLauncher.launch(options)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Erro ao abrir câmera: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun handleScannedUrl(scanned: String) {
+        val cleanUrl = cleanServerUrl(scanned)
+        binding.editServerUrlInput.setText(cleanUrl)
+        Toast.makeText(this, "QR Code lido com sucesso!", Toast.LENGTH_SHORT).show()
+        loadServerUrl(cleanUrl)
+    }
+
+    private fun startNewSession() {
+        // Remove token de autenticação anterior no WebView para forçar novo PIN
+        binding.webView.evaluateJavascript(
+            "try { localStorage.removeItem('antigravity_auth_token'); localStorage.removeItem('antigravity_auth_expiry'); } catch(e) {}",
+            null
+        )
+        binding.layoutManualInput.visibility = View.VISIBLE
         val current = prefs.getString(KEY_SERVER_URL, "") ?: ""
-        binding.editServerUrlInput.setText(current)
+        if (current.isNotBlank() && binding.editServerUrlInput.text.isNullOrBlank()) {
+            binding.editServerUrlInput.setText(current)
+        }
+        binding.editServerUrlInput.requestFocus()
+        Toast.makeText(this, "Iniciando nova sessão. Digite o PIN quando solicitado.", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showConnectScreen() {
+        val saved = prefs.getString(KEY_SERVER_URL, null)
+
         binding.swipeRefresh.visibility = View.GONE
         binding.errorView.visibility = View.GONE
         binding.connectView.visibility = View.VISIBLE
+
+        if (!saved.isNullOrBlank()) {
+            binding.boxResumeSession.visibility = View.VISIBLE
+            binding.txtSavedServerUrl.text = saved
+            binding.layoutManualInput.visibility = View.GONE
+            binding.editServerUrlInput.setText(saved)
+        } else {
+            binding.boxResumeSession.visibility = View.GONE
+            binding.layoutManualInput.visibility = View.VISIBLE
+        }
     }
 
     private fun showError(title: String, desc: String, code: String, failingUrl: String) {
@@ -298,8 +375,8 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Dedução inteligente de protocolo:
-     * - Preserva scheme existente (http:// ou https://).
-     * - Se for rede local (IP, localhost ou porta 8765), usa http:// (evita erro 'Invalid HTTP request received').
+     * - Preserva scheme existente (http:// ou https://) e query parameters (?pin=...).
+     * - Se for rede local (IP, localhost ou porta 8765), usa http://.
      * - Se não tiver porta em IP local, anexa :8765 automaticamente.
      * - Se for domínio público (Cloudflare .trycloudflare.com), usa https://.
      */
@@ -307,33 +384,37 @@ class MainActivity : AppCompatActivity() {
         var url = rawUrl.trim()
         if (url.isEmpty()) return ""
 
-        while (url.endsWith("/")) {
-            url = url.substring(0, url.length - 1)
-        }
-
         val hasScheme = url.startsWith("http://", ignoreCase = true) || url.startsWith("https://", ignoreCase = true)
-        val target = if (hasScheme) url.substringAfter("://") else url
+        val scheme = if (hasScheme) url.substringBefore("://") else ""
+        var rest = if (hasScheme) url.substringAfter("://") else url
 
-        val isLocal = target.startsWith("192.168.", ignoreCase = true) ||
-                      target.startsWith("10.", ignoreCase = true) ||
-                      target.startsWith("172.", ignoreCase = true) ||
-                      target.startsWith("127.0.0.1", ignoreCase = true) ||
-                      target.startsWith("localhost", ignoreCase = true) ||
-                      target.contains(":8765")
+        val query = if (rest.contains("?")) "?" + rest.substringAfter("?") else ""
+        var hostPort = if (rest.contains("?")) rest.substringBefore("?") else rest
 
-        var finalTarget = target
-        if (isLocal && !finalTarget.contains(":")) {
-            finalTarget = "$finalTarget:8765"
+        while (hostPort.endsWith("/")) {
+            hostPort = hostPort.substring(0, hostPort.length - 1)
         }
 
-        return if (hasScheme) {
-            val scheme = url.substringBefore("://")
-            "$scheme://$finalTarget"
+        val isLocal = hostPort.startsWith("192.168.", ignoreCase = true) ||
+                      hostPort.startsWith("10.", ignoreCase = true) ||
+                      hostPort.startsWith("172.", ignoreCase = true) ||
+                      hostPort.startsWith("127.0.0.1", ignoreCase = true) ||
+                      hostPort.startsWith("localhost", ignoreCase = true) ||
+                      hostPort.contains(":8765")
+
+        if (isLocal && !hostPort.contains(":")) {
+            hostPort = "$hostPort:8765"
+        }
+
+        val finalScheme = if (hasScheme) {
+            scheme
         } else if (isLocal) {
-            "http://$finalTarget"
+            "http"
         } else {
-            "https://$finalTarget"
+            "https"
         }
+
+        return "$finalScheme://$hostPort$query"
     }
 
     private fun loadServerUrl(url: String) {
@@ -349,6 +430,21 @@ class MainActivity : AppCompatActivity() {
         binding.webView.loadUrl(cleanUrl)
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                launchScanner()
+            } else {
+                Toast.makeText(this, "Permissão de câmera necessária para escanear QR Code.", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -359,6 +455,16 @@ class MainActivity : AppCompatActivity() {
                     arrayOf(Manifest.permission.POST_NOTIFICATIONS),
                     NOTIFICATION_PERMISSION_CODE
                 )
+            }
+        }
+    }
+
+    // Bridge JS chamada quando o usuário clica em "Sair / Desconectar" no menu da web
+    inner class AndroidBridge {
+        @JavascriptInterface
+        fun exitSession() {
+            runOnUiThread {
+                showConnectScreen()
             }
         }
     }

@@ -27,14 +27,14 @@
         android:progressTint="@color/accent_blue"
         android:visibility="gone" />
 
-    <!-- Tela Inicial de Conexão / Configuração de Servidor -->
+    <!-- Tela Inicial de Conexão e Gerenciamento de Sessão -->
     <ScrollView
         android:id="@+id/connectView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/bg_oled"
         android:fillViewport="true"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,15 +44,15 @@
             android:padding="24dp">
 
             <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
                 android:contentDescription="@string/app_name"
                 android:src="@drawable/app_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="12dp"
                 android:text="@string/app_name"
                 android:textColor="@color/white"
                 android:textSize="22sp"
@@ -64,9 +64,9 @@
                 android:layout_marginTop="4dp"
                 android:text="Mobile Companion para Antigravity IDE"
                 android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:textSize="12.5sp" />
 
-            <!-- Card de Conexão -->
+            <!-- Card de Sessão -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -75,122 +75,174 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Endereço do Servidor"
-                    android:textColor="@color/white"
-                    android:textSize="14.5sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Cole o link Cloudflare (4G/5G) ou o IP local (Wi-Fi/Emulador):"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
-
+                <!-- Bloco: Voltar à Sessão Ativa -->
                 <LinearLayout
+                    android:id="@+id/boxResumeSession"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
-                    <EditText
-                        android:id="@+id/editServerUrlInput"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_input_rounded"
-                        android:hint="http://... ou https://..."
-                        android:inputType="textUri"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:background="@color/status_green" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Sessão Configurada"
+                            android:textColor="@color/status_green"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/txtSavedServerUrl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:ellipsize="middle"
                         android:maxLines="1"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
+                        android:text="http://..."
                         android:textColor="@color/white"
-                        android:textColorHint="#64687A"
                         android:textSize="13sp" />
 
                     <Button
-                        android:id="@+id/btnPasteClipboard"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:layout_marginStart="8dp"
-                        android:backgroundTint="#242738"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:text="📋 Colar"
+                        android:id="@+id/btnResumeSession"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="12dp"
+                        android:backgroundTint="@color/accent_blue"
+                        android:text="▶ Voltar à Sessão"
                         android:textColor="@color/white"
-                        android:textSize="12sp" />
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"
+                        android:text="Reconecta sem precisar inserir novo PIN."
+                        android:textColor="#64687A"
+                        android:textSize="11sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="#242738" />
                 </LinearLayout>
 
-                <!-- Atalhos rápidos -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="Atalhos Rápidos:"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11.5sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/btnPresetEmulator"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:background="@drawable/bg_pill_button"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:padding="10dp"
-                        android:text="💻 Emulador (LDPlayer / Nox): http://10.0.2.2:8765"
-                        android:textColor="#93C5FD"
-                        android:textSize="11.5sp" />
-
-                    <TextView
-                        android:id="@+id/btnPresetWifi"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:background="@drawable/bg_pill_button"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:padding="10dp"
-                        android:text="📶 Wi-Fi Local (PC): http://192.168.0.6:8765"
-                        android:textColor="#86EFAC"
-                        android:textSize="11.5sp" />
-
-                    <TextView
-                        android:id="@+id/btnPresetCloudflare"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_pill_button"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:padding="10dp"
-                        android:text="🌐 Túnel Cloudflare (Remoto 4G/5G): https://"
-                        android:textColor="#FDE047"
-                        android:textSize="11.5sp" />
-                </LinearLayout>
-
+                <!-- Botão: Entrar com QR Code -->
                 <Button
-                    android:id="@+id/btnConnectServer"
+                    android:id="@+id/btnScanQr"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:layout_marginTop="18dp"
-                    android:backgroundTint="@color/accent_blue"
-                    android:text="Conectar ao Servidor"
+                    android:backgroundTint="#242838"
+                    android:text="📷 Entrar com QR Code"
                     android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Escaneie o QR Code exibido no terminal do PC."
+                    android:textColor="#64687A"
+                    android:textSize="11sp" />
+
+                <!-- Botão: Nova Sessão -->
+                <Button
+                    android:id="@+id/btnNewSession"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="12dp"
+                    android:text="⚡ Nova Sessão"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <!-- Área Manual de Inserção de Servidor (Expandida em Nova Sessão) -->
+                <LinearLayout
+                    android:id="@+id/layoutManualInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="14dp"
+                        android:background="#242738" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Endereço Manual do Servidor"
+                        android:textColor="@color/white"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/editServerUrlInput"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_input_rounded"
+                            android:hint="http://... ou https://..."
+                            android:inputType="textUri"
+                            android:maxLines="1"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:textColor="@color/white"
+                            android:textColorHint="#64687A"
+                            android:textSize="13sp" />
+
+                        <Button
+                            android:id="@+id/btnPasteClipboard"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="8dp"
+                            android:backgroundTint="#242738"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:text="📋 Colar"
+                            android:textColor="@color/white"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnConnectServer"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="14dp"
+                        android:backgroundTint="@color/accent_blue"
+                        android:text="Iniciar Nova Sessão"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -199,8 +251,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
                 android:gravity="center"
-                android:text="Dica: O link completo com QR Code aparece no terminal do PC ao iniciar o Start_Server.bat."
-                android:textColor="#64687A"
+                android:text="Dica: Ao fechar o app, a sessão é pausada. Ao reabrir, clique em 'Voltar à Sessão' para continuar sem novo PIN."
+                android:textColor="#525666"
                 android:textSize="11.5sp" />
 
         </LinearLayout>
@@ -270,7 +322,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="@string/change_server"
+            android:text="Voltar à Tela de Sessão"
             android:textColor="@color/text_secondary" />
     </LinearLayout>
 

@@ -1374,6 +1374,11 @@
                     <span>📜</span>
                     <span id="menu-btn-log-text">Ver Histórico de Conclusões</span>
                 </button>
+
+                <button type="button" class="btn-menu-action" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.35); margin-top: 10px;" onclick="disconnectSession()">
+                    <span>🚪</span>
+                    <span id="menu-btn-logout-text">Sair / Desconectar da Sessão</span>
+                </button>
             </div>
 
             <button type="button" class="btn-tutorial-close" onclick="MenuManager.close()" id="menu-close-btn" style="margin-top: 4px;">
@@ -2812,8 +2817,37 @@
                     localStorage.removeItem("antigravity_auth_expiry");
                 } catch(e) {}
                 authToken = "";
+
+                // Verifica se há PIN na URL (ex: via escaneamento do QR Code ?pin=XXXX)
+                const urlParams = new URLSearchParams(window.location.search);
+                const pinParam = (urlParams.get("pin") || "").trim();
+                if (pinParam && pinParam.length === 4) {
+                    for (let i = 0; i < 4; i++) {
+                        if (pinBoxes[i]) pinBoxes[i].value = pinParam[i];
+                    }
+                    pinScreen.classList.remove("hidden");
+                    await submitPin();
+                    return;
+                }
+
                 pinScreen.classList.remove("hidden");
                 requestNewPin(false);
+            }
+        }
+
+        function disconnectSession() {
+            try {
+                localStorage.removeItem("antigravity_auth_token");
+                localStorage.removeItem("antigravity_auth_expiry");
+            } catch(e) {}
+            authToken = "";
+            if (ws) {
+                try { ws.close(); } catch(e) {}
+            }
+            if (window.AndroidBridge && window.AndroidBridge.exitSession) {
+                window.AndroidBridge.exitSession();
+            } else {
+                window.location.href = window.location.pathname;
             }
         }
 
