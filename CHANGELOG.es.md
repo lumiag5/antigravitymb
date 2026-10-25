@@ -10,6 +10,21 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
+## [2.4.1] - 2026-10-25 (Build 2419)
+
+### Corregido / Aplicación Android Nativa
+* **Deducción Inteligente de Protocolo (HTTP vs HTTPS)**: Corrección del error donde las conexiones a IPs locales (ej: `192.168.0.6:8765` o `10.0.2.2:8765`) se forzaban a `https://`, causando fallos de handshake TLS (`Invalid HTTP request received`) y pantalla negra. La app ahora detecta redes locales y aplica `http://`, reservando `https://` para túneles Cloudflare y dominios públicos.
+* **Auto-completado de Puerto**: Al ingresar una IP local sin puerto, se añade automáticamente `:8765`.
+* **Accesos Rápidos en Pantalla de Conexión**: 3 botones de selección rápida con un toque:
+  - `💻 Emulador (LDPlayer / Nox)`: Inserta `http://10.0.2.2:8765` (loopback estándar hacia el PC anfitrión).
+  - `📶 Wi-Fi Local (PC)`: Inserta `http://192.168.0.6:8765`.
+  - `🌐 Túnel Cloudflare`: Inserta `https://` para ingresar fácilmente el enlace remoto.
+* **Botón "Pegar Enlace" del Portapapeles**: Acceso directo para pegar el link desde el portapapeles del dispositivo o emulador.
+* **Diagnóstico Detallado de Errores**: La pantalla de error muestra la URL exacta intentada y el motivo/código devuelto por WebView.
+* **Compatibilidad con Emuladores Android**: Soporte de intercepción de errores doble para total compatibilidad desde Android 7 hasta Android 14.
+
+---
+
 ## [2.4.0] - 2026-10-25 (Build 2418)
 
 ### Añadido / Mejoras de Interfaz

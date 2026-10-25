@@ -41,18 +41,18 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="28dp">
+            android:padding="24dp">
 
             <ImageView
-                android:layout_width="84dp"
-                android:layout_height="84dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:contentDescription="@string/app_name"
                 android:src="@drawable/app_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="14dp"
                 android:text="@string/app_name"
                 android:textColor="@color/white"
                 android:textSize="22sp"
@@ -70,7 +70,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
+                android:layout_marginTop="24dp"
                 android:background="@drawable/bg_card_rounded"
                 android:orientation="vertical"
                 android:padding="20dp">
@@ -80,31 +80,106 @@
                     android:layout_height="wrap_content"
                     android:text="Endereço do Servidor"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
+                    android:textSize="14.5sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Cole o link HTTPS do Cloudflare (para 4G/5G) ou o IP local (para Wi-Fi):"
+                    android:text="Cole o link Cloudflare (4G/5G) ou o IP local (Wi-Fi/Emulador):"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
-                <EditText
-                    android:id="@+id/editServerUrlInput"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:background="@drawable/bg_input_rounded"
-                    android:hint="https://xxxx.trycloudflare.com"
-                    android:inputType="textUri"
-                    android:maxLines="1"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:textColor="@color/white"
-                    android:textColorHint="#64687A"
-                    android:textSize="13.5sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/editServerUrlInput"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_input_rounded"
+                        android:hint="http://... ou https://..."
+                        android:inputType="textUri"
+                        android:maxLines="1"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:textColor="@color/white"
+                        android:textColorHint="#64687A"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/btnPasteClipboard"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
+                        android:backgroundTint="#242738"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:text="📋 Colar"
+                        android:textColor="@color/white"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Atalhos rápidos -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Atalhos Rápidos:"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/btnPresetEmulator"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:background="@drawable/bg_pill_button"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="10dp"
+                        android:text="💻 Emulador (LDPlayer / Nox): http://10.0.2.2:8765"
+                        android:textColor="#93C5FD"
+                        android:textSize="11.5sp" />
+
+                    <TextView
+                        android:id="@+id/btnPresetWifi"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:background="@drawable/bg_pill_button"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="10dp"
+                        android:text="📶 Wi-Fi Local (PC): http://192.168.0.6:8765"
+                        android:textColor="#86EFAC"
+                        android:textSize="11.5sp" />
+
+                    <TextView
+                        android:id="@+id/btnPresetCloudflare"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_button"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="10dp"
+                        android:text="🌐 Túnel Cloudflare (Remoto 4G/5G): https://"
+                        android:textColor="#FDE047"
+                        android:textSize="11.5sp" />
+                </LinearLayout>
 
                 <Button
                     android:id="@+id/btnConnectServer"
@@ -112,7 +187,7 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="18dp"
                     android:backgroundTint="@color/accent_blue"
-                    android:text="Conectar ao PC"
+                    android:text="Conectar ao Servidor"
                     android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -122,9 +197,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="18dp"
                 android:gravity="center"
-                android:text="Dica: O link é exibido no terminal do computador ao executar Start_Server.bat."
+                android:text="Dica: O link completo com QR Code aparece no terminal do PC ao iniciar o Start_Server.bat."
                 android:textColor="#64687A"
                 android:textSize="11.5sp" />
 
@@ -139,12 +214,12 @@
         android:background="@color/bg_oled"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="32dp"
+        android:padding="28dp"
         android:visibility="gone">
 
         <ImageView
-            android:layout_width="72dp"
-            android:layout_height="72dp"
+            android:layout_width="68dp"
+            android:layout_height="68dp"
             android:contentDescription="@string/app_name"
             android:src="@drawable/app_icon" />
 
@@ -152,7 +227,7 @@
             android:id="@+id/txtErrorTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="18dp"
             android:text="@string/connection_error_title"
             android:textColor="@color/white"
             android:textSize="18sp"
@@ -168,11 +243,22 @@
             android:textColor="@color/text_secondary"
             android:textSize="13sp" />
 
+        <TextView
+            android:id="@+id/txtErrorDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_input_rounded"
+            android:padding="12dp"
+            android:textColor="#EF4444"
+            android:textSize="11.5sp"
+            android:visibility="gone" />
+
         <Button
             android:id="@+id/btnRetry"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="20dp"
             android:backgroundTint="@color/accent_blue"
             android:text="@string/retry"
             android:textColor="@color/white"

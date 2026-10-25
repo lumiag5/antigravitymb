@@ -10,7 +10,7 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
 3. **Métricas Oficiais de Quota**: Exibição em tempo real da porcentagem de uso diário (5h) e semanal do modelo de IA via RPC interna com adaptação dinâmica entre grupos de modelos.
 4. **Conectividade Flexível**: Suporte à rede local (Wi-Fi) e acesso remoto global via túnel HTTPS seguro (Cloudflare) sem configuração de portas.
 
-## FUNCIONALIDADES IMPLEMENTADAS (v2.4.0 • Build 2418)
+## FUNCIONALIDADES IMPLEMENTADAS (v2.4.1 • Build 2419)
 - **Desktop Bridge Daemon (PC)** (`antrigavitymb/desktop-bridge/`):
   - **QR Code no Terminal**: Renderização de QR Code em ASCII compacto diretamente no console do PC para conexão instantânea pela câmera do celular.
   - **Detecção Dinâmica de Modelos de IA**: Detecção em tempo real de comutação entre modelos Gemini, Claude Sonnet e GPT durante a própria conversa via decodificação de tags Protobuf específicas (campo 28 `\xe2\x01` para Claude/GPT e campo 19 `\x9a\x01` para Gemini).
@@ -49,15 +49,13 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
   - `TUTORIAL.txt` (Guia passo a passo de conexão em pt, en, es).
 
 ## ÚLTIMA ALTERAÇÃO
-- **Implementação do Menu de Configurações, QR Code no Terminal, Toques, Volume, Log, Latência e Estrutura do APK Nativo via GitHub Actions (v2.4.0 • Build 2418)**:
-  - Terminal do PC atualizado com desenho de QR Code em ASCII para escaneamento rápido via celular.
-  - Rodapé reestruturado: Botão `⚙️ Menu` à esquerda, badge de Latência (Ping) dinâmico ao seu lado direito e botão `🌓 OLED` à direita.
-  - Modal de Menu adicionado com controles de Notificações, Som & Flash, seletor de 4 estilos de toques, controle de volume, switch de exibição de latência e acesso ao Histórico.
-  - Modal de Histórico de Conclusões adicionado para registrar tarefas concluídas com timestamps e botão de limpeza.
-  - Engine de ping em tempo real integrada ao WebSocket medindo round-trip em milissegundos com feedback visual por cores.
-  - Adicionado `manifest.json` com especificações PWA oficiais para reconhecimento do Android.
-  - Criado o projeto Android Nativo (`android/`) em Kotlin com suporte a WebView acelerado por hardware, modo OLED Black puro e gerenciamento de URL de servidor.
-  - Criado o fluxo de CI/CD automatizado no GitHub Actions (`.github/workflows/build-apk.yml`) para compilar o APK diretamente na nuvem no repositório do usuário.
+- **Correção de Protocolo HTTP/HTTPS, Presets Rápidos e Compatibilidade com Emuladores no APK (v2.4.1 • Build 2419)**:
+  - Implementada dedução inteligente de protocolo (`cleanServerUrl`) no APK: IPs locais (`192.168.x.x`, `10.0.2.2`, `localhost`) utilizam estritamente `http://` para evitar rejeição TLS do Uvicorn (`Invalid HTTP request received`).
+  - Auto-completar de porta `:8765` para IPs locais sem especificação de porta.
+  - Tela de conexão atualizada com 3 botões de atalho rápido: `💻 Emulador (10.0.2.2:8765)`, `📶 Wi-Fi Local (192.168.0.6:8765)` e `🌐 Túnel Cloudflare (https://)`.
+  - Adicionado botão dedicado para colar a URL da Área de Transferência (`btnPasteClipboard`).
+  - Diagnóstico aprimorado de erros de rede: exibe URL tentada e código de erro legível, prevenindo tela preta sem feedback.
+  - Intercepção de erro dupla garantindo compatibilidade com versões antigas do WebView em emuladores como LDPlayer (Android 7 a 9).
 
 ## ESTADO ATUAL
-- Versão v2.4.0 (Build 2418) completa, com Web Companion otimizado e estrutura do APK configurada com compilação automatizada na nuvem via GitHub Actions.
+- Versão v2.4.1 (Build 2419) pronta para compilação automática no GitHub Actions com suporte total para emuladores e conexões locais e remotas.

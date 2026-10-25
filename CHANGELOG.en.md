@@ -10,6 +10,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [2.4.1] - 2026-10-25 (Build 2419)
+
+### Fixed / Native Android Application
+* **Smart Protocol Deduction (HTTP vs HTTPS)**: Fixed an issue where local network IP connections (e.g. `192.168.0.6:8765` or `10.0.2.2:8765`) were automatically forced into `https://`, causing TLS handshake errors (`Invalid HTTP request received`) and blank black screens. The app now recognizes local subnets and assigns `http://`, reserving `https://` for Cloudflare tunnels and web domains.
+* **Auto-Port Completion**: If a local IP is entered without a port, default port `:8765` is appended automatically.
+* **One-Tap Quick Presets on Connect Screen**: Added 3 quick-fill preset chips:
+  - `💻 Emulator (LDPlayer / Nox)`: Inserts `http://10.0.2.2:8765` (standard host loopback).
+  - `📶 Wi-Fi Local (PC)`: Inserts `http://192.168.0.6:8765`.
+  - `🌐 Cloudflare Tunnel`: Inserts `https://` for pasting remote tunnels.
+* **Clipboard Paste Shortcut**: Added dedicated "📋 Paste" button to paste copied links straight from the device or emulator clipboard with one tap.
+* **Detailed Error Diagnostics**: The error view now displays the exact URL attempted, failure reason, and error codes returned by the WebView engine.
+* **Legacy WebView Compatibility**: Added dual error interception (modern `WebResourceRequest` and legacy `onReceivedError(int, String, String)`) ensuring status screens appear properly across Android 7 through 14.
+
+---
+
 ## [2.4.0] - 2026-10-25 (Build 2418)
 
 ### Added / UI Enhancements
