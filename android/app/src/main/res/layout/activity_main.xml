@@ -27,6 +27,110 @@
         android:progressTint="@color/accent_blue"
         android:visibility="gone" />
 
+    <!-- Tela Inicial de Conexão / Configuração de Servidor -->
+    <ScrollView
+        android:id="@+id/connectView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bg_oled"
+        android:fillViewport="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="28dp">
+
+            <ImageView
+                android:layout_width="84dp"
+                android:layout_height="84dp"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/app_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/app_name"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Mobile Companion para Antigravity IDE"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <!-- Card de Conexão -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:background="@drawable/bg_card_rounded"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Endereço do Servidor"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Cole o link HTTPS do Cloudflare (para 4G/5G) ou o IP local (para Wi-Fi):"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/editServerUrlInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_input_rounded"
+                    android:hint="https://xxxx.trycloudflare.com"
+                    android:inputType="textUri"
+                    android:maxLines="1"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="#64687A"
+                    android:textSize="13.5sp" />
+
+                <Button
+                    android:id="@+id/btnConnectServer"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="18dp"
+                    android:backgroundTint="@color/accent_blue"
+                    android:text="Conectar ao PC"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="Dica: O link é exibido no terminal do computador ao executar Start_Server.bat."
+                android:textColor="#64687A"
+                android:textSize="11.5sp" />
+
+        </LinearLayout>
+    </ScrollView>
+
     <!-- Tela de Erro / Desconectado -->
     <LinearLayout
         android:id="@+id/errorView"

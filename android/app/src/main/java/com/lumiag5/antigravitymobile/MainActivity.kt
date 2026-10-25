@@ -9,21 +9,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.webkit.PermissionRequest
-import android.webkit.WebChromeClient
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import android.widget.EditText
+import android.webkit.*
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -42,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Configuração de tela inteira OLED True Black (#000000)
+        // OLED True Black
         WindowCompat.setDecorFitsSystemWindows(window, true)
         window.statusBarColor = Color.BLACK
         window.navigationBarColor = Color.BLACK
@@ -58,15 +50,19 @@ class MainActivity : AppCompatActivity() {
 
         val savedUrl = prefs.getString(KEY_SERVER_URL, null)
         if (savedUrl.isNullOrBlank()) {
-            showServerUrlDialog(isFirstRun = true)
+            showConnectScreen()
         } else {
             loadServerUrl(savedUrl)
         }
 
-        // Controle do botão Voltar do Android
+        // Back press handling
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (binding.webView.canGoBack()) {
+                val hasSaved = !prefs.getString(KEY_SERVER_URL, "").isNullOrBlank()
+                if (binding.connectView.visibility == View.VISIBLE && hasSaved) {
+                    binding.connectView.visibility = View.GONE
+                    binding.swipeRefresh.visibility = View.VISIBLE
+                } else if (binding.webView.canGoBack()) {
                     binding.webView.goBack()
                 } else {
                     isEnabled = false
@@ -86,6 +82,8 @@ class MainActivity : AppCompatActivity() {
         settings.loadWithOverviewMode = true
         settings.cacheMode = WebSettings.LOAD_DEFAULT
         settings.mediaPlaybackRequiresUserGesture = false
+        settings.allowContentAccess = true
+        settings.allowFileAccess = true
         settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 
         binding.webView.setBackgroundColor(Color.BLACK)
@@ -102,7 +100,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onPermissionRequest(request: PermissionRequest?) {
-                // Concede permissões para notificações push e áudio web
                 request?.grant(request.resources)
             }
         }
@@ -125,33 +122,58 @@ class MainActivity : AppCompatActivity() {
                     binding.swipeRefresh.isRefreshing = false
                 }
             }
+
+            override fun onReceivedSslError(
+                view: WebView?,
+                handler: SslErrorHandler?,
+                error: SslError?
+            ) {
+                // Permite certificados de túneis Cloudflare ou IPs locais sem bloquear
+                handler?.proceed()
+            }
         }
     }
 
     private fun setupListeners() {
-        // Puxe para recarregar
         binding.swipeRefresh.setColorSchemeColors(Color.parseColor("#3B82F6"))
         binding.swipeRefresh.setProgressBackgroundColorSchemeColor(Color.parseColor("#161720"))
         binding.swipeRefresh.setOnRefreshListener {
             binding.webView.reload()
         }
 
-        // Botão Tentar Novamente na tela de erro
         binding.btnRetry.setOnClickListener {
             binding.errorView.visibility = View.GONE
             binding.webView.reload()
         }
 
-        // Botão Trocar Servidor
         binding.btnChangeServer.setOnClickListener {
-            showServerUrlDialog(isFirstRun = false)
+            showConnectScreen()
         }
 
-        // Toque longo com 2 dedos para abrir configuração de servidor
+        binding.btnConnectServer.setOnClickListener {
+            val entered = binding.editServerUrlInput.text.toString().trim()
+            if (entered.isNotBlank()) {
+                prefs.edit().putString(KEY_SERVER_URL, entered).apply()
+                loadServerUrl(entered)
+                Toast.makeText(this, "Conectando ao servidor...", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Por favor, digite a URL do servidor.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Toque longo na tela abre a tela de troca de servidor
         binding.webView.setOnLongClickListener {
-            showServerUrlDialog(isFirstRun = false)
+            showConnectScreen()
             true
         }
+    }
+
+    private fun showConnectScreen() {
+        val current = prefs.getString(KEY_SERVER_URL, "") ?: ""
+        binding.editServerUrlInput.setText(current)
+        binding.swipeRefresh.visibility = View.GONE
+        binding.errorView.visibility = View.GONE
+        binding.connectView.visibility = View.VISIBLE
     }
 
     private fun loadServerUrl(url: String) {
@@ -159,42 +181,10 @@ class MainActivity : AppCompatActivity() {
         if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
             cleanUrl = "https://$cleanUrl"
         }
+        binding.connectView.visibility = View.GONE
         binding.errorView.visibility = View.GONE
+        binding.swipeRefresh.visibility = View.VISIBLE
         binding.webView.loadUrl(cleanUrl)
-    }
-
-    private fun showServerUrlDialog(isFirstRun: Boolean) {
-        val currentUrl = prefs.getString(KEY_SERVER_URL, "") ?: ""
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_server_url, null)
-        val editUrl = dialogView.findViewById<EditText>(R.id.editServerUrl)
-        editUrl.setText(currentUrl)
-        if (currentUrl.isEmpty()) {
-            editUrl.setHint("http://192.168.0.6:8765")
-        }
-
-        val builder = AlertDialog.Builder(this)
-            .setTitle(getString(R.string.app_name))
-            .setView(dialogView)
-            .setPositiveButton(getString(R.string.connect)) { _, _ ->
-                val enteredUrl = editUrl.text.toString().trim()
-                if (enteredUrl.isNotBlank()) {
-                    prefs.edit().putString(KEY_SERVER_URL, enteredUrl).apply()
-                    loadServerUrl(enteredUrl)
-                    Toast.makeText(this, "Servidor salvo com sucesso!", Toast.LENGTH_SHORT).show()
-                } else if (isFirstRun) {
-                    // Fallback para IP local padrão
-                    val defaultUrl = "http://192.168.0.6:8765"
-                    prefs.edit().putString(KEY_SERVER_URL, defaultUrl).apply()
-                    loadServerUrl(defaultUrl)
-                }
-            }
-
-        if (!isFirstRun) {
-            builder.setNegativeButton(getString(R.string.cancel), null)
-        }
-
-        builder.setCancelable(!isFirstRun)
-        builder.show()
     }
 
     private fun requestNotificationPermission() {
