@@ -4,163 +4,144 @@
   <b>Português</b> &bull; <a href="README.en.md">English</a> &bull; <a href="README.es.md">Español</a>
 </p>
 
-Companion leve para monitorar o **Antigravity IDE** pelo celular em tempo real. Acompanhe o progresso das tarefas da IA, receba alertas sonoros/visuais quando o código terminar de rodar e visualize o consumo oficial da sua cota do Gemini sem precisar instalar nenhum app da Play Store ou App Store.
+<p align="center">
+  <img src="https://img.shields.io/badge/versão-v2.4.2-blue?style=flat-square" alt="Versão v2.4.2">
+  <img src="https://img.shields.io/badge/plataforma-Windows_%7C_Android-success?style=flat-square" alt="Plataformas">
+  <img src="https://img.shields.io/badge/android-7.0%2B_%28API_24%2B%29-green?style=flat-square" alt="Android 7+">
+  <img src="https://img.shields.io/badge/licença-MIT-yellow?style=flat-square" alt="Licença MIT">
+  <img src="https://img.shields.io/badge/build-GitHub_Actions_Passing-brightgreen?style=flat-square" alt="GitHub Actions">
+</p>
+
+Companion mobile para transformar seu celular em uma **segunda tela inteligente** para o **Antigravity IDE** no PC. Monitore o progresso do chat de código em tempo real, receba alertas sensoriais (som personalizável, flash e vibração) ao término de cada tarefa, acompanhe o consumo oficial das suas cotas de IA (Gemini, Claude Sonnet e GPT) e conecte-se com um toque pelo **aplicativo Android nativo** ou navegador.
 
 ---
 
-## Motivação
+## 🎯 Por que o Antigravity Mobile?
 
-Quando você coloca o Antigravity para rodar tarefas longas — como refatorações pesadas, geração de múltiplos componentes ou suítes de testes —, você geralmente sai de perto do PC para fazer outra coisa. O problema é que não dá pra saber se a IA terminou, se ela parou pedindo confirmação de terminal ou se a cota de 5 horas estourou. Ficar levantando a cada cinco minutos ou dando Alt-Tab para conferir quebra o foco.
+Quando você coloca o Antigravity IDE para rodar tarefas longas — como refatorações de código, suítes completas de testes, depurações complexas ou criação de múltiplos módulos —, é natural se afastar da mesa de trabalho. O desafio é saber:
+- Se o agente de IA terminou de programar ou se parou aguardando aprovação de terminal.
+- Em qual modelo o assistente está operando (Gemini, Claude 3.5 Sonnet ou GPT-4o).
+- Quanto resta da sua cota de 5 horas e semanal da IA.
 
-O **Antigravity Mobile** resolve isso com um pequeno servidor local (daemon em Python) que roda no PC e se conecta ao seu celular via rede local (Wi-Fi) ou túnel HTTPS seguro. Ele entrega uma interface web escura, limpa e pensada para telas mobile, avisando quando o trabalho estiver pronto.
-
----
-
-## Funcionalidades
-
-### Chat em Tempo Real & Filtragem de Ruído
-* **Foco no que interessa**: O Antigravity gera centenas de linhas de logs de ferramentas internas e saídas de terminal. O companion filtra tudo isso e exibe apenas o prompt enviado e a conclusão final do assistente.
-* **Markdown & Código**: Renderização com blocos de código formatados, tabelas e listas com tipografia idêntica à do IDE (Inter e JetBrains Mono).
-* **Auto-scroll**: Acompanha novas mensagens automaticamente, pausando caso você role para cima para ler histórico anterior.
-
-### Troca Automática de Projetos e Conversas
-* **Detecção em tempo real**: O servidor monitora os locks de foco (`presence/`), o banco SQLite e metadados do IDE. Quando você clica em outra conversa ou projeto no PC, a tela do celular muda imediatamente (`📁 Projeto • Título da Conversa`).
-* **Vigilância em background**: Se você trocar de conversa no PC enquanto uma tarefa ainda estiver processando (*Working...*), o servidor continua acompanhando a tarefa anterior em segundo plano e notifica assim que ela concluir.
-
-### Alertas de Conclusão de Tarefa
-Assim que a IA encerra o turno de resposta:
-* **Flash na tela**: 2 piscadas em verde esmeralda com intervalo de 1 segundo (visível mesmo com o celular apoiado na mesa).
-* **Aviso sonoro**: Tom sintetizado via Web Audio API com volume calibrado (+dB) para ser audível em ambientes com ruído.
-* **Vibração**: Padrão tátil duplo para celulares em modo silencioso.
-* **Notificações do sistema**: Suporte a Web Notifications nativas do navegador com a tela bloqueada.
-
-### Acompanhamento Oficial de Cotas (RPC Interna)
-* **Sem estimativas de tokens**: Conecta diretamente no endpoint RPC local do Antigravity (`LanguageServerService/RetrieveUserQuotaSummary`) descobrindo dinamicamente a porta e o token CSRF.
-* **Métricas reais**: Barras de progresso com porcentagem de consumo da cota de 5 Horas e da cota Semanal, tempo exato de renovação e modelo ativo (ex: *Gemini 3.8 Flash High*).
-
-### Modo OLED Black
-* Fundo preto absoluto (`#000000`) para economia de energia em telas AMOLED/OLED.
-* Balão de mensagem do usuário adaptado para cinza escuro de alto contraste, evitando cansaço visual em ambientes escuros.
-
-### Segurança com PIN & Sessão de 24h
-* Ao abrir no celular pela primeira vez, o terminal do PC exibe um PIN aleatório de 4 dígitos.
-* Após parear, a sessão fica salva em cache local por 24 horas — você pode recarregar a página ou trocar de aba sem precisar digitar o PIN novamente.
-* Proteção anti-spam no daemon para bloquear tentativas incorretas.
-
-### Túnel HTTPS Automático (Cloudflare)
-* Já vem com o binário standalone do Cloudflare Tunnel embutido.
-* Gera automaticamente uma URL pública segura (`https://*.trycloudflare.com`), permitindo que as notificações do navegador funcionem no Android/Chrome sem bloqueios de segurança do protocolo HTTP.
-
-### Multi-idioma
-* Interface disponível em **Português (Brasil)**, **English** e **Español**.
-* A troca pode ser feita pelo terminal do PC pressionando a tecla `L`.
+O **Antigravity Mobile** resolve tudo isso conectando o PC diretamente ao seu celular através de uma conexão Wi-Fi local ou por um **túnel HTTPS global (Cloudflare)** seguro e sem necessidade de abrir portas no roteador.
 
 ---
 
-## Como Rodar
+## ⚡ Principais Funcionalidades
 
-### Pré-requisitos
-* **Windows 10 ou 11** com o Antigravity IDE em execução.
-* **Python 3.10 ou superior** instalado e adicionado ao PATH.
-* Celular conectado no mesmo Wi-Fi do computador (ou usando a URL HTTPS gerada).
+### 💬 Chat em Tempo Real com Feed Filtrado
+* **Foco no que interessa**: O Antigravity IDE gera centenas de linhas de logs internos de execução e chamadas de ferramentas. O companion filtra os ruídos e exibe apenas o prompt do desenvolvedor e a conclusão final do assistente.
+* **Renderização Markdown & Código**: Realce de sintaxe em blocos de código, tabelas e tipografia alinhada à do IDE (fontes Inter e JetBrains Mono).
+* **Auto-Scroll Inteligente**: Acompanha o fluxo das respostas automaticamente, pausando a rolagem caso você suba a tela para ler o histórico anterior.
 
-### Instalação Rápida
+### 🔔 Alertas Sensoriais de Conclusão de Tarefa
+* **Duplo Flash Visual**: A tela do celular pisca duas vezes em verde esmeralda com intervalo de 1 segundo (visível mesmo com o celular repousado sobre a mesa).
+* **Sintetizador de Toques (Web Audio API)**: Escolha entre 4 estilos sonoros (*Chime Moderno*, *Sino Zen*, *Pulso Sci-Fi* e *Bip Clássico*) com slider de controle de volume (0% a 100%) e botão de teste imediato.
+* **Vibração Tátil**: Padrão de vibração dupla para ambientes onde o celular deve permanecer em modo silencioso.
+* **Notificações Push**: Suporte a Web Notifications nativas mesmo com o aparelho com tela bloqueada.
 
-1. Clone o repositório:
+### 🧠 Detecção em Tempo Real de Modelos de IA
+* **Gemini, Claude e GPT**: O servidor monitora em tempo real a comutação de modelos na conversa do IDE através da decodificação de tags binárias Protobuf (campo 28 `\xe2\x01` para Claude/GPT e campo 19 `\x9a\x01` para Gemini), sem exigir reinicialização do daemon.
+
+### 📊 Acompanhamento Oficial de Cotas (RPC Interna)
+* **Métricas Reais sem Estimativas**: Conexão direta com o serviço RPC interno do Antigravity (`LanguageServerService/RetrieveUserQuotaSummary`).
+* **Comutação Dinâmica de Cotas**: Alterna automaticamente entre as cotas dos grupos `Gemini Models` e `Claude and GPT models` conforme a família do modelo em execução no instante exato.
+* **Barras de Uso**: Exibe o consumo percentual da cota de 5 Horas e da cota Semanal, com indicação do tempo para renovação.
+
+### 📶 Medidor de Latência em Tempo Real (Ping)
+* **Badge Dinâmico**: Indicador visual colorido ao lado do menu com round-trip em milissegundos via WebSocket:
+  * 🟢 **Verde**: Latência excelente (<130ms)
+  * 🟡 **Amarelo**: Latência intermediária (130ms a 320ms)
+  * 🔴 **Vermelho**: Conexão lenta (>320ms)
+
+### 📜 Histórico de Conclusões de Tarefas (Log)
+* Modal retrátil com registro das tarefas finalizadas pelo agente, contendo o projeto, título da tarefa, modelo de IA utilizado e horário exato de término.
+
+### 📱 Aplicativo Nativo Android (APK Kotlin)
+Disponível em pacote `.apk` com integração profunda ao sistema:
+* **Modo OLED True Black (`#000000`)**: Máxima economia de bateria em telas AMOLED e conforto visual.
+* **Logout Automático ao Fechar o App**: Ao fechar o app, a sessão é pausada, garantindo privacidade.
+* **▶ Voltar à Sessão (Sem Novo PIN)**: Se o servidor estiver ativo no PC, um único toque reconecta ao dashboard mantendo a autorização válida por 24 horas.
+* **📷 Entrar com QR Code via Câmera (ZXing)**: Scanner nativo de câmera integrado para ler o QR Code do terminal do PC com PIN dinâmico embutido (`?pin=XXXX`), liberando o acesso instantaneamente sem necessidade de digitação.
+* **⚡ Nova Sessão**: Atalho para limpar tokens anteriores e iniciar novo pareamento.
+* **CI/CD Automatizado**: O APK é compilado na nuvem via **GitHub Actions** a cada versão. Veja o [Changelog exclusivo do APK](android/CHANGELOG.md).
+
+---
+
+## 🛠️ Arquitetura do Projeto
+
+```text
+antigravity-mobile/
+├── .github/workflows/
+│   └── build-apk.yml          # CI/CD: Compilação automatizada do APK na nuvem
+├── android/                   # Projeto Nativo Android (Kotlin / Gradle)
+│   ├── app/src/main/
+│   │   ├── java/.../MainActivity.kt  # Gerenciador de Sessão, WebView e ZXing Scanner
+│   │   ├── res/layout/activity_main.xml  # Layout OLED True Black
+│   │   └── AndroidManifest.xml
+│   └── CHANGELOG.md           # Histórico exclusivo de versões do APK
+├── desktop-bridge/            # Daemon Local para Windows (Python / FastAPI)
+│   ├── Start_Server.bat       # Inicializador em 1 clique para Windows
+│   ├── run.py                 # CLI com ASCII QR Code e atalhos de teclado
+│   ├── server.py              # Servidor FastAPI e WebSockets (/ws)
+│   ├── auth.py                # Segurança com PIN de 4 dígitos e cache de 24h
+│   ├── monitor.py             # Parser Protobuf e monitoramento em segundo plano
+│   ├── antigravity_api.py     # Cliente RPC para leitura das cotas do IDE
+│   ├── tunnel.py              # Gerenciador de túneis Cloudflare
+│   ├── language_manager.py    # Internacionalização (pt, en, es)
+│   └── static/                # Interface Mobile PWA (HTML5, CSS, JS, Web Audio)
+│       ├── index.html         # Painel completo do companion
+│       └── manifest.json      # Especificações oficiais PWA
+├── CHANGELOG.md               # Changelog geral do projeto
+├── LICENSE                    # Licença MIT (Copyright © 2026 Dev LumiaG5)
+└── TUTORIAL.txt               # Guia de conexão passo a passo
+```
+
+---
+
+## 🚀 Como Executar
+
+### 1. No Computador (PC)
+1. Certifique-se de ter o **Python 3.10+** instalado no Windows.
+2. Clone o repositório ou baixe o código:
    ```bash
-   git clone https://github.com/LumiaG5/antigravity-mobile.git
-   cd antigravity-mobile
+   git clone https://github.com/lumiag5/antigravitymb.git
+   cd antigravitymb
    ```
-
-2. Inicie o servidor:
-   * Dê dois cliques em `antrigavitymb/Start_Server.bat`; **OU**
-   * Pelo terminal:
-     ```bash
-     cd antrigavitymb/desktop-bridge
-     pip install -r requirements.txt
-     python run.py
-     ```
-
-3. Conecte pelo celular:
-   O terminal exibirá os endereços disponíveis:
-   ```text
-   ====================================================================
-           [*] ANTIGRAVITY MOBILE - SERVIDOR DESKTOP BRIDGE
-                    Desenvolvido por Dev LumiaG5
-   ====================================================================
-    * PC Local:              http://localhost:8765
-    * Mobile (Wi-Fi):        http://192.168.0.X:8765
-    * Mobile (HTTPS Seguro): https://seu-tunnel.trycloudflare.com
-    * Idioma Ativo:          Português (Brasil)
-   --------------------------------------------------------------------
-    PIN DE ACESSO:           [ 4821 ]
-   ====================================================================
-   ```
-   * Abra o link no navegador do celular (recomenda-se o HTTPS para ativar notificações).
-   * Digite o PIN de 4 dígitos mostrado no terminal.
-   * *(Opcional)* No menu do navegador do celular, selecione **"Adicionar à Tela Inicial"** para usar em tela cheia como PWA.
+3. Execute o inicializador:
+   * Dê dois cliques em **`Start_Server.bat`** (dentro da pasta `desktop-bridge/`).
+   *(O script verificará as dependências e abrirá o terminal com o endereço local, o túnel HTTPS e o QR Code em ASCII).*
 
 ---
 
-## Atalhos do Terminal
+### 2. No Celular ou Emulador (Android)
 
-Com o servidor rodando no console do PC, você pode usar os seguintes atalhos:
+#### Opção A: Pelo Aplicativo Nativo (Recomendado)
+1. Acesse as [Releases](https://github.com/lumiag5/antigravitymb/releases) ou os [Artifacts do GitHub Actions](https://github.com/lumiag5/antigravitymb/actions) e baixe o arquivo `AntigravityMobile-Release-APK`.
+2. Instale o arquivo `.apk` no celular ou arraste para dentro do seu emulador (ex: LDPlayer, Nox).
+3. Abra o app:
+   * **Conexão Instantânea**: Clique em **`📷 Entrar com QR Code`** e aponte a câmera para o terminal do PC!
+   * **Voltar ao Trabalho**: Se você fechou o app e o PC continua ligado, clique em **`▶ Voltar à Sessão`** para entrar sem precisar digitar PIN.
 
-| Tecla | Ação |
-| :--- | :--- |
-| **Qualquer tecla** | Gera um novo PIN aleatório para parear outro dispositivo |
-| **`L`** | Alterna o idioma do sistema (Português / Inglês / Espanhol) |
-| **`Ctrl + C`** | Encerra o servidor e fecha o túnel Cloudflare de forma limpa |
-
----
-
-## Estrutura do Repositório
-
-```
-antrigavitymb/
-├── desktop-bridge/            # Daemon em Python (FastAPI + WebSockets)
-│   ├── run.py                 # Menu interativo do terminal e atalhos de teclado
-│   ├── server.py              # Rotas REST e canal de streaming WebSocket
-│   ├── monitor.py             # Parser de transcripts, locks de presença e banco SQLite
-│   ├── auth.py                # Controle de PIN e sessões em cache (TTL 24h)
-│   ├── language_manager.py    # Gerenciador de traduções (pt, en, es)
-│   ├── tunnel.py              # Integração do túnel Cloudflare
-│   ├── antigravity_api.py     # Cliente RPC para leitura das cotas do Antigravity
-│   ├── config.py              # Detecção automática de caminhos no Windows
-│   ├── bin/cloudflared.exe    # Binário do túnel seguro
-│   └── static/
-│       ├── index.html         # Frontend Web Companion (HTML5/CSS3/Vanilla JS)
-│       └── antigravity-icon.png
-├── mobile-app/                # Base em React Native / Expo (caso queira gerar APK)
-├── Start_Server.bat           # Script de inicialização automática no Windows
-└── COMO_CONECTAR.txt          # Instruções rápidas de rede e conexão
-```
+#### Opção B: Pelo Navegador Mobile (PWA)
+1. Conecte o celular na mesma rede Wi-Fi do computador e acesse o endereço `http://[IP_DO_PC]:8765` exibido no terminal.
+2. Ou use o link seguro **`https://*.trycloudflare.com`** exibido no terminal para acessar de qualquer lugar via 4G/5G.
+3. Digite o PIN de 4 dígitos informado no console do PC para liberar o acesso.
 
 ---
 
-## Perguntas Frequentes
+## ⌨️ Comandos do Console do PC
 
-**Preciso compilar o APK para usar no celular?**  
-Não. O Web Companion foi projetado para rodar direto pelo navegador (Chrome, Safari, Firefox, Edge, Opera, Samsung Internet) com suporte a som, vibração e notificações push, sem a burocracia de instalar APKs.
-
-**Funciona no iPhone / iOS?**  
-Sim. No Safari do iOS o dashboard funciona normalmente. Para receber notificações com a tela bloqueada no iOS, adicione a página à Tela de Início.
-
-**O Antigravity precisa estar aberto no PC?**  
-Sim. O daemon monitora os arquivos de trabalho e as APIs locais criadas pelo Antigravity durante a sua sessão de código.
-
-**Como funciona a segurança do túnel HTTPS?**  
-O túnel é gerado temporariamente pela rede da Cloudflare com criptografia ponta a ponta (TLS). Nenhuma porta do seu roteador precisa ser aberta manualmente, e o acesso só é liberado após a validação do PIN de 4 dígitos.
+Durante a execução do `Start_Server.bat`, você pode interagir com o console pelas teclas de atalho:
+* **`P`**: Gera um novo PIN de segurança de 4 dígitos e atualiza o QR Code.
+* **`L`**: Alterna instantaneamente o idioma da interface (Português &harr; English &harr; Español).
+* **`Q`**: Força a leitura imediata das cotas oficiais do modelo.
+* **`Ctrl + C`**: Encerra o servidor e fecha o túnel com segurança.
 
 ---
 
-## Autor
+## 📄 Licença & Autoria
 
-Desenvolvido por **Dev LumiaG5**  
-GitHub: [@LumiaG5](https://github.com/LumiaG5)
+Distribuído sob a licença **MIT**. Consulte o arquivo [LICENSE](LICENSE) para obter mais informações.
 
----
-
-## Licença
-
-Este projeto está sob a licença [MIT](LICENSE.txt). Consulte o arquivo `LICENSE.txt` para mais detalhes.
+Desenvolvido por **Dev LumiaG5** &bull; Copyright &copy; 2026. Todos os direitos reservados.

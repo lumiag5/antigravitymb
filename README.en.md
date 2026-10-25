@@ -4,163 +4,144 @@
   <a href="README.md">Português</a> &bull; <b>English</b> &bull; <a href="README.es.md">Español</a>
 </p>
 
-Lightweight mobile companion monitor for **Antigravity IDE**. Track real-time AI reasoning, receive sensory alerts (sound/flash/vibration) when coding tasks finish, and check your official Gemini quota consumption directly in your phone's browser — no app store installation required.
+<p align="center">
+  <img src="https://img.shields.io/badge/version-v2.4.2-blue?style=flat-square" alt="Version v2.4.2">
+  <img src="https://img.shields.io/badge/platform-Windows_%7C_Android-success?style=flat-square" alt="Platforms">
+  <img src="https://img.shields.io/badge/android-7.0%2B_%28API_24%2B%29-green?style=flat-square" alt="Android 7+">
+  <img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" alt="MIT License">
+  <img src="https://img.shields.io/badge/build-GitHub_Actions_Passing-brightgreen?style=flat-square" alt="GitHub Actions">
+</p>
+
+Mobile companion that turns your smartphone into a **smart second screen** for the **Antigravity IDE** on your PC. Monitor real-time coding progress, receive sensorial alerts (customizable sound tones, screen flashes, and vibrations) upon task completion, track official AI model quotas (Gemini, Claude Sonnet, and GPT), and connect with one tap via the **native Android app** or mobile browser.
 
 ---
 
-## Motivation
+## 🎯 Why Antigravity Mobile?
 
-When you give Antigravity a heavy task — like refactoring a large module, scaffolding multiple components, or running end-to-end tests —, you usually step away from your desk to grab a coffee or relax on the couch. The catch? You have no idea when the agent finishes, whether it's waiting for terminal confirmation, or if your 5-hour quota just hit its limit. Getting up every few minutes or constantly Alt-Tabbing kills your focus.
+When running long agentic tasks in Antigravity IDE — such as massive refactors, complex component generation, test suites, or multi-file debugging —, stepping away from your desk is natural. But keeping track is hard:
+- Did the AI agent finish, or is it waiting for terminal approval?
+- Which model is currently working (Gemini, Claude 3.5 Sonnet, or GPT-4o)?
+- How much of your 5-Hour and Weekly AI quota remains?
 
-**Antigravity Mobile** fixes this with a tiny local daemon (Python) running on your PC that connects to your phone over local Wi-Fi or a secure HTTPS tunnel. It delivers a fast, dark (OLED-friendly) web interface designed for phone screens, letting you know the moment your task is done.
-
----
-
-## Features
-
-### Real-Time Chat & Noise Filtering
-* **Focus on what matters**: Antigravity spits out hundreds of lines of internal tool calls, diffs, and terminal outputs. The companion filters all the noise, showing only the prompt sent and the assistant's final response.
-* **Markdown & Code**: Clean rendering with highlighted code blocks, formatted lists, and tables using IDE-matching typography (Inter and JetBrains Mono).
-* **Smart Auto-Scroll**: Automatically tracks new incoming messages without interrupting if you scroll up to inspect previous output.
-
-### Automatic Project & Conversation Switching
-* **Live Focus Detection**: The server monitors workspace presence locks (`presence/`), SQLite databases, and protobuf metadata. The second you click on another conversation or workspace on your PC, the phone updates instantly (`📁 Project • Conversation Title`).
-* **Background Task Guard**: If you switch to another project on your PC while a task is still executing (*Working...*), the server keeps tracking the original task in the background and notifies you once it completes.
-
-### Completion Alerts
-The moment the AI agent finishes running:
-* **Screen Flash**: 2 emerald flashes spaced 1 second apart (noticeable even with your phone lying on the desk).
-* **Audio Cue**: Subtle chime synthesized directly in the browser via Web Audio API with boosted gain (+dB) for noisy environments.
-* **Haptic Vibration**: Dual vibration pulse for phones in silent mode.
-* **OS Notifications**: Native Web Notifications support with screen locked.
-
-### Official AI Quota Tracking (Internal RPC)
-* **No token guesswork**: Connects directly to Antigravity's local RPC service (`LanguageServerService/RetrieveUserQuotaSummary`), discovering port and CSRF tokens automatically.
-* **Real usage stats**: Visual progress bars showing exact consumption for both **5-Hour** and **Weekly** quotas, precise renewal countdowns, and active model name (e.g., *Gemini 3.8 Flash High*).
-
-### OLED True Black Mode
-* Pure `#000000` background to conserve battery on AMOLED/OLED displays.
-* User message bubble styled in high-contrast dark gray for strain-free reading in dark environments.
-
-### PIN Security & 24h Session Cache
-* A random 4-digit PIN is displayed in the PC terminal on your first connection.
-* Once paired, the session is cached locally for 24 hours — reload or switch tabs without having to type the PIN every time.
-* Built-in brute-force throttle and silent rejection logging on the server daemon.
-
-### Automatic HTTPS Tunnel (Cloudflare)
-* Bundled with the official standalone Cloudflare Tunnel binary.
-* Automatically provisions a temporary secure URL (`https://*.trycloudflare.com`), enabling Web Push Notifications on mobile Chrome/Android without self-signed SSL hassle or router port forwarding.
-
-### Multi-Language Support
-* Available in **Portuguese (Brazil)**, **English**, and **Spanish**.
-* Switch language anytime directly in the PC console by pressing the **`L`** key.
+**Antigravity Mobile** bridges your PC and phone directly over local Wi-Fi or via an automated **global HTTPS tunnel (Cloudflare)** without manual port forwarding or complex networking.
 
 ---
 
-## Quick Start
+## ⚡ Key Features
 
-### Prerequisites
-* **Windows 10 or 11** with Antigravity IDE running.
-* **Python 3.10 or higher** installed and added to PATH.
-* Mobile phone on the same Wi-Fi network (or using the generated HTTPS link).
+### 💬 Real-Time Chat & Noise Filtering
+* **Focus on what matters**: Antigravity generates hundreds of internal tool execution and terminal lines. The companion cleans out internal noise, displaying only user prompts and assistant conclusions.
+* **Markdown & Code Rendering**: Syntax highlighted code blocks, tables, and typography matching the IDE (Inter and JetBrains Mono fonts).
+* **Smart Auto-Scroll**: Tracks incoming streams automatically, pausing when you scroll up to inspect previous responses.
 
-### Running the Server
+### 🔔 Sensory Completion Alerts
+* **Dual Screen Flash**: Two emerald green screen flashes spaced 1 second apart (clearly visible even if your phone is sitting on your desk).
+* **Synthesized Audio Ringtones (Web Audio API)**: Choose between 4 distinct sound signatures (*Modern Chime*, *Zen Bell*, *Sci-Fi Pulse*, and *Classic Beep*) with master volume control (0% to 100%) and instant preview.
+* **Haptic Vibration**: Dual vibration pattern for meetings and quiet environments.
+* **System Push Notifications**: Native Web Notifications delivered to locked screens.
 
-1. Clone the repository:
+### 🧠 Real-Time AI Model Detection
+* **Gemini, Claude, and GPT**: Tracks active model switching on-the-fly mid-conversation via native binary Protobuf wire decoding (field 28 `\xe2\x01` for Claude/GPT and field 19 `\x9a\x01` for Gemini), with zero server reloads needed.
+
+### 📊 Official Quota Tracking (Internal RPC)
+* **Real Metrics, Zero Token Guesses**: Directly connects to Antigravity's local RPC service (`LanguageServerService/RetrieveUserQuotaSummary`).
+* **Dynamic Model Quota Sync**: Automatically toggles quota bars between `Gemini Models` and `Claude and GPT models` according to the family of the active model.
+* **Usage Gauges**: Displays 5-Hour and Weekly consumption percentages alongside precise renewal countdowns.
+
+### 📶 Live Latency Meter (Ping Badge)
+* **Interactive Metric**: Color-coded WebSocket round-trip ping badge next to the menu:
+  * 🟢 **Green**: Excellent latency (<130ms)
+  * 🟡 **Yellow**: Moderate latency (130ms to 320ms)
+  * 🔴 **Red**: Slow connection (>320ms)
+
+### 📜 Task Completion History (Log)
+* Sliding history modal documenting completed agent tasks with project name, conversation title, active AI model, and exact completion timestamp.
+
+### 📱 Native Android App (Kotlin APK)
+Standalone `.apk` package offering deep Android OS integration:
+* **OLED True Black Mode (`#000000`)**: Battery saving on AMOLED screens with true black styling.
+* **Auto-Logout on App Close**: Pauses the active session whenever the app is closed for privacy.
+* **▶ Resume Session (No PIN needed)**: Single tap restores connection to the running PC daemon, backed by a 24-hour cryptographic session cache.
+* **📷 Sign in with QR Code via Native Camera (ZXing)**: Integrated camera scanner reads the PC console's ASCII QR code with embedded PIN (`?pin=XXXX`) for instant zero-touch pairing.
+* **⚡ New Session**: Flushes previous tokens to pair afresh with a new PIN or different server.
+* **Automated Cloud CI/CD**: APK compiled automatically in the cloud on **GitHub Actions**. See the [Android APK Changelog](android/CHANGELOG.md).
+
+---
+
+## 🛠️ Project Architecture
+
+```text
+antigravity-mobile/
+├── .github/workflows/
+│   └── build-apk.yml          # CI/CD: Automated cloud APK compilation
+├── android/                   # Native Android Project (Kotlin / Gradle)
+│   ├── app/src/main/
+│   │   ├── java/.../MainActivity.kt  # Session Manager, WebView, and ZXing Scanner
+│   │   ├── res/layout/activity_main.xml  # OLED True Black layout
+│   │   └── AndroidManifest.xml
+│   └── CHANGELOG.md           # Android APK Version History
+├── desktop-bridge/            # PC Bridge Daemon (Python / FastAPI)
+│   ├── Start_Server.bat       # One-click Windows launcher
+│   ├── run.py                 # CLI with ASCII QR Code and keyboard hotkeys
+│   ├── server.py              # FastAPI server and WebSockets (/ws)
+│   ├── auth.py                # 4-digit PIN security with 24h cache and auto-rotation
+│   ├── monitor.py             # Protobuf wire decoder and background task watcher
+│   ├── antigravity_api.py     # Local RPC client for IDE quota metrics
+│   ├── tunnel.py              # Cloudflare Quick Tunnel manager
+│   ├── language_manager.py    # Trilingual localization (pt, en, es)
+│   └── static/                # Mobile PWA companion (HTML5, CSS, JS, Web Audio)
+│       ├── index.html         # Full companion dashboard
+│       └── manifest.json      # Official PWA specifications
+├── CHANGELOG.md               # Global project changelog
+├── LICENSE                    # MIT License (Copyright © 2026 Dev LumiaG5)
+└── TUTORIAL.txt               # Step-by-step setup guide
+```
+
+---
+
+## 🚀 Quick Start Guide
+
+### 1. On your PC
+1. Ensure **Python 3.10+** is installed on Windows.
+2. Clone the repository:
    ```bash
-   git clone https://github.com/LumiaG5/antigravity-mobile.git
-   cd antigravity-mobile
+   git clone https://github.com/lumiag5/antigravitymb.git
+   cd antigravitymb
    ```
-
-2. Start the server:
-   * Double-click `antrigavitymb/Start_Server.bat`; **OR**
-   * Via terminal:
-     ```bash
-     cd antrigavitymb/desktop-bridge
-     pip install -r requirements.txt
-     python run.py
-     ```
-
-3. Connect with your Phone:
-   The console will display the available connection URLs:
-   ```text
-   ====================================================================
-           [*] ANTIGRAVITY MOBILE - DESKTOP BRIDGE SERVER
-                    Developed by Dev LumiaG5
-   ====================================================================
-    * Local PC:              http://localhost:8765
-    * Mobile (Wi-Fi):        http://192.168.0.X:8765
-    * Mobile (Secure HTTPS): https://your-tunnel.trycloudflare.com
-    * Active Language:       English
-   --------------------------------------------------------------------
-    ACCESS PIN:              [ 4821 ]
-   ====================================================================
-   ```
-   * Open the link in your phone's browser (HTTPS is recommended for notifications).
-   * Enter the 4-digit PIN displayed in the terminal.
-   * *(Optional)* In your mobile browser menu, tap **"Add to Home Screen"** to run full-screen as a PWA.
+3. Run the launcher:
+   * Double-click **`Start_Server.bat`** (located in `desktop-bridge/`).
+   *(The script verifies dependencies and starts the server, displaying your local IP, HTTPS tunnel, and an ASCII QR Code in the terminal).*
 
 ---
 
-## Terminal Shortcuts
+### 2. On your Android Device or Emulator
 
-While the daemon is running in the PC console, you can use these shortcuts:
+#### Option A: Native Android App (Recommended)
+1. Go to [Releases](https://github.com/lumiag5/antigravitymb/releases) or [GitHub Actions Artifacts](https://github.com/lumiag5/antigravitymb/actions) and download `AntigravityMobile-Release-APK`.
+2. Install the `.apk` on your phone or drag it into your emulator (e.g., LDPlayer, Nox).
+3. Open the app:
+   * **Instant Connect**: Tap **`📷 Sign in with QR Code`** and point your camera at the PC terminal!
+   * **Resume Work**: If returning after closing the app, tap **`▶ Resume Session`** to jump right in without typing a PIN.
 
-| Key | Action |
-| :--- | :--- |
-| **Any key** | Generates a new random PIN to pair another device |
-| **`L`** | Cycles the interface language (Portuguese / English / Spanish) |
-| **`Ctrl + C`** | Cleanly terminates the server and shuts down the tunnel |
-
----
-
-## Repository Structure
-
-```
-antrigavitymb/
-├── desktop-bridge/            # Python Daemon (FastAPI + WebSockets)
-│   ├── run.py                 # Interactive terminal runner and keyboard listeners
-│   ├── server.py              # REST routes and WebSocket streaming channels
-│   ├── monitor.py             # Transcript tail-seeking parser, locks, and SQLite inspector
-│   ├── auth.py                # PIN verification and session cache (24h TTL)
-│   ├── language_manager.py    # Multi-language dictionary manager (pt, en, es)
-│   ├── tunnel.py              # Cloudflare Tunnel integration
-│   ├── antigravity_api.py     # Local RPC client for quota retrieval
-│   ├── config.py              # Windows directory auto-discovery
-│   ├── bin/cloudflared.exe    # Standalone secure tunnel binary
-│   └── static/
-│       ├── index.html         # Web Companion Frontend (HTML5 / CSS3 / Vanilla ES6)
-│       └── antigravity-icon.png
-├── mobile-app/                # React Native / Expo base (for standalone APK build)
-├── Start_Server.bat           # 1-click Windows startup script
-└── COMO_CONECTAR.txt          # Quick connection guide in 3 languages
-```
+#### Option B: Mobile Browser (PWA)
+1. Connect your device to the same Wi-Fi and browse to `http://[PC_IP]:8765`.
+2. Or use the secure **`https://*.trycloudflare.com`** URL to monitor remotely over cellular data (4G/5G).
+3. Type the 4-digit PIN printed in the PC terminal to authorize the session.
 
 ---
 
-## FAQ
+## ⌨️ PC Console Hotkeys
 
-**Do I need to build the APK to use this?**  
-No. The Web Companion runs straight in your mobile browser (Chrome, Safari, Firefox, Edge, Opera, Samsung Internet) with full support for sound, vibration, and push alerts without installing an APK.
-
-**Does it work on iPhone / iOS?**  
-Yes. In iOS Safari, the dashboard, alerts, and OLED mode work out of the box. To receive alerts with the screen locked on iOS, choose "Add to Home Screen".
-
-**Does Antigravity need to remain open on PC?**  
-Yes. The daemon monitors the live log files and RPC services generated by Antigravity IDE during your session.
-
-**Is the HTTPS tunnel secure?**  
-Yes. It uses Cloudflare's edge network with end-to-end TLS encryption. No router ports need to be forwarded, and all endpoints are protected by the 4-digit PIN authentication.
+While `Start_Server.bat` is running, control the daemon via keyboard shortcuts:
+* **`P`**: Generates a new 4-digit security PIN and refreshes the QR Code.
+* **`L`**: Instantly switches language (Português &harr; English &harr; Español).
+* **`Q`**: Forces an immediate refresh of official quota metrics.
+* **`Ctrl + C`**: Safely terminates server and shuts down tunnels.
 
 ---
 
-## Author
+## 📄 License & Attribution
 
-Developed by **Dev LumiaG5**  
-GitHub: [@LumiaG5](https://github.com/LumiaG5)
+Distributed under the **MIT** license. See [LICENSE](LICENSE) for details.
 
----
-
-## License
-
-This project is licensed under the [MIT License](LICENSE.txt). See the `LICENSE.txt` file for full legal terms.
+Developed by **Dev LumiaG5** &bull; Copyright &copy; 2026. All rights reserved.

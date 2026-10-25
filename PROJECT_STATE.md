@@ -41,9 +41,10 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
 
 ## DOCUMENTAÇÃO OFICIAL PARA GITHUB
 - **README**:
-  - `README.md`, `README.en.md`, `README.es.md` (Markdown com seletor trilíngue).
+  - `README.md`, `README.en.md`, `README.es.md` (Markdown trilíngue atualizado com v2.4.2, badges e instruções completas de APK e PWA).
 - **CHANGELOG**:
-  - `CHANGELOG.md`, `CHANGELOG.en.md`, `CHANGELOG.es.md` (Markdown no padrão Keep a Changelog cobrindo v2.3.5, v2.3.6 e v2.4.0).
+  - `android/CHANGELOG.md` (Histórico de alterações exclusivo do aplicativo nativo Android APK).
+  - `CHANGELOG.md`, `CHANGELOG.en.md`, `CHANGELOG.es.md` (Changelog geral do ecossistema cobrindo v2.3.5 a v2.4.2).
 - **LICENÇA & TUTORIAL**:
   - `LICENSE` (Licença MIT oficial - Copyright © 2026 Dev LumiaG5).
   - `TUTORIAL.txt` (Guia passo a passo de conexão em pt, en, es).
