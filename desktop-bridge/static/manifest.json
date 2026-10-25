@@ -1,0 +1,18 @@
+{
+  "name": "Antigravity Mobile",
+  "short_name": "Antigravity",
+  "description": "Mobile companion para Antigravity IDE com monitoramento em tempo real, cotas oficiais e alertas sensoriais.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/antigravity-icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

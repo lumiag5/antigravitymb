@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Antigravity Mobile</string>
+    <string name="server_url_prompt">Endereço do Antigravity Desktop Bridge:</string>
+    <string name="server_url_hint">Ex: https://xxxx.trycloudflare.com ou http://192.168.0.6:8765</string>
+    <string name="connect">Conectar</string>
+    <string name="change_server">Trocar Servidor</string>
+    <string name="retry">Tentar Novamente</string>
+    <string name="connection_error_title">Servidor Desconectado</string>
+    <string name="connection_error_msg">Não foi possível conectar ao servidor. Certifique-se de que o computador está ligado e com o Start_Server.bat ativo.</string>
+    <string name="cancel">Cancelar</string>
+</resources>

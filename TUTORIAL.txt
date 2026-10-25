@@ -1,0 +1,121 @@
+================================================================================
+          COMO CONECTAR AO ANTIGRAVITY MOBILE
+          HOW TO CONNECT TO ANTIGRAVITY MOBILE
+          CÓMO CONECTAR A ANTIGRAVITY MOBILE
+                 Desenvolvido por Dev LumiaG5
+================================================================================
+
+--------------------------------------------------------------------------------
+[1] 🇧🇷 PORTUGUÊS (BRASIL) - GUIA PASSO A PASSO
+--------------------------------------------------------------------------------
+
+Para conectar seu celular (ou o celular de um amigo) como tela secundária do
+Antigravity IDE, siga estes passos simples:
+
+0. NO COMPUTADOR (PRIMEIRO PASSO):
+   - Dê dois cliques no arquivo "Start_Server.bat".
+   - O sistema irá verificar o Python e instalar automaticamente todas as
+     dependências necessárias (FastAPI, Uvicorn, etc.) caso ainda não existam.
+   - O terminal abrirá exibindo o endereço IP local do computador.
+
+1. MESMA REDE WI-FI:
+   - Certifique-se de que o computador onde o Antigravity está aberto e o celular
+     estejam conectados na MESMA rede Wi-Fi.
+   - (Caso esteja em redes diferentes ou usando dados móveis 4G/5G, utilize o
+     endereço de túnel público gerado pelo Cloudflare/ngrok).
+
+2. ABRA O ENDEREÇO NO NAVEGADOR DO CELULAR:
+   - No terminal do PC, veja o endereço exibido na linha:
+     * Mobile (Wi-Fi): http://<SEU_IP_LOCAL>:8765
+     (Exemplo: http://192.168.0.6:8765)
+   - Digite esse endereço no navegador do celular (Chrome, Safari, etc.).
+
+3. DIGITE O PIN GERADO NO TERMINAL:
+   - Assim que a página for aberta no celular, o computador irá gerar e exibir
+     automaticamente no terminal a linha:
+     [SEGURANÇA] NOVO PIN DE PAREAMENTO GERADO: [ XXXX ]
+   - Digite esses 4 dígitos no celular e toque em "Desbloquear Acesso".
+
+PRONTO!
+- O acesso é liberado instantaneamente.
+- A sessão fica salva em cache no celular por 24 HORAS.
+- Durante essas 24h, você pode atualizar a página à vontade sem precisar
+  digitar o PIN novamente.
+
+
+--------------------------------------------------------------------------------
+[2] 🇺🇸 ENGLISH - STEP-BY-STEP GUIDE
+--------------------------------------------------------------------------------
+
+To connect your smartphone (or a friend's device) as a companion secondary
+display for the Antigravity IDE, follow these simple steps:
+
+0. ON COMPUTER (FIRST STEP):
+   - Double-click the file "Start_Server.bat".
+   - The system will check Python and automatically install all required
+     dependencies (FastAPI, Uvicorn, etc.) if they are not already installed.
+   - The terminal window will open displaying the computer's local IP address.
+
+1. SAME WI-FI NETWORK:
+   - Make sure both the computer running Antigravity and your mobile phone are
+     connected to the SAME local Wi-Fi network.
+   - (If you are on different networks or using cellular data, use a public
+     tunnel URL generated via Cloudflare or ngrok).
+
+2. OPEN THE ADDRESS IN YOUR MOBILE BROWSER:
+   - In the PC terminal, look at the address shown on the line:
+     * Mobile (Wi-Fi): http://<YOUR_LOCAL_IP>:8765
+     (Example: http://192.168.0.6:8765)
+   - Type this address into your phone's browser (Chrome, Safari, etc.).
+
+3. ENTER THE PIN GENERATED ON THE TERMINAL:
+   - As soon as the page opens on mobile, the computer will automatically
+     generate and display in the terminal:
+     [SECURITY] NEW PAIRING PIN GENERATED: [ XXXX ]
+   - Enter these 4 digits on the mobile screen and tap "Unlock Access".
+
+ALL SET!
+- Access is granted immediately.
+- The session is cached on your device for 24 HOURS.
+- During this 24-hour period, you can refresh the page without needing
+  to re-enter the PIN.
+
+
+--------------------------------------------------------------------------------
+[3] 🇪🇸 ESPAÑOL - GUÍA PASO A PASO
+--------------------------------------------------------------------------------
+
+Para conectar tu teléfono móvil (o el de un amigo) como pantalla secundaria del
+Antigravity IDE, sigue estos sencillos pasos:
+
+0. EN LA COMPUTADORA (PRIMER PASO):
+   - Haga doble clic en el archivo "Start_Server.bat".
+   - El sistema verificará Python e instalará automáticamente todas las
+     dependencias necesarias (FastAPI, Uvicorn, etc.) si aún no están instaladas.
+   - La ventana de la terminal se abrirá mostrando la dirección IP local de la PC.
+
+1. MISMA RED WI-FI:
+   - Asegúrate de que la computadora donde se ejecuta Antigravity y el teléfono
+     móvil estén conectados a la MISMA red Wi-Fi.
+   - (Si estás en redes diferentes o usando datos móviles 4G/5G, utiliza la
+     dirección de túnel generada por Cloudflare o ngrok).
+
+2. ABRE LA DIRECCIÓN EN EL NAVEGADOR DEL MÓVIL:
+   - En la terminal de la PC, revisa la dirección mostrada en la línea:
+     * Móvil (Wi-Fi): http://<TU_IP_LOCAL>:8765
+     (Ejemplo: http://192.168.0.6:8765)
+   - Escribe esta dirección en el navegador del móvil (Chrome, Safari, etc.).
+
+3. INGRESA EL PIN GENERADO EN LA TERMINAL:
+   - Tan pronto como la página se abra en el móvil, la computadora generará y
+     mostrará automáticamente en la terminal:
+     [SEGURIDAD] NUEVO PIN DE EMPAREJAMIENTO GENERADO: [ XXXX ]
+   - Ingresa estos 4 dígitos en la pantalla del móvil y pulsa "Desbloquear Acceso".
+
+¡LISTO!
+- El acceso se desbloquea de inmediato.
+- La sesión se guarda en caché en el dispositivo durante 24 HORAS.
+- Durante estas 24h, puedes recargar la página tantas veces como quieras sin
+  tener que ingresar el PIN nuevamente.
+
+================================================================================

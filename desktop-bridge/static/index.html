@@ -1,0 +1,2823 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2026 Dev LumiaG5. All rights reserved. Licensed under the MIT License. -->
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#111217">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <title>Antigravity Mobile</title>
+    <!-- Favicon Oficial do Antigravity -->
+    <link rel="icon" type="image/png" href="/antigravity-icon.png">
+    <!-- Fontes oficiais do Antigravity (Inter e JetBrains Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #111217;
+            --bg-surface: #17181f;
+            --bg-card: #1c1e27;
+            --border-subtle: #282a36;
+            --text-primary: #eceef4;
+            --text-secondary: #9094a6;
+            --text-muted: #64687a;
+            --accent-brand: #3b82f6;
+            --status-green: #10b981;
+            --status-amber: #f59e0b;
+            --status-red: #ef4444;
+            --code-bg: #13141a;
+        }
+
+        /* Tema OLED True Black (#000000) */
+        body.theme-oled {
+            --bg-base: #000000;
+            --bg-surface: #000000;
+            --bg-card: #050608;
+            --border-subtle: #14161f;
+            --code-bg: #000000;
+        }
+        body.theme-oled header,
+        body.theme-oled footer,
+        body.theme-oled .quota-panel {
+            background-color: #000000 !important;
+            border-color: #12141a !important;
+        }
+        body.theme-oled .quota-card {
+            background-color: #040507 !important;
+            border-color: #12141a !important;
+        }
+        body.theme-oled .bubble-assistant {
+            background-color: #050608 !important;
+            border-color: #14161f !important;
+        }
+        body.theme-oled .bubble-user {
+            background-color: #1a1c22 !important;
+            color: #f1f5f9 !important;
+            border-color: #2e323b !important;
+        }
+        body.theme-oled .bubble code,
+        body.theme-oled .bubble pre {
+            background-color: #000000 !important;
+            border-color: #14161f !important;
+        }
+        body.theme-oled .pin-card,
+        body.theme-oled .tutorial-card {
+            background-color: #030406 !important;
+            border-color: #14161f !important;
+        }
+        body.theme-oled .fab-scroll {
+            background: rgba(10, 11, 15, 0.92) !important;
+            border-color: #222634 !important;
+        }
+
+        html {
+            height: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh;
+            height: 100dvh;
+            min-height: -webkit-fill-available;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-size: 13.5px;
+            letter-spacing: -0.01em;
+            transition: background-color 0.25s ease, color 0.25s ease;
+            touch-action: manipulation;
+        }
+
+        /* Efeito Flash Visual */
+        #flash-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(16, 185, 129, 0.75);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .flash-active {
+            animation: pulse-screen 0.65s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+        @keyframes pulse-screen {
+            0% { opacity: 0; background: #10b981; }
+            15% { opacity: 0.95; background: #10b981; }
+            45% { opacity: 0.65; background: #059669; }
+            100% { opacity: 0; background: #10b981; }
+        }
+
+        /* Cabeçalho */
+        header {
+            background: var(--bg-surface);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            flex: 1;
+        }
+        .brand-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            gap: 1px;
+        }
+        .brand-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            flex-wrap: wrap;
+        }
+        .brand-icon {
+            font-size: 20px;
+            color: #60a5fa;
+            line-height: 1;
+        }
+        .brand-title {
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            white-space: nowrap;
+        }
+        .project-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 1px 7px;
+            border-radius: 12px;
+            font-size: 10.5px;
+            font-weight: 500;
+            color: #94a3b8;
+            max-width: 130px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .project-badge .project-icon {
+            font-size: 10px;
+            flex-shrink: 0;
+            opacity: 0.85;
+        }
+        .project-badge #project-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        @media (min-width: 500px) {
+            .project-badge {
+                max-width: 220px;
+            }
+        }
+        .model-badge {
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: #20222d;
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid var(--border-subtle);
+            font-family: 'JetBrains Mono', monospace;
+            display: inline-block;
+            margin-top: 2px;
+            align-self: flex-start;
+        }
+
+        /* Status Badge com Ponto Verde Brilhante */
+        .status-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+        .app-version {
+            font-size: 9px;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.03em;
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.65;
+            user-select: none;
+            padding-right: 2px;
+        }
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            background: #1f212a;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+        /* Conectando */
+        .status-pill.state-connecting,
+        .status-pill.CONNECTING,
+        .status-pill.CONECTANDO {
+            background: rgba(100, 104, 122, 0.15) !important;
+            border-color: rgba(100, 104, 122, 0.35) !important;
+            color: #94a3b8 !important;
+        }
+        .status-pill.state-connecting .status-dot,
+        .status-pill.CONNECTING .status-dot,
+        .status-pill.CONECTANDO .status-dot {
+            background: #94a3b8 !important;
+            animation: pulse-dot 1s infinite alternate;
+        }
+        /* Verde quando CONECTADO ou CONCLUÍDO / DONE / COMPLETADO */
+        .status-pill.state-connected,
+        .status-pill.state-done,
+        .status-pill.CONNECTED,
+        .status-pill.CONECTADO,
+        .status-pill.DONE,
+        .status-pill.CONCLUIDO,
+        .status-pill.CONCLUÍDO,
+        .status-pill.COMPLETADO {
+            background: rgba(16, 185, 129, 0.16) !important;
+            border-color: rgba(16, 185, 129, 0.45) !important;
+            color: #34d399 !important;
+        }
+        .status-pill.state-connected .status-dot,
+        .status-pill.state-done .status-dot,
+        .status-pill.CONNECTED .status-dot,
+        .status-pill.CONECTADO .status-dot,
+        .status-pill.DONE .status-dot,
+        .status-pill.CONCLUIDO .status-dot,
+        .status-pill.CONCLUÍDO .status-dot,
+        .status-pill.COMPLETADO .status-dot {
+            background: #10b981 !important;
+            box-shadow: 0 0 10px #10b981 !important;
+        }
+        /* Âmbar quando PROCESSANDO / PROCESSING / PROCESANDO */
+        .status-pill.state-processing,
+        .status-pill.PROCESSING,
+        .status-pill.PROCESSANDO,
+        .status-pill.PROCESANDO {
+            background: rgba(245, 158, 11, 0.15) !important;
+            border-color: rgba(245, 158, 11, 0.4) !important;
+            color: #fbbf24 !important;
+        }
+        .status-pill.state-processing .status-dot,
+        .status-pill.PROCESSING .status-dot,
+        .status-pill.PROCESSANDO .status-dot,
+        .status-pill.PROCESANDO .status-dot {
+            background: #f59e0b !important;
+            box-shadow: 0 0 8px #f59e0b !important;
+            animation: pulse-dot 1s infinite alternate;
+        }
+        /* Vermelho quando DESCONECTADO / DISCONNECTED */
+        .status-pill.state-disconnected,
+        .status-pill.DISCONNECTED,
+        .status-pill.DESCONECTADO {
+            background: rgba(239, 68, 68, 0.12) !important;
+            border-color: rgba(239, 68, 68, 0.35) !important;
+            color: #f87171 !important;
+        }
+        .status-pill.state-disconnected .status-dot,
+        .status-pill.DISCONNECTED .status-dot,
+        .status-pill.DESCONECTADO .status-dot {
+            background: #ef4444 !important;
+        }
+        @keyframes pulse-dot {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
+
+        /* Seção de Cotas */
+        .quota-panel {
+            background: var(--bg-surface);
+            padding: 10px 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+        }
+        .quota-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 9px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .quota-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .quota-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .quota-val {
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--status-green);
+        }
+        .track {
+            height: 5px;
+            background: #262936;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .fill {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--status-green);
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s;
+        }
+        .quota-desc {
+            font-size: 9.5px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Feed do Chat */
+        #chat-feed {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .msg-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 94%;
+        }
+        .msg-user {
+            align-self: flex-end;
+        }
+        .msg-assistant {
+            align-self: flex-start;
+            max-width: 98%;
+        }
+
+        .msg-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 0 4px;
+            font-weight: 500;
+        }
+
+        .bubble {
+            border-radius: 10px;
+            padding: 12px 14px;
+            line-height: 1.55;
+            font-size: 13.5px;
+            word-break: break-word;
+        }
+        .bubble-user {
+            background: #1e3568;
+            color: #ffffff;
+            border: 1px solid #284c96;
+            border-bottom-right-radius: 3px;
+        }
+        .bubble-assistant {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            border-bottom-left-radius: 3px;
+        }
+
+        /* Estilos Markdown */
+        .bubble h1, .bubble h2, .bubble h3, .bubble h4 {
+            font-weight: 700;
+            color: #ffffff;
+            margin: 12px 0 6px 0;
+            letter-spacing: -0.015em;
+        }
+        .bubble h1 { font-size: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 4px; }
+        .bubble h2 { font-size: 14.5px; }
+        .bubble h3 { font-size: 13.5px; }
+        .bubble p { margin-bottom: 8px; }
+        .bubble p:last-child { margin-bottom: 0; }
+        .bubble strong { font-weight: 700; color: #ffffff; }
+        .bubble em { font-style: italic; color: #cbd5e1; }
+        .bubble ul, .bubble ol {
+            padding-left: 18px;
+            margin: 6px 0 10px 0;
+        }
+        .bubble li {
+            margin-bottom: 4px;
+            line-height: 1.5;
+        }
+        .bubble blockquote {
+            border-left: 3px solid var(--accent-brand);
+            padding-left: 10px;
+            color: var(--text-secondary);
+            margin: 8px 0;
+            font-style: italic;
+        }
+        .bubble code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: var(--code-bg);
+            padding: 2px 5px;
+            border-radius: 4px;
+            border: 1px solid #252834;
+            color: #67e8f9;
+        }
+        .bubble pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 10px 12px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .bubble pre code {
+            background: transparent;
+            border: none;
+            padding: 0;
+            color: #e2e8f0;
+            display: block;
+            line-height: 1.45;
+        }
+
+        /* Botão FAB de Scroll Rápido (Ir para o Fim) */
+        .fab-scroll {
+            position: fixed;
+            right: 18px;
+            bottom: 62px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(23, 24, 31, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            cursor: pointer;
+            z-index: 80;
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, background 0.2s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .fab-scroll:active {
+            transform: scale(0.92);
+        }
+        .fab-scroll.hidden {
+            opacity: 0;
+            transform: translateY(12px) scale(0.85);
+            pointer-events: none;
+        }
+        .fab-scroll .fab-arrow {
+            font-size: 18px;
+            line-height: 1;
+            font-weight: bold;
+            transform: translateY(1px);
+            transition: transform 0.2s ease;
+        }
+        .fab-scroll:hover .fab-arrow {
+            transform: translateY(3px);
+        }
+        .unread-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            border: 2px solid var(--bg-surface);
+            font-family: 'JetBrains Mono', monospace;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.5);
+            animation: badge-pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .unread-badge.hidden {
+            display: none;
+        }
+        @keyframes badge-pop {
+            0% { transform: scale(0.5); }
+            100% { transform: scale(1); }
+        }
+
+        /* Toast Notifier Flutuante */
+        #toast-notification {
+            position: fixed;
+            top: 68px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(23, 24, 31, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-subtle);
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+            z-index: 9998;
+            white-space: nowrap;
+        }
+        #toast-notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Rodapé Modernizado Responsivo & Anti-Corte */
+        footer {
+            background: var(--bg-surface);
+            padding: 10px 16px;
+            padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 40;
+            gap: 10px;
+        }
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .footer-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .latency-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(23, 24, 31, 0.85);
+            border: 1px solid var(--border-subtle);
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.25s ease;
+            user-select: none;
+            min-height: 28px;
+            box-sizing: border-box;
+        }
+        .latency-badge.hidden {
+            display: none !important;
+        }
+        .latency-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .latency-good .latency-dot {
+            background: #10b981;
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
+        }
+        .latency-good {
+            color: #34d399;
+        }
+        .latency-medium .latency-dot {
+            background: #f59e0b;
+            box-shadow: 0 0 6px rgba(245, 158, 11, 0.7);
+        }
+        .latency-medium {
+            color: #fbbf24;
+        }
+        .latency-bad .latency-dot {
+            background: #ef4444;
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.7);
+        }
+        .latency-bad {
+            color: #f87171;
+        }
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            min-height: 32px;
+            touch-action: manipulation;
+        }
+        .btn-pill {
+            background: #20222d;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            padding: 6px 11px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.18s ease;
+            user-select: none;
+            white-space: nowrap;
+            touch-action: manipulation;
+            min-height: 32px;
+        }
+        .btn-pill:hover {
+            color: var(--text-primary);
+            border-color: #3b4255;
+        }
+        .btn-pill:active {
+            transform: scale(0.95);
+        }
+        .btn-pill.active {
+            background: #1e293b;
+            border-color: #3b82f6;
+            color: #60a5fa;
+        }
+        .btn-pill.active-green {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #34d399;
+        }
+        .btn-pill.muted {
+            opacity: 0.6;
+            color: var(--text-muted);
+            border-color: var(--border-subtle);
+            background: transparent;
+        }
+
+        .empty-state {
+            margin: auto;
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 32px; margin-bottom: 10px; }
+        .empty-title { font-weight: 600; font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
+        .empty-sub { font-size: 12px; }
+        .brand-logo {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        /* TELA DE AUTENTICAÇÃO / PIN DE SEGURANÇA */
+        .pin-screen {
+            position: fixed;
+            inset: 0;
+            background: #0d0e13;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        .pin-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .pin-card {
+            background: #161720;
+            border: 1px solid #272a38;
+            border-radius: 20px;
+            padding: 32px 24px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.65);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .pin-logo-wrapper {
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+            background: #1d1f2b;
+            border: 1px solid #2f3244;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        .pin-logo {
+            width: 46px;
+            height: 46px;
+            object-fit: contain;
+        }
+        .pin-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+        .pin-badge {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: #60a5fa;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 2px 10px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+        .pin-instruction {
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 22px;
+            font-weight: 400;
+        }
+        .pin-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+        .pin-box {
+            width: 52px;
+            height: 60px;
+            border-radius: 12px;
+            background: #111217;
+            border: 1.5px solid #2d3040;
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .pin-box:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+            background: #181a24;
+        }
+        .pin-error {
+            min-height: 22px;
+            font-size: 12px;
+            color: #f87171;
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+        .shake {
+            animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+            40%, 60% { transform: translate3d(3px, 0, 0); }
+        }
+        .btn-unlock {
+            width: 100%;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 13px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s ease;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+        .btn-unlock:hover { background: #1d4ed8; }
+        .btn-unlock:active { transform: scale(0.99); }
+        .btn-new-pin {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11.5px;
+            cursor: pointer;
+            padding: 6px;
+            font-family: inherit;
+            transition: color 0.2s;
+        }
+        .btn-new-pin:hover { color: var(--text-secondary); }
+
+        .btn-help {
+            background: transparent;
+            border: none;
+            color: #60a5fa;
+            font-size: 11.5px;
+            cursor: pointer;
+            padding: 6px;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 4px;
+            transition: color 0.2s;
+        }
+        .btn-help:hover { color: #93c5fd; }
+
+        /* Modal do Tutorial de Conexao */
+        .tutorial-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .tutorial-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .tutorial-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 20px;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        .tutorial-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 8px;
+        }
+        .tutorial-header h2 {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+        }
+        .tutorial-step {
+            margin-bottom: 11px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .tutorial-step-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #60a5fa;
+        }
+        .tutorial-step-desc {
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+        .btn-tutorial-close {
+            width: 100%;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            font-family: inherit;
+        }
+        .btn-tutorial-close:hover { background: #1d4ed8; }
+
+        /* MODAIS DE MENU E HISTÓRICO (LOG) */
+        .menu-modal, .log-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .menu-modal.active, .log-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .menu-card, .log-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-sizing: border-box;
+        }
+        body.theme-oled .menu-card,
+        body.theme-oled .log-card {
+            background: #000000;
+            border-color: #222533;
+        }
+        .menu-header, .log-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 10px;
+        }
+        .menu-header h2, .log-header h2 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 2px 6px;
+            line-height: 1;
+        }
+        .menu-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .menu-section-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .menu-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 9px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .menu-row label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+        .menu-select {
+            background: #1e202c;
+            color: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 5px 8px;
+            font-size: 11.5px;
+            outline: none;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        .menu-slider-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+        .menu-slider {
+            flex: 1;
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+        .menu-slider-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px;
+            color: #93c5fd;
+            min-width: 36px;
+            text-align: right;
+        }
+        .btn-menu-action {
+            width: 100%;
+            background: #1e2230;
+            border: 1px solid #32384a;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+            user-select: none;
+            font-family: inherit;
+        }
+        .btn-menu-action:hover {
+            background: #252b3d;
+            border-color: #3b82f6;
+        }
+        .btn-menu-action:active {
+            transform: scale(0.98);
+        }
+        .btn-menu-test {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s ease;
+        }
+        .btn-menu-test:hover {
+            background: #1d4ed8;
+        }
+        .log-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 52vh;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+        .log-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 9px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .log-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+        }
+        .log-item-project {
+            font-weight: 700;
+            color: #60a5fa;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .log-item-time {
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+        .log-item-title {
+            font-size: 11.5px;
+            color: var(--text-primary);
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .log-item-model {
+            font-size: 10px;
+            color: #34d399;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .log-empty {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            padding: 24px 10px;
+        }
+        .log-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .btn-clear-log {
+            background: #27272a;
+            color: #f87171;
+            border: 1px solid #3f3f46;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+        .btn-clear-log:hover {
+            background: #3f3f46;
+        }
+        .btn-close-log {
+            flex: 1;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s ease;
+        }
+        .btn-close-log:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <!-- TELA NOVA DE AUTENTICAÇÃO / PIN DE SEGURANÇA -->
+    <div id="pin-screen" class="pin-screen">
+        <div class="pin-card" id="pin-card">
+            <div class="pin-logo-wrapper">
+                <img src="/antigravity-icon.png" alt="Antigravity" class="pin-logo">
+            </div>
+            <h1 class="pin-title">Antigravity Mobile</h1>
+            <div class="pin-badge">PAREAMENTO SEGURO</div>
+            <p class="pin-instruction" id="pin-instruction">
+                Digite o PIN de 4 dígitos exibido no terminal do computador para liberar o acesso.
+            </p>
+            
+            <div class="pin-inputs" id="pin-inputs">
+                <input type="tel" maxlength="1" class="pin-box" id="pin-0" autofocus autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                <input type="tel" maxlength="1" class="pin-box" id="pin-1" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                <input type="tel" maxlength="1" class="pin-box" id="pin-2" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                <input type="tel" maxlength="1" class="pin-box" id="pin-3" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+            </div>
+
+            <div id="pin-error" class="pin-error"></div>
+
+            <button type="button" class="btn-unlock" id="btn-unlock" onclick="submitPin()">
+                <span>Desbloquear Acesso</span>
+                <span>→</span>
+            </button>
+
+            <button type="button" class="btn-new-pin" onclick="requestNewPin(true)">
+                🔄 Gerar Novo PIN no Terminal
+            </button>
+
+            <div>
+                <button type="button" class="btn-help" id="btn-tutorial" onclick="toggleTutorial(true)">
+                    ❓ Como Conectar ao Celular
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE TUTORIAL RÁPIDO DE CONEXÃO -->
+    <div id="tutorial-modal" class="tutorial-modal" onclick="if(event.target===this) toggleTutorial(false)">
+        <div class="tutorial-card">
+            <div class="tutorial-header">
+                <h2 id="tut-title">Guia Rápido de Conexão</h2>
+                <button type="button" style="background:none;border:none;color:#94a3b8;font-size:16px;cursor:pointer;" onclick="toggleTutorial(false)">✕</button>
+            </div>
+            
+            <div class="tutorial-step">
+                <span class="tutorial-step-title" id="tut-step1-t">1. Mesma Rede Wi-Fi</span>
+                <span class="tutorial-step-desc" id="tut-step1-d">Certifique-se de que o computador e o celular estão conectados na mesma rede Wi-Fi.</span>
+            </div>
+
+            <div class="tutorial-step">
+                <span class="tutorial-step-title" id="tut-step2-t">2. Acesse o Endereço no Celular</span>
+                <span class="tutorial-step-desc" id="tut-step2-d">Abra o navegador no celular e digite o endereço IP mostrado no terminal (ex: http://192.168.0.6:8765).</span>
+            </div>
+
+            <div class="tutorial-step">
+                <span class="tutorial-step-title" id="tut-step3-t">3. Digite o PIN de 4 Dígitos</span>
+                <span class="tutorial-step-desc" id="tut-step3-d">Insira o PIN exibido no terminal do computador. A sessão é gravada em cache por 24 horas!</span>
+            </div>
+
+            <div class="tutorial-step">
+                <span class="tutorial-step-title" id="tut-step4-t">4. Pronto!</span>
+                <span class="tutorial-step-desc" id="tut-step4-d">Acompanhe as respostas, cotas de IA oficiais e receba alertas sonoros e flash de tela.</span>
+            </div>
+
+            <button type="button" class="btn-tutorial-close" id="tut-close" onclick="toggleTutorial(false)">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIGURAÇÕES / MENU -->
+    <div id="menu-modal" class="menu-modal" onclick="if(event.target===this) MenuManager.close()">
+        <div class="menu-card">
+            <div class="menu-header">
+                <h2 id="menu-title-text">⚙️ Configurações</h2>
+                <button type="button" class="modal-close-btn" onclick="MenuManager.close()">✕</button>
+            </div>
+
+            <!-- Seção 1: Alertas e Notificações -->
+            <div class="menu-section">
+                <div class="menu-section-title" id="menu-sec-alerts">Alertas & Notificações</div>
+                
+                <div class="menu-row">
+                    <label for="btn-notif-toggle">
+                        <span>🔔</span>
+                        <span id="menu-notif-text">Notificações no Navegador</span>
+                    </label>
+                    <button id="btn-notif-toggle" type="button" class="btn-pill" onclick="NotificationManager.toggle()">
+                        <span id="btn-notif-icon">🔔</span> <span id="btn-notif-text">Ativar</span>
+                    </button>
+                </div>
+
+                <div class="menu-row">
+                    <label for="alert-enabled">
+                        <span>⚡</span>
+                        <span id="menu-alert-label">Som & Flash de Tela</span>
+                    </label>
+                    <input type="checkbox" id="alert-enabled" checked style="accent-color: #10b981; transform: scale(1.15); cursor: pointer;" onchange="SoundManager.savePreferences()">
+                </div>
+            </div>
+
+            <!-- Seção 2: Toque & Volume -->
+            <div class="menu-section">
+                <div class="menu-section-title" id="menu-sec-sound">Áudio & Toques</div>
+                
+                <div class="menu-row">
+                    <label for="tone-select">
+                        <span>🎵</span>
+                        <span id="menu-tone-label">Toque</span>
+                    </label>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <select id="tone-select" class="menu-select" onchange="SoundManager.setTone(this.value)">
+                            <option value="modern" id="opt-tone-modern">Chime Moderno</option>
+                            <option value="bell" id="opt-tone-bell">Sino Zen</option>
+                            <option value="scifi" id="opt-tone-scifi">Pulso Sci-Fi</option>
+                            <option value="classic" id="opt-tone-classic">Bip Clássico</option>
+                        </select>
+                        <button type="button" class="btn-menu-test" onclick="SoundManager.testTone()" title="Testar toque">▶️</button>
+                    </div>
+                </div>
+
+                <div class="menu-row" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <label for="volume-slider">
+                            <span>🔊</span>
+                            <span id="menu-volume-label">Volume do Toque</span>
+                        </label>
+                        <span id="volume-val" class="menu-slider-val">80%</span>
+                    </div>
+                    <div class="menu-slider-row">
+                        <input type="range" id="volume-slider" class="menu-slider" min="0" max="100" value="80" oninput="SoundManager.setVolume(this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção 3: Rede & Histórico -->
+            <div class="menu-section">
+                <div class="menu-section-title" id="menu-sec-system">Rede & Histórico</div>
+                
+                <div class="menu-row">
+                    <label for="latency-toggle">
+                        <span>📶</span>
+                        <span id="menu-latency-label">Exibir Latência em Tempo Real</span>
+                    </label>
+                    <input type="checkbox" id="latency-toggle" checked style="accent-color: #3b82f6; transform: scale(1.15); cursor: pointer;" onchange="LatencyManager.toggleVisibility(this.checked)">
+                </div>
+
+                <button type="button" class="btn-menu-action" onclick="LogManager.open()">
+                    <span>📜</span>
+                    <span id="menu-btn-log-text">Ver Histórico de Conclusões</span>
+                </button>
+            </div>
+
+            <button type="button" class="btn-tutorial-close" onclick="MenuManager.close()" id="menu-close-btn" style="margin-top: 4px;">
+                Fechar
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE HISTÓRICO DE CONCLUSÕES (LOG) -->
+    <div id="log-modal" class="log-modal" onclick="if(event.target===this) LogManager.close()">
+        <div class="log-card">
+            <div class="log-header">
+                <h2 id="log-title-text">📜 Histórico de Conclusões</h2>
+                <button type="button" class="modal-close-btn" onclick="LogManager.close()">✕</button>
+            </div>
+
+            <div id="log-list" class="log-list">
+                <!-- Preenchido dinamicamente via JS -->
+            </div>
+
+            <div class="log-actions">
+                <button type="button" class="btn-clear-log" onclick="LogManager.clear()" id="btn-clear-log-text">
+                    🗑️ Limpar
+                </button>
+                <button type="button" class="btn-close-log" onclick="LogManager.close()" id="btn-close-log-text">
+                    Voltar ao Menu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="flash-overlay"></div>
+    <div id="toast-notification"></div>
+
+    <header>
+        <div class="brand-area">
+            <img src="/antigravity-icon.png" class="brand-logo" alt="Antigravity">
+            <div class="brand-info">
+                <div class="brand-title-row">
+                    <span class="brand-title">Antigravity Mobile</span>
+                    <span id="project-badge" class="project-badge" title="Projeto Ativo" style="display: none;">
+                        <span class="project-icon">📁</span>
+                        <span id="project-name">...</span>
+                    </span>
+                </div>
+                <span id="model-badge" class="model-badge">Gemini 3.8 Flash High</span>
+            </div>
+        </div>
+        <div class="status-wrapper">
+            <div id="status-pill" class="status-pill CONECTANDO">
+                <span class="status-dot"></span>
+                <span id="status-text">CONECTANDO...</span>
+            </div>
+            <span class="app-version">v2.4.0 • Dev LumiaG5</span>
+        </div>
+    </header>
+
+    <section class="quota-panel">
+        <div class="quota-card" id="card-5h">
+            <div class="quota-header">
+                <span id="quota-5h-title" class="quota-title">Limite 5 Horas</span>
+                <span id="five-hour-val" class="quota-val">100%</span>
+            </div>
+            <div class="track"><div id="five-hour-fill" class="fill" style="width: 100%;"></div></div>
+            <span id="five-hour-desc" class="quota-desc">Sincronizando...</span>
+        </div>
+
+        <div class="quota-card" id="card-weekly">
+            <div class="quota-header">
+                <span id="quota-weekly-title" class="quota-title">Limite Semanal</span>
+                <span id="weekly-val" class="quota-val">100%</span>
+            </div>
+            <div class="track"><div id="weekly-fill" class="fill" style="width: 100%;"></div></div>
+            <span id="weekly-desc" class="quota-desc">Sincronizando...</span>
+        </div>
+    </section>
+
+    <main id="chat-feed">
+        <div id="empty-state" class="empty-state">
+            <div class="empty-icon">📡</div>
+            <div class="empty-title">Aguardando edições no PC</div>
+            <div class="empty-sub">As conclusões das tarefas aparecerão aqui automaticamente.</div>
+        </div>
+    </main>
+
+    <!-- Botão Flutuante de Scroll Rápido (FAB) com Contador Não Lido -->
+    <button id="btn-scroll-bottom" class="fab-scroll hidden" onclick="ScrollManager.scrollToBottom(true)" aria-label="Ir para o final" title="Ir para o fim">
+        <span class="fab-arrow">↓</span>
+        <span id="unread-count" class="unread-badge hidden">0</span>
+    </button>
+
+    <footer>
+        <div class="footer-left">
+            <button id="btn-menu-toggle" type="button" class="btn-pill" onclick="MenuManager.toggle()" title="Abrir Menu de Configurações">
+                ⚙️ <span id="btn-menu-text">Menu</span>
+            </button>
+            <div id="latency-badge" class="latency-badge latency-good" title="Latência de Conexão (Ping)">
+                <span id="latency-dot" class="latency-dot"></span>
+                <span id="latency-val">-- ms</span>
+            </div>
+        </div>
+        <div class="footer-actions">
+            <button id="btn-oled-toggle" type="button" class="btn-pill" onclick="ThemeManager.toggle()" title="Alternar Modo OLED True Black">
+                🌓 <span id="btn-oled-text">OLED</span>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        let ws;
+        let authToken = "";
+        let serverHttpsUrl = "";
+        const pinScreen = document.getElementById("pin-screen");
+        const pinError = document.getElementById("pin-error");
+        const pinCard = document.getElementById("pin-card");
+        const pinBoxes = [
+            document.getElementById("pin-0"),
+            document.getElementById("pin-1"),
+            document.getElementById("pin-2"),
+            document.getElementById("pin-3")
+        ];
+
+        // Configuração dos inputs de PIN (4 dígitos com foco inteligente)
+        pinBoxes.forEach((box, idx) => {
+            box.addEventListener("input", (e) => {
+                const val = e.target.value.replace(/[^0-9]/g, "");
+                e.target.value = val;
+                if (val && idx < 3) {
+                    pinBoxes[idx + 1].focus();
+                }
+                checkAutoSubmit();
+            });
+
+            box.addEventListener("keydown", (e) => {
+                if (e.key === "Backspace" && !e.target.value && idx > 0) {
+                    pinBoxes[idx - 1].focus();
+                } else if (e.key === "Enter") {
+                    submitPin();
+                }
+            });
+
+            box.addEventListener("paste", (e) => {
+                e.preventDefault();
+                const pasteData = (e.clipboardData || window.clipboardData).getData("text").replace(/[^0-9]/g, "");
+                if (pasteData) {
+                    for (let i = 0; i < 4; i++) {
+                        if (pasteData[i]) {
+                            pinBoxes[i].value = pasteData[i];
+                        }
+                    }
+                    if (pasteData.length >= 4) {
+                        pinBoxes[3].focus();
+                        submitPin();
+                    } else {
+                        pinBoxes[Math.min(3, pasteData.length)].focus();
+                    }
+                }
+            });
+        });
+
+        function checkAutoSubmit() {
+            const pin = pinBoxes.map(b => b.value).join("");
+            if (pin.length === 4) {
+                submitPin();
+            }
+        }
+
+        async function requestNewPin(isUserClick = false) {
+            try {
+                if (isUserClick) {
+                    pinError.innerText = "Gerando novo PIN no computador...";
+                    pinError.style.color = "var(--text-secondary)";
+                }
+                const res = await fetch("/api/auth/new-pin", { method: "POST" });
+                if (res.ok && isUserClick) {
+                    pinError.innerText = "Novo PIN gerado! Confira o terminal do PC.";
+                    pinError.style.color = "var(--status-green)";
+                }
+            } catch (e) {}
+            pinBoxes.forEach(b => b.value = "");
+            pinBoxes[0].focus();
+        }
+
+        let currentI18n = {};
+
+        async function loadI18n() {
+            try {
+                const res = await fetch("/api/config/i18n");
+                if (res.ok) {
+                    const data = await res.json();
+                    currentI18n = data.dict || {};
+                    if (data.https_url) serverHttpsUrl = data.https_url;
+                    applyI18n();
+                }
+            } catch (e) {}
+        }
+
+        function applyI18n() {
+            if (!currentI18n || Object.keys(currentI18n).length === 0) return;
+            const t = currentI18n;
+
+            const elPinBadge = document.querySelector(".pin-badge");
+            if (elPinBadge && t.pin_badge) elPinBadge.innerText = t.pin_badge;
+
+            const elPinInstruction = document.getElementById("pin-instruction") || document.querySelector(".pin-instruction");
+            if (elPinInstruction && t.pin_instruction) {
+                elPinInstruction.innerText = t.pin_instruction;
+            }
+
+            const elBtnUnlock = document.getElementById("btn-unlock");
+            if (elBtnUnlock && t.btn_unlock) {
+                elBtnUnlock.innerHTML = `<span>${t.btn_unlock}</span><span>→</span>`;
+            }
+
+            const elBtnNewPin = document.querySelector(".btn-new-pin");
+            if (elBtnNewPin && t.btn_new_pin) elBtnNewPin.innerText = t.btn_new_pin;
+
+            const el5hTitle = document.getElementById("quota-5h-title");
+            if (el5hTitle && t.quota_5h_title) el5hTitle.innerText = t.quota_5h_title;
+
+            const elWeeklyTitle = document.getElementById("quota-weekly-title");
+            if (elWeeklyTitle && t.quota_weekly_title) elWeeklyTitle.innerText = t.quota_weekly_title;
+
+            const elEmptyTitle = document.querySelector(".empty-title");
+            if (elEmptyTitle && t.empty_title) elEmptyTitle.innerText = t.empty_title;
+            const elEmptySub = document.querySelector(".empty-sub");
+            if (elEmptySub && t.empty_sub) elEmptySub.innerText = t.empty_sub;
+
+            const elFooterAlertText = document.getElementById("footer-alert-text");
+            if (elFooterAlertText && t.footer_alert) elFooterAlertText.innerText = t.footer_alert;
+
+            const elBtnOledText = document.getElementById("btn-oled-text");
+            if (elBtnOledText && t.btn_oled) elBtnOledText.innerText = t.btn_oled.replace("🌓 ", "");
+
+            const elBtnNotifText = document.getElementById("btn-notif-text");
+            if (elBtnNotifText) elBtnNotifText.textContent = t.btn_notifications_label || "Notificações";
+
+            // Menu & Log i18n
+            const elBtnMenuText = document.getElementById("btn-menu-text");
+            if (elBtnMenuText && t.btn_menu) elBtnMenuText.innerText = t.btn_menu.replace("⚙️ ", "");
+
+            const elMenuTitleText = document.getElementById("menu-title-text");
+            if (elMenuTitleText && t.menu_title) elMenuTitleText.innerText = `⚙️ ${t.menu_title}`;
+
+            const elMenuNotifText = document.getElementById("menu-notif-text");
+            if (elMenuNotifText && t.menu_notifications_label) elMenuNotifText.innerText = t.menu_notifications_label;
+
+            const elMenuAlertLabel = document.getElementById("menu-alert-label");
+            if (elMenuAlertLabel && t.menu_sensory_label) elMenuAlertLabel.innerText = t.menu_sensory_label;
+
+            const elMenuToneLabel = document.getElementById("menu-tone-label");
+            if (elMenuToneLabel && t.menu_tone_label) elMenuToneLabel.innerText = t.menu_tone_label;
+
+            const elOptModern = document.getElementById("opt-tone-modern");
+            if (elOptModern && t.tone_modern) elOptModern.innerText = t.tone_modern;
+            const elOptBell = document.getElementById("opt-tone-bell");
+            if (elOptBell && t.tone_bell) elOptBell.innerText = t.tone_bell;
+            const elOptScifi = document.getElementById("opt-tone-scifi");
+            if (elOptScifi && t.tone_scifi) elOptScifi.innerText = t.tone_scifi;
+            const elOptClassic = document.getElementById("opt-tone-classic");
+            if (elOptClassic && t.tone_classic) elOptClassic.innerText = t.tone_classic;
+
+            const elMenuVolumeLabel = document.getElementById("menu-volume-label");
+            if (elMenuVolumeLabel && t.menu_volume_label) elMenuVolumeLabel.innerText = t.menu_volume_label;
+
+            const elMenuLatencyLabel = document.getElementById("menu-latency-label");
+            if (elMenuLatencyLabel && t.menu_latency_label) elMenuLatencyLabel.innerText = t.menu_latency_label;
+
+            const elMenuBtnLogText = document.getElementById("menu-btn-log-text");
+            if (elMenuBtnLogText && t.menu_btn_log) elMenuBtnLogText.innerText = t.menu_btn_log.replace("📜 ", "");
+
+            const elMenuCloseBtn = document.getElementById("menu-close-btn");
+            if (elMenuCloseBtn && t.menu_close) elMenuCloseBtn.innerText = t.menu_close;
+
+            const elLogTitleText = document.getElementById("log-title-text");
+            if (elLogTitleText && t.log_title) elLogTitleText.innerText = `📜 ${t.log_title}`;
+
+            const elBtnClearLog = document.getElementById("btn-clear-log-text");
+            if (elBtnClearLog && t.log_clear) elBtnClearLog.innerText = `🗑️ ${t.log_clear}`;
+            
+            const elBtnCloseLog = document.getElementById("btn-close-log-text");
+            if (elBtnCloseLog && t.menu_close) elBtnCloseLog.innerText = t.menu_close;
+
+            NotificationManager.updateBtnState();
+
+            const elProjBadge = document.getElementById("project-badge");
+            const elProjName = document.getElementById("project-name");
+            if (elProjBadge && elProjName && elProjName.innerText && elProjName.innerText !== "...") {
+                const prefix = t.project_title_prefix || "Projeto: ";
+                elProjBadge.title = `${prefix}${elProjName.innerText}`;
+            }
+
+            // Tutorial i18n
+            const elBtnTut = document.getElementById("btn-tutorial");
+            if (elBtnTut && t.tutorial_btn) elBtnTut.innerText = t.tutorial_btn;
+
+            const elTutTitle = document.getElementById("tut-title");
+            if (elTutTitle && t.tutorial_title) elTutTitle.innerText = t.tutorial_title;
+
+            const elStep1T = document.getElementById("tut-step1-t");
+            if (elStep1T && t.tutorial_step1_title) elStep1T.innerText = t.tutorial_step1_title;
+            const elStep1D = document.getElementById("tut-step1-d");
+            if (elStep1D && t.tutorial_step1_desc) elStep1D.innerText = t.tutorial_step1_desc;
+
+            const elStep2T = document.getElementById("tut-step2-t");
+            if (elStep2T && t.tutorial_step2_title) elStep2T.innerText = t.tutorial_step2_title;
+            const elStep2D = document.getElementById("tut-step2-d");
+            if (elStep2D && t.tutorial_step2_desc) elStep2D.innerText = t.tutorial_step2_desc;
+
+            const elStep3T = document.getElementById("tut-step3-t");
+            if (elStep3T && t.tutorial_step3_title) elStep3T.innerText = t.tutorial_step3_title;
+            const elStep3D = document.getElementById("tut-step3-d");
+            if (elStep3D && t.tutorial_step3_desc) elStep3D.innerText = t.tutorial_step3_desc;
+
+            const elStep4T = document.getElementById("tut-step4-t");
+            if (elStep4T && t.tutorial_step4_title) elStep4T.innerText = t.tutorial_step4_title;
+            const elStep4D = document.getElementById("tut-step4-d");
+            if (elStep4D && t.tutorial_step4_desc) elStep4D.innerText = t.tutorial_step4_desc;
+
+            const elTutClose = document.getElementById("tut-close");
+            if (elTutClose && t.tutorial_btn_close) elTutClose.innerText = t.tutorial_btn_close;
+        }
+
+        function toggleTutorial(show) {
+            const modal = document.getElementById("tutorial-modal");
+            if (modal) {
+                if (show) modal.classList.add("active");
+                else modal.classList.remove("active");
+            }
+        }
+
+        async function submitPin() {
+            const pin = pinBoxes.map(b => b.value).join("");
+            const t = currentI18n;
+            if (pin.length < 4) {
+                pinError.innerText = t.pin_error || "Digite os 4 dígitos do PIN.";
+                pinError.style.color = "#f87171";
+                pinBoxes[0].focus();
+                return;
+            }
+
+            pinError.innerText = t.pin_verifying || "Verificando...";
+            pinError.style.color = "var(--text-secondary)";
+
+            try {
+                const res = await fetch("/api/auth/verify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ pin: pin })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    authToken = data.token;
+
+                    // Salva sessão em cache com validade de 24 horas (86400 segundos)
+                    const ttlMs = (data.expires_in || 86400) * 1000;
+                    const expiry = Date.now() + ttlMs;
+                    try {
+                        localStorage.setItem("antigravity_auth_token", authToken);
+                        localStorage.setItem("antigravity_auth_expiry", expiry.toString());
+                    } catch(e) {}
+
+                    pinError.innerText = t.pin_authorized || "Autorizado com sucesso!";
+                    pinError.style.color = "var(--status-green)";
+
+                    setTimeout(() => {
+                        pinScreen.classList.add("hidden");
+                        fetchInitialData();
+                        connectWS();
+                    }, 300);
+                } else {
+                    pinError.innerText = t.pin_error || "PIN incorreto. Verifique o terminal do PC.";
+                    pinError.style.color = "#f87171";
+                    pinCard.classList.remove("shake");
+                    void pinCard.offsetWidth;
+                    pinCard.classList.add("shake");
+                    pinBoxes.forEach(b => b.value = "");
+                    pinBoxes[0].focus();
+                }
+            } catch (e) {
+                pinError.innerText = "Erro de conexão.";
+                pinError.style.color = "#f87171";
+            }
+        }
+
+        const chatFeed = document.getElementById("chat-feed");
+        const emptyState = document.getElementById("empty-state");
+        const statusPill = document.getElementById("status-pill");
+        const statusText = document.getElementById("status-text");
+        const modelBadge = document.getElementById("model-badge");
+        const fiveHourVal = document.getElementById("five-hour-val");
+        const fiveHourFill = document.getElementById("five-hour-fill");
+        const fiveHourDesc = document.getElementById("five-hour-desc");
+        const weeklyVal = document.getElementById("weekly-val");
+        const weeklyFill = document.getElementById("weekly-fill");
+        const weeklyDesc = document.getElementById("weekly-desc");
+        const flashOverlay = document.getElementById("flash-overlay");
+        const alertEnabled = document.getElementById("alert-enabled");
+
+        // SISTEMA DE NOTIFICAÇÃO TOAST VISUAL
+        let toastTimer = null;
+        function showToastNotification(message) {
+            const toast = document.getElementById("toast-notification");
+            if (!toast) return;
+            toast.innerText = message;
+            toast.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 2600);
+        }
+
+        // INDICADOR DE PROJETO ATIVO
+        function updateProjectName(name, title) {
+            const elBadge = document.getElementById("project-badge");
+            const elName = document.getElementById("project-name");
+            if (!elBadge || !elName) return;
+            let display = name || "Antigravity";
+            if (title && title.trim() && title.trim() !== display) {
+                display = `${display} • ${title.trim()}`;
+            }
+            if (!display || display === "Antigravity") {
+                elBadge.style.display = "none";
+                return;
+            }
+            elName.innerText = display;
+            const prefix = (currentI18n && currentI18n.project_title_prefix) || "Projeto: ";
+            elBadge.title = `${prefix}${display}`;
+            elBadge.style.display = "inline-flex";
+        }
+
+        // FEEDBACK HÁPTICO / VIBRAÇÃO (Web Vibration API)
+        const Haptics = {
+            light() {
+                try {
+                    if ("vibrate" in navigator) navigator.vibrate(12);
+                } catch(e) {}
+            },
+            alert() {
+                try {
+                    if ("vibrate" in navigator) navigator.vibrate([120, 70, 120]);
+                } catch(e) {}
+            }
+        };
+
+        // GERENCIADOR DE TEMA OLED TRUE BLACK (#000000)
+        const ThemeManager = {
+            KEY: "antigravity_oled",
+            isOled: false,
+
+            init() {
+                try {
+                    const saved = localStorage.getItem(this.KEY);
+                    if (saved === "1") {
+                        this.setOled(true, false);
+                    }
+                } catch(e) {}
+            },
+
+            toggle() {
+                Haptics.light();
+                this.setOled(!this.isOled, true);
+            },
+
+            setOled(enable, showToast = true) {
+                this.isOled = enable;
+                const btn = document.getElementById("btn-oled-toggle");
+                if (enable) {
+                    document.body.classList.add("theme-oled");
+                    if (btn) btn.classList.add("active");
+                    try { localStorage.setItem(this.KEY, "1"); } catch(e) {}
+                    if (showToast) showToastNotification((currentI18n && currentI18n.oled_active) || "Modo OLED Ativo");
+                } else {
+                    document.body.classList.remove("theme-oled");
+                    if (btn) btn.classList.remove("active");
+                    try { localStorage.setItem(this.KEY, "0"); } catch(e) {}
+                    if (showToast) showToastNotification((currentI18n && currentI18n.oled_disabled) || "Modo OLED Desativado");
+                }
+            }
+        };
+
+        // NOTIFICAÇÕES EM SEGUNDO PLANO (Web Notification API com liga/desliga)
+        const NotificationManager = {
+            KEY: "antigravity_notifications_enabled",
+
+            init() {
+                this.updateBtnState();
+            },
+
+            isEnabled() {
+                if (!("Notification" in window)) return false;
+                if (Notification.permission !== "granted") return false;
+                // Se a permissão foi concedida, verifica se o usuário não silenciou/desligou
+                return localStorage.getItem(this.KEY) !== "false";
+            },
+
+            updateBtnState() {
+                const btn = document.getElementById("btn-notif-toggle");
+                if (!btn) return;
+                if (!("Notification" in window)) {
+                    btn.style.display = "none";
+                    return;
+                }
+                const t = currentI18n || {};
+                const label = t.btn_notifications_label || "Notificações";
+                const iconEl = document.getElementById("btn-notif-icon");
+                const textEl = document.getElementById("btn-notif-text");
+
+                if (textEl) textEl.textContent = label;
+
+                if (this.isEnabled()) {
+                    btn.classList.add("active-green");
+                    btn.classList.remove("muted");
+                    if (iconEl) iconEl.textContent = "🔔";
+                    btn.title = `${t.notifications_enabled || "Notificações ativadas"} (${t.notifications_turn_off || "Toque para desativar"})`;
+                } else if (Notification.permission === "granted") {
+                    btn.classList.remove("active-green");
+                    btn.classList.add("muted");
+                    if (iconEl) iconEl.textContent = "🔕";
+                    btn.title = `${t.notifications_disabled || "Notificações desativadas"} (${t.notifications_turn_on || "Toque para ativar"})`;
+                } else {
+                    btn.classList.remove("active-green");
+                    btn.classList.remove("muted");
+                    if (iconEl) iconEl.textContent = "🔔";
+                    btn.title = t.btn_notifications || "Ativar Notificações";
+                }
+            },
+
+            async toggle() {
+                Haptics.light();
+                const t = currentI18n || {};
+
+                if (!("Notification" in window)) {
+                    showToastNotification(t.notifications_not_supported || "Navegador não suporta notificações.");
+                    return;
+                }
+
+                // 1. Se já possui permissão do navegador concedida, atua como chave Liga / Desliga imediata
+                if (Notification.permission === "granted") {
+                    if (this.isEnabled()) {
+                        // Desliga as notificações
+                        localStorage.setItem(this.KEY, "false");
+                        this.updateBtnState();
+                        showToastNotification(t.notifications_disabled || "Notificações desativadas");
+                    } else {
+                        // Liga as notificações
+                        localStorage.setItem(this.KEY, "true");
+                        this.updateBtnState();
+                        showToastNotification(t.notifications_enabled || "Notificações ativadas!");
+                        this.send(
+                            (t.title || "Antigravity Mobile"),
+                            (t.notifications_enabled || "Notificações ativadas com sucesso!")
+                        );
+                    }
+                    return;
+                }
+
+                // 2. Se ainda não possui permissão, verifica HTTPS antes de solicitar
+                const isLocalHost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+                const isSecure = window.isSecureContext || isLocalHost || window.location.protocol === "https:";
+
+                if (!isSecure) {
+                    if (serverHttpsUrl) {
+                        showToastNotification(t.notifications_redirect_toast || "Abrindo versão HTTPS segura para ativar notificações...");
+                        setTimeout(() => {
+                            window.location.href = serverHttpsUrl;
+                        }, 1200);
+                    } else {
+                        showToastNotification(t.notifications_http_notice || "Navegadores exigem HTTPS para notificações push. Alertas com Som e Flash 2x ativos!");
+                    }
+                    return;
+                }
+
+                try {
+                    const handleResult = (perm) => {
+                        if (perm === "granted") {
+                            localStorage.setItem(this.KEY, "true");
+                            this.updateBtnState();
+                            showToastNotification(t.notifications_enabled || "Notificações ativadas com sucesso!");
+                            this.send(
+                                (t.title || "Antigravity Mobile"),
+                                "Notificações do sistema ativadas com sucesso!"
+                            );
+                        } else {
+                            this.updateBtnState();
+                            showToastNotification(t.notifications_blocked || "Permissão de notificações bloqueada pelo navegador.");
+                        }
+                    };
+
+                    const promise = Notification.requestPermission(handleResult);
+                    if (promise && typeof promise.then === "function") {
+                        promise.then(handleResult).catch(() => {});
+                    }
+                } catch(e) {
+                    showToastNotification(t.notifications_blocked || "Permissão de notificações bloqueada pelo navegador.");
+                }
+            },
+
+            send(title, body) {
+                if (!this.isEnabled()) return;
+                try {
+                    const options = {
+                        body: body,
+                        icon: "/antigravity-icon.png",
+                        badge: "/antigravity-icon.png",
+                        tag: "antigravity-task",
+                        renotify: true
+                    };
+                    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.ready.then(reg => {
+                            reg.showNotification(title, options);
+                        }).catch(() => {
+                            new Notification(title, options);
+                        });
+                    } else {
+                        const notif = new Notification(title, options);
+                        notif.onclick = () => {
+                            window.focus();
+                            notif.close();
+                        };
+                    }
+                } catch(e) {}
+            }
+        };
+
+        // CONTROLE INTELIGENTE DE ROLAGEM E FAB FLUTUANTE
+        const ScrollManager = {
+            chatFeed: null,
+            btnScroll: null,
+            unreadBadge: null,
+            unreadCount: 0,
+            isUserScrollingUp: false,
+
+            init() {
+                this.chatFeed = document.getElementById("chat-feed");
+                this.btnScroll = document.getElementById("btn-scroll-bottom");
+                this.unreadBadge = document.getElementById("unread-count");
+
+                if (!this.chatFeed) return;
+
+                this.chatFeed.addEventListener("scroll", () => {
+                    const distFromBottom = this.chatFeed.scrollHeight - this.chatFeed.scrollTop - this.chatFeed.clientHeight;
+                    if (distFromBottom > 110) {
+                        this.isUserScrollingUp = true;
+                        if (this.btnScroll) this.btnScroll.classList.remove("hidden");
+                    } else {
+                        this.isUserScrollingUp = false;
+                        if (this.btnScroll) this.btnScroll.classList.add("hidden");
+                        this.resetUnread();
+                    }
+                }, { passive: true });
+            },
+
+            onNewMessage() {
+                if (this.isUserScrollingUp) {
+                    this.unreadCount++;
+                    if (this.unreadBadge) {
+                        this.unreadBadge.innerText = this.unreadCount > 99 ? "99+" : this.unreadCount;
+                        this.unreadBadge.classList.remove("hidden");
+                    }
+                    if (this.btnScroll) {
+                        this.btnScroll.classList.remove("hidden");
+                    }
+                } else {
+                    this.scrollToBottom(true);
+                }
+            },
+
+            scrollToBottom(smooth = true) {
+                if (!this.chatFeed) return;
+                Haptics.light();
+                this.chatFeed.scrollTo({
+                    top: this.chatFeed.scrollHeight,
+                    behavior: smooth ? "smooth" : "auto"
+                });
+                this.resetUnread();
+                setTimeout(() => {
+                    if (this.chatFeed) this.chatFeed.scrollTop = this.chatFeed.scrollHeight;
+                }, smooth ? 280 : 0);
+            },
+
+            resetUnread() {
+                this.unreadCount = 0;
+                if (this.unreadBadge) {
+                    this.unreadBadge.innerText = "0";
+                    this.unreadBadge.classList.add("hidden");
+                }
+            }
+        };
+
+        function scrollToBottom(smooth = true) {
+            ScrollManager.scrollToBottom(smooth);
+        }
+
+        // DESBLOQUEIO DE ÁUDIO NO PRIMEIRO TOQUE (Compatibilidade Universal Web Audio)
+        let audioCtxUnlocked = false;
+        function unlockAudioContext() {
+            if (audioCtxUnlocked) return;
+            try {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioClass) return;
+                const ctx = new AudioClass();
+                if (ctx.state === "suspended") {
+                    ctx.resume();
+                }
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                gain.gain.value = 0.0001;
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(0);
+                osc.stop(0.01);
+                audioCtxUnlocked = true;
+            } catch(e) {}
+            window.removeEventListener("click", unlockAudioContext);
+            window.removeEventListener("touchstart", unlockAudioContext);
+            window.removeEventListener("touchend", unlockAudioContext);
+        }
+        window.addEventListener("click", unlockAudioContext, { once: true, passive: true });
+        window.addEventListener("touchstart", unlockAudioContext, { once: true, passive: true });
+        window.addEventListener("touchend", unlockAudioContext, { once: true, passive: true });
+
+        // GERENCIADOR DO MENU DE CONFIGURAÇÕES
+        const MenuManager = {
+            modal: null,
+            init() {
+                this.modal = document.getElementById("menu-modal");
+            },
+            open() {
+                if (!this.modal) this.init();
+                if (this.modal) this.modal.classList.add("active");
+            },
+            close() {
+                if (!this.modal) this.init();
+                if (this.modal) this.modal.classList.remove("active");
+            },
+            toggle() {
+                if (!this.modal) this.init();
+                if (this.modal) {
+                    if (this.modal.classList.contains("active")) this.close();
+                    else this.open();
+                }
+            }
+        };
+
+        // GERENCIADOR DE HISTÓRICO DE CONCLUSÕES (LOG)
+        const LogManager = {
+            modal: null,
+            listEl: null,
+            logs: [],
+            init() {
+                this.modal = document.getElementById("log-modal");
+                this.listEl = document.getElementById("log-list");
+                try {
+                    const saved = localStorage.getItem("antigravity_task_logs");
+                    if (saved) this.logs = JSON.parse(saved);
+                } catch(e) {
+                    this.logs = [];
+                }
+            },
+            addLog(entry) {
+                if (!this.logs) this.init();
+                const item = {
+                    id: Date.now(),
+                    project: entry.project || (document.getElementById("project-name") ? document.getElementById("project-name").innerText : "Antigravity"),
+                    title: entry.title || (currentI18n && currentI18n.task_completed_notify_title) || "Tarefa Concluída",
+                    model: entry.model || (modelBadge ? modelBadge.innerText : "AI"),
+                    summary: entry.summary || "Conclusão de tarefa recebida com sucesso.",
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                    timestamp: Date.now()
+                };
+                this.logs.unshift(item);
+                if (this.logs.length > 50) this.logs.pop();
+                try {
+                    localStorage.setItem("antigravity_task_logs", JSON.stringify(this.logs));
+                } catch(e) {}
+                this.render();
+            },
+            open() {
+                if (!this.modal) this.init();
+                MenuManager.close();
+                this.render();
+                if (this.modal) this.modal.classList.add("active");
+            },
+            close() {
+                if (!this.modal) this.init();
+                if (this.modal) this.modal.classList.remove("active");
+                MenuManager.open();
+            },
+            clear() {
+                this.logs = [];
+                try {
+                    localStorage.removeItem("antigravity_task_logs");
+                } catch(e) {}
+                this.render();
+                showToastNotification((currentI18n && currentI18n.log_cleared) || "Histórico limpo com sucesso!");
+            },
+            render() {
+                if (!this.listEl) this.init();
+                if (!this.listEl) return;
+                if (!this.logs || this.logs.length === 0) {
+                    const emptyText = (currentI18n && currentI18n.log_empty) || "Nenhuma conclusão registrada ainda.";
+                    this.listEl.innerHTML = `<div class="log-empty">${emptyText}</div>`;
+                    return;
+                }
+                const esc = (str) => {
+                    const div = document.createElement("div");
+                    div.textContent = str || "";
+                    return div.innerHTML;
+                };
+                this.listEl.innerHTML = this.logs.map(item => `
+                    <div class="log-item">
+                        <div class="log-item-header">
+                            <span class="log-item-project">📁 ${esc(item.project)}</span>
+                            <span class="log-item-time">${item.time}</span>
+                        </div>
+                        <div class="log-item-title">${esc(item.title)}</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+                            <span class="log-item-model">🤖 ${esc(item.model)}</span>
+                        </div>
+                    </div>
+                `).join("");
+            }
+        };
+
+        // GERENCIADOR DE ÁUDIO, TOQUES E VOLUME (WEB AUDIO API)
+        const SoundManager = {
+            currentTone: localStorage.getItem("antigravity_tone") || "modern",
+            currentVolume: parseFloat(localStorage.getItem("antigravity_volume") || "0.8"),
+            alertEnabledEl: null,
+            toneSelectEl: null,
+            volumeSliderEl: null,
+            volumeValEl: null,
+
+            init() {
+                this.alertEnabledEl = document.getElementById("alert-enabled");
+                this.toneSelectEl = document.getElementById("tone-select");
+                this.volumeSliderEl = document.getElementById("volume-slider");
+                this.volumeValEl = document.getElementById("volume-val");
+
+                const savedAlert = localStorage.getItem("antigravity_alert_enabled");
+                if (savedAlert !== null && this.alertEnabledEl) {
+                    this.alertEnabledEl.checked = savedAlert === "true";
+                }
+
+                if (this.toneSelectEl) {
+                    this.toneSelectEl.value = this.currentTone;
+                }
+
+                if (this.volumeSliderEl) {
+                    const val = Math.round(this.currentVolume * 100);
+                    this.volumeSliderEl.value = val;
+                    if (this.volumeValEl) this.volumeValEl.innerText = `${val}%`;
+                }
+            },
+
+            savePreferences() {
+                if (this.alertEnabledEl) {
+                    localStorage.setItem("antigravity_alert_enabled", this.alertEnabledEl.checked);
+                }
+            },
+
+            setTone(tone) {
+                this.currentTone = tone;
+                localStorage.setItem("antigravity_tone", tone);
+            },
+
+            setVolume(val) {
+                const num = parseInt(val, 10);
+                this.currentVolume = num / 100;
+                localStorage.setItem("antigravity_volume", this.currentVolume.toString());
+                if (this.volumeValEl) this.volumeValEl.innerText = `${num}%`;
+            },
+
+            testTone() {
+                this.play(this.currentTone, true);
+            },
+
+            play(tone = this.currentTone, force = false) {
+                if (!force && this.alertEnabledEl && !this.alertEnabledEl.checked) return;
+                if (this.currentVolume <= 0.01) return;
+
+                try {
+                    const AudioClass = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioClass) return;
+                    const ctx = new AudioClass();
+                    if (ctx.state === "suspended") ctx.resume();
+                    const now = ctx.currentTime;
+
+                    const compressor = ctx.createDynamicsCompressor();
+                    compressor.threshold.setValueAtTime(-12, now);
+                    compressor.knee.setValueAtTime(20, now);
+                    compressor.ratio.setValueAtTime(8, now);
+                    compressor.attack.setValueAtTime(0.003, now);
+                    compressor.release.setValueAtTime(0.25, now);
+
+                    const masterGain = ctx.createGain();
+                    const vol = this.currentVolume * 0.75;
+                    masterGain.gain.setValueAtTime(vol, now);
+
+                    compressor.connect(masterGain);
+                    masterGain.connect(ctx.destination);
+
+                    if (tone === "bell") {
+                        // SINO ZEN: Acorde doce com decay suave
+                        const freqs = [880.00, 1318.51, 1760.00];
+                        freqs.forEach((f, idx) => {
+                            const osc = ctx.createOscillator();
+                            const gain = ctx.createGain();
+                            osc.type = "sine";
+                            osc.frequency.setValueAtTime(f, now);
+                            const gainPeak = 0.55 / (idx + 1);
+                            gain.gain.setValueAtTime(0, now);
+                            gain.gain.linearRampToValueAtTime(gainPeak, now + 0.015);
+                            gain.gain.exponentialRampToValueAtTime(0.0005, now + 0.95);
+                            osc.connect(gain);
+                            gain.connect(compressor);
+                            osc.start(now);
+                            osc.stop(now + 0.95);
+                        });
+                    } else if (tone === "scifi") {
+                        // PULSO SCI-FI: Arpeggio rápido futurista
+                        const notes = [523.25, 659.25, 783.99, 1046.50];
+                        notes.forEach((freq, i) => {
+                            const t = now + (i * 0.055);
+                            const osc = ctx.createOscillator();
+                            const gain = ctx.createGain();
+                            osc.type = "triangle";
+                            osc.frequency.setValueAtTime(freq, t);
+                            gain.gain.setValueAtTime(0, t);
+                            gain.gain.linearRampToValueAtTime(0.65, t + 0.01);
+                            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+                            osc.connect(gain);
+                            gain.connect(compressor);
+                            osc.start(t);
+                            osc.stop(t + 0.22);
+                        });
+                    } else if (tone === "classic") {
+                        // BIP CLÁSSICO: Dois bips rápidos
+                        [0, 0.12].forEach((offset, idx) => {
+                            const t = now + offset;
+                            const osc = ctx.createOscillator();
+                            const gain = ctx.createGain();
+                            osc.type = "square";
+                            osc.frequency.setValueAtTime(idx === 0 ? 880 : 1174.66, t);
+                            gain.gain.setValueAtTime(0, t);
+                            gain.gain.linearRampToValueAtTime(0.35, t + 0.008);
+                            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.075);
+                            osc.connect(gain);
+                            gain.connect(compressor);
+                            osc.start(t);
+                            osc.stop(t + 0.08);
+                        });
+                    } else {
+                        // CHIME MODERNO
+                        const osc1 = ctx.createOscillator();
+                        const gain1 = ctx.createGain();
+                        osc1.type = 'sine';
+                        osc1.frequency.setValueAtTime(783.99, now);
+                        gain1.gain.setValueAtTime(0, now);
+                        gain1.gain.linearRampToValueAtTime(0.70, now + 0.03);
+                        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+                        osc1.connect(gain1);
+                        gain1.connect(compressor);
+                        osc1.start(now);
+                        osc1.stop(now + 0.55);
+
+                        const osc2 = ctx.createOscillator();
+                        const gain2 = ctx.createGain();
+                        osc2.type = 'sine';
+                        osc2.frequency.setValueAtTime(1046.50, now + 0.09);
+                        gain2.gain.setValueAtTime(0, now + 0.09);
+                        gain2.gain.linearRampToValueAtTime(0.85, now + 0.13);
+                        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+                        osc2.connect(gain2);
+                        gain2.connect(compressor);
+                        osc2.start(now + 0.09);
+                        osc2.stop(now + 0.75);
+
+                        const osc3 = ctx.createOscillator();
+                        const gain3 = ctx.createGain();
+                        osc3.type = 'sine';
+                        osc3.frequency.setValueAtTime(1318.51, now + 0.12);
+                        gain3.gain.setValueAtTime(0, now + 0.12);
+                        gain3.gain.linearRampToValueAtTime(0.50, now + 0.16);
+                        gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+                        osc3.connect(gain3);
+                        gain3.connect(compressor);
+                        osc3.start(now + 0.12);
+                        osc3.stop(now + 0.65);
+                    }
+                } catch (e) {}
+            }
+        };
+
+        // GERENCIADOR DE LATÊNCIA (PING EM TEMPO REAL)
+        const LatencyManager = {
+            badgeEl: null,
+            valEl: null,
+            toggleEl: null,
+            pingTimer: null,
+            lastPingTs: 0,
+            visible: true,
+
+            init() {
+                this.badgeEl = document.getElementById("latency-badge");
+                this.valEl = document.getElementById("latency-val");
+                this.toggleEl = document.getElementById("latency-toggle");
+
+                const saved = localStorage.getItem("antigravity_show_latency");
+                this.visible = saved === null ? true : saved === "true";
+                if (this.toggleEl) this.toggleEl.checked = this.visible;
+                this.applyVisibility();
+
+                if (this.pingTimer) clearInterval(this.pingTimer);
+                this.pingTimer = setInterval(() => this.ping(), 3500);
+                setTimeout(() => this.ping(), 800);
+            },
+
+            toggleVisibility(show) {
+                this.visible = !!show;
+                localStorage.setItem("antigravity_show_latency", this.visible);
+                this.applyVisibility();
+            },
+
+            applyVisibility() {
+                if (!this.badgeEl) return;
+                if (this.visible) {
+                    this.badgeEl.classList.remove("hidden");
+                } else {
+                    this.badgeEl.classList.add("hidden");
+                }
+            },
+
+            ping() {
+                if (!ws || ws.readyState !== WebSocket.OPEN) {
+                    this.update(null);
+                    return;
+                }
+                this.lastPingTs = performance.now();
+                try {
+                    ws.send("ping");
+                } catch(e) {}
+            },
+
+            onPong() {
+                if (!this.lastPingTs) return;
+                const rtt = Math.round(performance.now() - this.lastPingTs);
+                this.lastPingTs = 0;
+                this.update(rtt);
+            },
+
+            update(ms) {
+                if (!this.badgeEl || !this.valEl) return;
+                this.badgeEl.classList.remove("latency-good", "latency-medium", "latency-bad");
+
+                if (ms === null || ms === undefined || ms < 0) {
+                    this.valEl.innerText = "-- ms";
+                    this.badgeEl.classList.add("latency-bad");
+                    return;
+                }
+
+                this.valEl.innerText = `${ms} ms`;
+                if (ms < 130) {
+                    this.badgeEl.classList.add("latency-good");
+                } else if (ms < 320) {
+                    this.badgeEl.classList.add("latency-medium");
+                } else {
+                    this.badgeEl.classList.add("latency-bad");
+                }
+            }
+        };
+
+        function triggerFlash() {
+            if (SoundManager.alertEnabledEl && !SoundManager.alertEnabledEl.checked) return;
+            flashOverlay.classList.remove("flash-active");
+            void flashOverlay.offsetWidth; // Força reflow do DOM para reiniciar animação
+            flashOverlay.classList.add("flash-active");
+        }
+
+        // ALERTA DUPLO SENSORIAL: PISCA 2X COM INTERVALO EXATO DE 1 SEGUNDO (COM SOM E VIBRAÇÃO)
+        function triggerSensoryAlert() {
+            if (SoundManager.alertEnabledEl && !SoundManager.alertEnabledEl.checked) return;
+            // 1º Pulso Sensorial
+            SoundManager.play();
+            triggerFlash();
+            Haptics.alert();
+
+            // 2º Pulso Sensorial exatamente 1 segundo depois (1000ms)
+            setTimeout(() => {
+                if (SoundManager.alertEnabledEl && !SoundManager.alertEnabledEl.checked) return;
+                SoundManager.play();
+                triggerFlash();
+                Haptics.alert();
+            }, 1000);
+        }
+
+        // Parser de Markdown
+        function parseMarkdown(md) {
+            if (!md) return "";
+            let html = md
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+
+            html = html.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                return `<pre><code>${code.trim()}</code></pre>`;
+            });
+
+            html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+            html = html.replace(/^### (.*$)/gim, "<h3>$1</h3>");
+            html = html.replace(/^## (.*$)/gim, "<h2>$1</h2>");
+            html = html.replace(/^# (.*$)/gim, "<h1>$1</h1>");
+            html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+            html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+            html = html.replace(/^\s*[-•*]\s+(.*$)/gim, "<li>$1</li>");
+            html = html.replace(/(<li>.*<\/li>)/gms, "<ul>$1</ul>");
+            html = html.replace(/\n\n+/g, "</p><p>");
+            html = html.replace(/\n/g, "<br>");
+            return `<p>${html}</p>`;
+        }
+
+        function updateStatus(status) {
+            let raw = (status || "CONECTADO").toUpperCase().trim();
+            const t = currentI18n || {};
+            let state = "connected";
+            let label = t.status_connected || "CONECTADO";
+
+            if (raw.includes("CONNECTING") || raw.includes("CONECTANDO")) {
+                state = "connecting";
+                label = t.status_connecting || "CONECTANDO...";
+            } else if (raw.includes("PROCESS") || raw.includes("RUNNING") || raw.includes("PROCES")) {
+                state = "processing";
+                label = t.status_processing || "PROCESSANDO";
+            } else if (raw.includes("DISCONNECT") || raw.includes("DESCONECT")) {
+                state = "disconnected";
+                label = t.status_disconnected || "DESCONECTADO";
+            } else if (raw.includes("DONE") || raw.includes("CONCLU") || raw.includes("COMPLET")) {
+                state = "done";
+                label = t.status_done || "CONCLUÍDO";
+            } else {
+                state = "connected";
+                label = t.status_connected || "CONECTADO";
+            }
+
+            const cleanClass = label.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+            statusPill.className = `status-pill state-${state} ${cleanClass}`;
+            statusText.innerText = label;
+        }
+
+        function updateQuota(q) {
+            if (!q) return;
+            const t = currentI18n || {};
+            const availText = t.quota_available || "100% Disponível";
+
+            const dPct = q.five_hour_pct ?? q.daily_pct ?? 100;
+            const wPct = q.weekly_pct ?? 100;
+
+            fiveHourVal.innerText = `${dPct}%`;
+            fiveHourFill.style.width = `${Math.min(100, Math.max(0, dPct))}%`;
+            fiveHourVal.style.color = dPct < 20 ? "var(--status-red)" : dPct < 50 ? "var(--status-amber)" : "var(--status-green)";
+            fiveHourFill.style.background = dPct < 20 ? "var(--status-red)" : dPct < 50 ? "var(--status-amber)" : "var(--status-green)";
+            if (fiveHourDesc) fiveHourDesc.innerText = q.five_hour_desc || availText;
+
+            weeklyVal.innerText = `${wPct}%`;
+            weeklyFill.style.width = `${Math.min(100, Math.max(0, wPct))}%`;
+            weeklyVal.style.color = wPct < 20 ? "var(--status-red)" : wPct < 50 ? "var(--status-amber)" : "var(--status-green)";
+            weeklyFill.style.background = wPct < 20 ? "var(--status-red)" : wPct < 50 ? "var(--status-amber)" : "var(--status-green)";
+            if (weeklyDesc) weeklyDesc.innerText = q.weekly_desc || availText;
+
+            if (q.active_model) {
+                modelBadge.innerText = q.active_model;
+            }
+        }
+
+        function appendMessage(m) {
+            if (!m || !m.content) return;
+            const currentEmpty = document.getElementById("empty-state");
+            if (currentEmpty) currentEmpty.style.display = "none";
+
+            const isUser = m.role === "user";
+            const container = document.createElement("div");
+            container.className = `msg-container ${isUser ? "msg-user" : "msg-assistant"}`;
+
+            const timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            const t = currentI18n || {};
+            const senderName = isUser ? (t.msg_user || "Você") : (t.msg_assistant || "Antigravity (Conclusão)");
+            
+            container.innerHTML = `
+                <div class="msg-header">
+                    <span>${senderName}</span>
+                    <span>${timeStr}</span>
+                </div>
+                <div class="bubble ${isUser ? "bubble-user" : "bubble-assistant"}">
+                    ${isUser ? m.content.replace(/\\n/g, "<br>") : parseMarkdown(m.content)}
+                </div>
+            `;
+
+            chatFeed.appendChild(container);
+        }
+
+        // CARREGAMENTO IMEDIATO VIA HTTP (Autenticado com token)
+        async function fetchInitialData() {
+            if (!authToken) return;
+            const authParam = "?token=" + encodeURIComponent(authToken);
+
+            try {
+                const qRes = await fetch("/api/quota" + authParam);
+                if (qRes.ok) {
+                    const qData = await qRes.json();
+                    updateQuota(qData);
+                    updateStatus("CONECTADO");
+                }
+            } catch(e) {}
+
+            try {
+                const sRes = await fetch("/api/status" + authParam);
+                if (sRes.ok) {
+                    const sData = await sRes.json();
+                    if (sData.active_model && modelBadge) modelBadge.innerText = sData.active_model;
+                    if (sData.active_project) updateProjectName(sData.active_project, sData.conversation_title);
+                    if (sData.status) updateStatus(sData.status);
+                }
+            } catch(e) {}
+
+            try {
+                const mRes = await fetch("/api/messages" + authParam);
+                if (mRes.ok) {
+                    const mData = await mRes.json();
+                    if (mData.active_model && modelBadge) modelBadge.innerText = mData.active_model;
+                    if (mData.active_project) updateProjectName(mData.active_project, mData.conversation_title);
+                    if (mData.messages && mData.messages.length > 0) {
+                        chatFeed.innerHTML = "";
+                        mData.messages.forEach(appendMessage);
+                        ScrollManager.scrollToBottom(false);
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function handleEvent(evt) {
+            if (evt.event === "init") {
+                if (evt.data.https_url) serverHttpsUrl = evt.data.https_url;
+                if (evt.data.quota) updateQuota(evt.data.quota);
+                if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
+                if (evt.data.active_project) updateProjectName(evt.data.active_project, evt.data.conversation_title);
+                if (evt.data.status) updateStatus(evt.data.status);
+                const msgs = evt.data.messages || [];
+                if (msgs.length > 0) {
+                    chatFeed.innerHTML = "";
+                    msgs.forEach(appendMessage);
+                    ScrollManager.scrollToBottom(false);
+                    setTimeout(() => ScrollManager.scrollToBottom(true), 150);
+                }
+            } else if (evt.event === "tunnel_ready") {
+                if (evt.data && evt.data.https_url) {
+                    serverHttpsUrl = evt.data.https_url;
+                }
+            } else if (evt.event === "conversation_switched") {
+                if (evt.data) {
+                    if (evt.data.quota) updateQuota(evt.data.quota);
+                    if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
+                    if (evt.data.active_project) updateProjectName(evt.data.active_project, evt.data.conversation_title);
+                    if (evt.data.status) updateStatus(evt.data.status);
+                    chatFeed.innerHTML = "";
+                    const msgs = evt.data.messages || [];
+                    if (msgs.length === 0) {
+                        const t = currentI18n || {};
+                        const emptyDiv = document.createElement("div");
+                        emptyDiv.id = "empty-state";
+                        emptyDiv.className = "empty-state";
+                        const subPrefix = evt.data.conversation_title ? `[${evt.data.conversation_title}] — ` : "";
+                        emptyDiv.innerHTML = `
+                            <div class="empty-icon">📡</div>
+                            <div class="empty-title">${t.empty_title || "Aguardando edições no PC"}</div>
+                            <div class="empty-sub">${subPrefix}${t.empty_sub || "As conclusões das tarefas aparecerão aqui automaticamente."}</div>
+                        `;
+                        chatFeed.appendChild(emptyDiv);
+                    } else {
+                        msgs.forEach(appendMessage);
+                    }
+                    ScrollManager.scrollToBottom(false);
+                    setTimeout(() => ScrollManager.scrollToBottom(true), 150);
+                }
+            } else if (evt.event === "task_completed") {
+                triggerSensoryAlert();
+                NotificationManager.send(
+                    (currentI18n && currentI18n.task_completed_notify_title) || "Antigravity • Tarefa Concluída",
+                    (evt.data && evt.data.summary) || "Uma tarefa foi concluída com sucesso no PC!"
+                );
+                LogManager.addLog({
+                    project: (document.getElementById("project-name") ? document.getElementById("project-name").innerText : "Antigravity"),
+                    title: (evt.data && evt.data.summary) ? evt.data.summary : "Tarefa Concluída",
+                    model: (modelBadge ? modelBadge.innerText : "AI"),
+                    summary: (evt.data && evt.data.summary) || "Uma tarefa foi concluída com sucesso no PC!"
+                });
+                updateStatus("CONCLUÍDO");
+                if (evt.data && evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
+                if (evt.data && evt.data.quota) updateQuota(evt.data.quota);
+                setTimeout(() => {
+                    if (statusText.innerText === "CONCLUÍDO") {
+                        updateStatus("CONECTADO");
+                    }
+                }, 5000);
+            } else if (evt.event === "model_changed") {
+                if (evt.data) {
+                    if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
+                    if (evt.data.quota) updateQuota(evt.data.quota);
+                }
+            } else if (evt.event === "conclusion_message" || evt.event === "user_message") {
+                if (evt.data) {
+                    if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
+                    appendMessage(evt.data);
+                    updateStatus(evt.event === "conclusion_message" ? "CONCLUÍDO" : "PROCESSANDO");
+                    ScrollManager.onNewMessage();
+                    if (evt.event === "conclusion_message") {
+                        setTimeout(() => {
+                            if (statusText.innerText === "CONCLUÍDO") {
+                                updateStatus("CONECTADO");
+                            }
+                        }, 5000);
+                    }
+                }
+            } else if (evt.event === "status_change") {
+                updateStatus(evt.data && evt.data.status ? evt.data.status : "PROCESSANDO");
+                if (evt.data && evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
+            } else if (evt.event === "quota_update") {
+                updateQuota(evt.data);
+                if (evt.data && evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
+            }
+        }
+
+        function connectWS() {
+            if (!authToken) return;
+            const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            ws = new WebSocket(`${protocol}//${window.location.host}/ws?token=${encodeURIComponent(authToken)}`);
+
+            ws.onopen = () => {
+                updateStatus("CONECTADO");
+                fetchInitialData();
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    if (event.data === "pong") {
+                        LatencyManager.onPong();
+                        return;
+                    }
+                    const payload = JSON.parse(event.data);
+                    if (payload.event === "i18n_update" && payload.data && payload.data.dict) {
+                        currentI18n = payload.data.dict;
+                        applyI18n();
+                        updateStatus(statusText.innerText);
+                    } else if (payload.event === "init" && payload.data && payload.data.i18n) {
+                        currentI18n = payload.data.i18n;
+                        applyI18n();
+                    }
+                    handleEvent(payload);
+                } catch(e) {}
+            };
+
+            ws.onclose = (e) => {
+                updateStatus("DESCONECTADO");
+                if (e.code === 4003) {
+                    // Token inválido ou expirado após 24 horas
+                    authToken = "";
+                    try {
+                        localStorage.removeItem("antigravity_auth_token");
+                        localStorage.removeItem("antigravity_auth_expiry");
+                    } catch(e) {}
+                    pinScreen.classList.remove("hidden");
+                    pinError.innerText = (currentI18n && currentI18n.pin_error) || "Sessão expirada após 24h. Digite o PIN.";
+                    pinError.style.color = "#f87171";
+                    requestNewPin(false);
+                    return;
+                }
+                if (authToken) {
+                    setTimeout(connectWS, 2000);
+                }
+            };
+
+            ws.onerror = () => {
+                updateStatus("DESCONECTADO");
+            };
+        }
+
+        async function triggerTestAlert() {
+            triggerSensoryAlert();
+            NotificationManager.send(
+                (currentI18n && currentI18n.title) || "Antigravity Mobile",
+                "🔔 Teste de alerta sensorial duplo (2x som + 2x tela piscando)!"
+            );
+            try {
+                await fetch(`/api/test-alert?token=${encodeURIComponent(authToken)}`, { method: "POST" });
+            } catch(e) {}
+        }
+
+        // Inicialização: temas, notificações, rolagem, idioma traduzido e cache de 24h
+        async function initApp() {
+            ThemeManager.init();
+            ScrollManager.init();
+            NotificationManager.init();
+            SoundManager.init();
+            LatencyManager.init();
+            MenuManager.init();
+            LogManager.init();
+            await loadI18n();
+            let hasValidCache = false;
+
+            try {
+                const storedToken = localStorage.getItem("antigravity_auth_token");
+                const storedExpiry = parseInt(localStorage.getItem("antigravity_auth_expiry") || "0", 10);
+                const now = Date.now();
+
+                // Se houver sessão em cache e não tiver passado de 24 horas
+                if (storedToken && storedExpiry > now) {
+                    const res = await fetch("/api/auth/check?token=" + encodeURIComponent(storedToken));
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.authenticated) {
+                            authToken = storedToken;
+                            hasValidCache = true;
+                            pinScreen.classList.add("hidden");
+                            fetchInitialData();
+                            connectWS();
+                        }
+                    }
+                }
+            } catch(e) {}
+
+            // Se não houver sessão ativa válida (primeiro acesso ou após 24h)
+            if (!hasValidCache) {
+                try {
+                    localStorage.removeItem("antigravity_auth_token");
+                    localStorage.removeItem("antigravity_auth_expiry");
+                } catch(e) {}
+                authToken = "";
+                pinScreen.classList.remove("hidden");
+                requestNewPin(false);
+            }
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
