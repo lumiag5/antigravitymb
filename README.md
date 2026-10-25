@@ -69,8 +69,8 @@ Assim que a IA encerra o turno de resposta:
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/LumiaG5/antigravity-mobile.git
-   cd antigravity-mobile
+   git clone https://github.com/LumiaG5/antigravitymb.git
+   cd antigravitymb
    ```
 
 2. Inicie o servidor:
@@ -94,7 +94,7 @@ Assim que a IA encerra o turno de resposta:
     * Mobile (HTTPS Seguro): https://seu-tunnel.trycloudflare.com
     * Idioma Ativo:          Português (Brasil)
    --------------------------------------------------------------------
-    PIN DE ACESSO:           [ 4821 ]
+    PIN DE ACESSO:           [ XXXX ]
    ====================================================================
    ```
    * Abra o link no navegador do celular (recomenda-se o HTTPS para ativar notificações).
