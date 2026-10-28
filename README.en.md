@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v2.4.2-blue?style=flat-square" alt="Version v2.4.2">
+  <img src="https://img.shields.io/badge/version-v2.4.3-blue?style=flat-square" alt="Version v2.4.3">
   <img src="https://img.shields.io/badge/platform-Windows_%7C_Android-success?style=flat-square" alt="Platforms">
   <img src="https://img.shields.io/badge/android-7.0%2B_%28API_24%2B%29-green?style=flat-square" alt="Android 7+">
   <img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" alt="MIT License">
@@ -32,7 +32,20 @@ When running long agentic tasks in Antigravity IDE — such as massive refactors
 ### 💬 Real-Time Chat & Noise Filtering
 * **Focus on what matters**: Antigravity generates hundreds of internal tool execution and terminal lines. The companion cleans out internal noise, displaying only user prompts and assistant conclusions.
 * **Markdown & Code Rendering**: Syntax highlighted code blocks, tables, and typography matching the IDE (Inter and JetBrains Mono fonts).
-* **Smart Auto-Scroll**: Tracks incoming streams automatically, pausing when you scroll up to inspect previous responses.
+* **Smart Auto-Scroll & Free Scroll**: Automatically follows incoming responses and lets you scroll up freely through earlier history without gesture traps on both APK and web.
+
+### 💬 Central "Chats" Navigation & Multi-Projects
+* **Central "Chats" Button in Footer**: Instant one-tap access to all recent conversations and projects synchronized from Antigravity PC.
+* **Strict Pulsing Dot Status**:
+  * `🟠` **Pulsing Orange Dot**: Antigravity is actively working/processing in that conversation.
+  * `🟢` **Pulsing Green Dot**: Conversation is idle/standby.
+  *(100% clean visual with no cluttering text).*
+* **Independent Remote History**: Inspect full conversation history on mobile without switching active windows or interfering with work on the PC, featuring a "Return to Live PC" button.
+
+### ⚡ Dynamic Statuses & Real-Time Sync
+* **Instant "Thinking" Detection**: Direct sub-second SQLite step inspection (`conversations/<conv_id>.db`) switches immediately to pulsing purple (`#a855f7`) the exact millisecond the PC enters thinking mode.
+* **Background Task & Task Running Unification**: Subagents `invoke_subagent`, `schedule` timers, `manage_task` commands, and terminal jobs are unified under pulsing cyan (`#0ea5e9`).
+* **Strict "Done" Completion Rule**: Status transitions to "Completed" (*Done*) only when **all activities in the project have fully concluded**, displaying for **1 minute** alongside a chime sound and dual screen flash.
 
 ### 🔔 Sensory Completion Alerts
 * **Dual Screen Flash**: Two emerald green screen flashes spaced 1 second apart (clearly visible even if your phone is sitting on your desk).
@@ -59,12 +72,15 @@ When running long agentic tasks in Antigravity IDE — such as massive refactors
 
 ### 📱 Native Android App (Kotlin APK)
 Standalone `.apk` package offering deep Android OS integration:
+* **In-App Auto-Updater**: One-tap check for new releases on GitHub with background download and direct install via `FileProvider`.
+* **Dynamic Version Badge**: Distinguishes whether running on native APK (`vX.X.X (APK)`) or IP browser (`vX.X.X (IP)`).
 * **OLED True Black Mode (`#000000`)**: Battery saving on AMOLED screens with true black styling.
+* **Clean UI without "✕" Buttons**: Modals auto-close by clicking outside (backdrop) or via a bottom "Close" button.
 * **Auto-Logout on App Close**: Pauses the active session whenever the app is closed for privacy.
 * **▶ Resume Session (No PIN needed)**: Single tap restores connection to the running PC daemon, backed by a 24-hour cryptographic session cache.
 * **📷 Sign in with QR Code via Native Camera (ZXing)**: Integrated camera scanner reads the PC console's ASCII QR code with embedded PIN (`?pin=XXXX`) for instant zero-touch pairing.
 * **⚡ New Session**: Flushes previous tokens to pair afresh with a new PIN or different server.
-* **Automated Cloud CI/CD**: APK compiled automatically in the cloud on **GitHub Actions**. See the [Android APK Changelog](android/CHANGELOG.md).
+* **Automated Cloud CI/CD**: APK compiled automatically in the cloud on **GitHub Actions**. See the APK Changelogs: [Português](android/CHANGELOG.md) &bull; [English](android/CHANGELOG.en.md) &bull; [Español](android/CHANGELOG.es.md).
 
 ---
 
@@ -79,7 +95,9 @@ antigravity-mobile/
 │   │   ├── java/.../MainActivity.kt  # Session Manager, WebView, and ZXing Scanner
 │   │   ├── res/layout/activity_main.xml  # OLED True Black layout
 │   │   └── AndroidManifest.xml
-│   └── CHANGELOG.md           # Android APK Version History
+│   ├── CHANGELOG.md           # Android APK Version History (Português)
+│   ├── CHANGELOG.en.md        # Android APK Version History (English)
+│   └── CHANGELOG.es.md        # Android APK Version History (Español)
 ├── desktop-bridge/            # PC Bridge Daemon (Python / FastAPI)
 │   ├── Start_Server.bat       # One-click Windows launcher
 │   ├── run.py                 # CLI with ASCII QR Code and keyboard hotkeys
@@ -92,7 +110,9 @@ antigravity-mobile/
 │   └── static/                # Mobile PWA companion (HTML5, CSS, JS, Web Audio)
 │       ├── index.html         # Full companion dashboard
 │       └── manifest.json      # Official PWA specifications
-├── CHANGELOG.md               # Global project changelog
+├── CHANGELOG.md               # Global project changelog (Português)
+├── CHANGELOG.en.md            # Global project changelog (English)
+├── CHANGELOG.es.md            # Global project changelog (Español)
 ├── LICENSE                    # MIT License (Copyright © 2026 Dev LumiaG5)
 └── TUTORIAL.txt               # Step-by-step setup guide
 ```

@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/versão-v2.4.2-blue?style=flat-square" alt="Versão v2.4.2">
+  <img src="https://img.shields.io/badge/versão-v2.4.3-blue?style=flat-square" alt="Versão v2.4.3">
   <img src="https://img.shields.io/badge/plataforma-Windows_%7C_Android-success?style=flat-square" alt="Plataformas">
   <img src="https://img.shields.io/badge/android-7.0%2B_%28API_24%2B%29-green?style=flat-square" alt="Android 7+">
   <img src="https://img.shields.io/badge/licença-MIT-yellow?style=flat-square" alt="Licença MIT">
@@ -32,7 +32,20 @@ O **Antigravity Mobile** resolve tudo isso conectando o PC diretamente ao seu ce
 ### 💬 Chat em Tempo Real com Feed Filtrado
 * **Foco no que interessa**: O Antigravity IDE gera centenas de linhas de logs internos de execução e chamadas de ferramentas. O companion filtra os ruídos e exibe apenas o prompt do desenvolvedor e a conclusão final do assistente.
 * **Renderização Markdown & Código**: Realce de sintaxe em blocos de código, tabelas e tipografia alinhada à do IDE (fontes Inter e JetBrains Mono).
-* **Auto-Scroll Inteligente**: Acompanha o fluxo das respostas automaticamente, pausando a rolagem caso você suba a tela para ler o histórico anterior.
+* **Auto-Scroll Inteligente & Rolagem Livre**: Acompanha o fluxo das respostas automaticamente e permite rolar livremente para cima no histórico de mensagens sem travas no APK ou no navegador.
+
+### 💬 Navegação Central "Chats" & Multi-Projetos
+* **Botão "Chats" no Rodapé**: Acesso direto a todas as conversas e projetos sincronizados do Antigravity PC com um único toque.
+* **Indicadores Pulsantes Estritos**:
+  * `🟠` **Ponto Laranja Pulsante**: O Antigravity está ativamente trabalhando/processando naquela conversa.
+  * `🟢` **Ponto Verde Pulsante**: A conversa está em repouso/ociosa.
+  *(Visual 100% limpo, sem textos poluindo a lista).*
+* **Inspeção Remota Independente**: Leia todo o histórico de qualquer projeto pelo celular sem alternar janelas ou interferir no trabalho ativo no computador, com botão de retorno à sincronização ao vivo.
+
+### ⚡ Status Dinâmicos & Sincronização em Tempo Real
+* **"Pensando..." (*Thinking*) Instantâneo**: Monitoramento direto dos passos no SQLite (`conversations/<conv_id>.db`) que ativa o status roxo pulsante (`#a855f7`) no exato milissegundo em que o PC entra em modo de reflexão.
+* **Unificação de "Background Task" & "Executando Tarefa..."**: Subagentes `invoke_subagent`, temporizadores `schedule`, comandos `manage_task` e tarefas de terminal são exibidos sob o status ciano pulsante (`#0ea5e9`).
+* **Critério Rigoroso para "Concluído" (*Done*)**: O status só passa para "Concluído" quando **todas as atividades do projeto estiverem 100% finalizadas**, permanecendo visível por **1 minuto** com toque sonoro e duplo flash.
 
 ### 🔔 Alertas Sensoriais de Conclusão de Tarefa
 * **Duplo Flash Visual**: A tela do celular pisca duas vezes em verde esmeralda com intervalo de 1 segundo (visível mesmo com o celular repousado sobre a mesa).
@@ -59,12 +72,15 @@ O **Antigravity Mobile** resolve tudo isso conectando o PC diretamente ao seu ce
 
 ### 📱 Aplicativo Nativo Android (APK Kotlin)
 Disponível em pacote `.apk` com integração profunda ao sistema:
+* **Atualização Automática no Menu**: Verificação em 1 toque de novas releases publicadas no GitHub com download e instalação direta via `FileProvider`.
+* **Badge de Versão Dinâmico**: Identifica explicitamente se você está no APK (`vX.X.X (APK)`) ou no navegador IP (`vX.X.X (IP)`).
 * **Modo OLED True Black (`#000000`)**: Máxima economia de bateria em telas AMOLED e conforto visual.
+* **Interface Limpa sem Botões "✕"**: Fechamento simplificado ao tocar fora da janela (backdrop click) ou no botão "Fechar" inferior.
 * **Logout Automático ao Fechar o App**: Ao fechar o app, a sessão é pausada, garantindo privacidade.
 * **▶ Voltar à Sessão (Sem Novo PIN)**: Se o servidor estiver ativo no PC, um único toque reconecta ao dashboard mantendo a autorização válida por 24 horas.
 * **📷 Entrar com QR Code via Câmera (ZXing)**: Scanner nativo de câmera integrado para ler o QR Code do terminal do PC com PIN dinâmico embutido (`?pin=XXXX`), liberando o acesso instantaneamente sem necessidade de digitação.
 * **⚡ Nova Sessão**: Atalho para limpar tokens anteriores e iniciar novo pareamento.
-* **CI/CD Automatizado**: O APK é compilado na nuvem via **GitHub Actions** a cada versão. Veja o [Changelog exclusivo do APK](android/CHANGELOG.md).
+* **CI/CD Automatizado**: O APK é compilado na nuvem via **GitHub Actions** a cada versão. Veja os changelogs do APK: [Português](android/CHANGELOG.md) &bull; [English](android/CHANGELOG.en.md) &bull; [Español](android/CHANGELOG.es.md).
 
 ---
 
@@ -79,7 +95,9 @@ antigravity-mobile/
 │   │   ├── java/.../MainActivity.kt  # Gerenciador de Sessão, WebView e ZXing Scanner
 │   │   ├── res/layout/activity_main.xml  # Layout OLED True Black
 │   │   └── AndroidManifest.xml
-│   └── CHANGELOG.md           # Histórico exclusivo de versões do APK
+│   ├── CHANGELOG.md           # Histórico de versões do APK (Português)
+│   ├── CHANGELOG.en.md        # APK Changelog (English)
+│   └── CHANGELOG.es.md        # Changelog del APK (Español)
 ├── desktop-bridge/            # Daemon Local para Windows (Python / FastAPI)
 │   ├── Start_Server.bat       # Inicializador em 1 clique para Windows
 │   ├── run.py                 # CLI com ASCII QR Code e atalhos de teclado
@@ -92,7 +110,9 @@ antigravity-mobile/
 │   └── static/                # Interface Mobile PWA (HTML5, CSS, JS, Web Audio)
 │       ├── index.html         # Painel completo do companion
 │       └── manifest.json      # Especificações oficiais PWA
-├── CHANGELOG.md               # Changelog geral do projeto
+├── CHANGELOG.md               # Changelog geral do ecossistema (Português)
+├── CHANGELOG.en.md            # General project changelog (English)
+├── CHANGELOG.es.md            # Changelog general del proyecto (Español)
 ├── LICENSE                    # Licença MIT (Copyright © 2026 Dev LumiaG5)
 └── TUTORIAL.txt               # Guia de conexão passo a passo
 ```

@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/versión-v2.4.2-blue?style=flat-square" alt="Versión v2.4.2">
+  <img src="https://img.shields.io/badge/versión-v2.4.3-blue?style=flat-square" alt="Versión v2.4.3">
   <img src="https://img.shields.io/badge/plataforma-Windows_%7C_Android-success?style=flat-square" alt="Plataformas">
   <img src="https://img.shields.io/badge/android-7.0%2B_%28API_24%2B%29-green?style=flat-square" alt="Android 7+">
   <img src="https://img.shields.io/badge/licencia-MIT-yellow?style=flat-square" alt="Licencia MIT">
@@ -32,7 +32,20 @@ Cuando asignas tareas extensas a Antigravity IDE — como refactorizaciones masi
 ### 💬 Chat en Tiempo Real con Filtrado de Ruido
 * **Foco en lo relevante**: Antigravity genera cientos de líneas de ejecución interna y terminal. El companion limpia el ruido, mostrando únicamente los prompts y las conclusiones finales del asistente.
 * **Renderizado de Markdown y Código**: Resaltado de sintaxis en bloques de código, tablas y tipografía adaptada a la del IDE (fuentes Inter y JetBrains Mono).
-* **Auto-Scroll Inteligente**: Sigue el flujo de texto automáticamente y se pausa si te desplazas hacia arriba para revisar el historial.
+* **Auto-Scroll Inteligente & Desplazamiento Libre**: Sigue el flujo de texto automáticamente y permite desplazarse hacia arriba libremente por el historial sin bloqueos de gestos en APK ni en el navegador.
+
+### 💬 Navegación Central "Chats" & Multi-Proyectos
+* **Botón "Chats" en el Pie de Página**: Acceso directo a todas las conversaciones y proyectos sincronizados de Antigravity PC con un solo toque.
+* **Indicadores Pulsantes Estrictos**:
+  * `🟠` **Punto Naranja Pulsante**: Antigravity está activamente procesando/trabajando en esa conversación.
+  * `🟢` **Punto Verde Pulsante**: La conversación está en reposo/ociosa.
+  *(Visual 100% limpio, sin textos innecesarios).*
+* **Inspección Remota Independiente**: Revisa todo el historial de cualquier proyecto desde el móvil sin cambiar de ventana ni interferir en la PC, con botón para volver a la sincronización en vivo.
+
+### ⚡ Estados Dinámicos & Sincronización en Tiempo Real
+* **"Pensando..." (*Thinking*) Instantáneo**: Inspección directa de pasos en SQLite (`conversations/<conv_id>.db`) que activa el estado púrpura pulsante (`#a855f7`) en el milisegundo exacto en que la PC entra en razonamiento.
+* **Unificación de "Background Task" & "Ejecutando Tarea..."**: Subagentes `invoke_subagent`, temporizadores `schedule`, comandos `manage_task` y procesos de terminal unificados bajo el indicador cian pulsante (`#0ea5e9`).
+* **Criterio Riguroso para "Completado" (*Done*)**: El estado solo pasa a "Completado" cuando **todas las actividades del proyecto han finalizado por completo**, mostrándose durante **1 minuto** con timbre sonoro y doble destello.
 
 ### 🔔 Alertas Sensoriales de Finalización
 * **Doble Destello en Pantalla**: Dos parpadeos verde esmeralda con intervalo de 1 segundo (visibles incluso con el móvil apoyado en la mesa).
@@ -45,7 +58,7 @@ Cuando asignas tareas extensas a Antigravity IDE — como refactorizaciones masi
 
 ### 📊 Seguimiento Oficial de Cuotas (RPC Interna)
 * **Métricas Reales sin Estimaciones**: Conexión directa con el servicio RPC interno de Antigravity (`LanguageServerService/RetrieveUserQuotaSummary`).
-* **Sincronización Dinámica de Cuotas**: Alterna automáticamente entre los grupos de cuota `Gemini Models` y `Claude and GPT models` según el modelo en ejecución.
+* **Sincronización Dinámica de Cuotas**: Alterna automáticamente entre los grupos de cuota `Gemini Models` e `Claude and GPT models` según el modelo en ejecución.
 * **Barras de Uso**: Porcentaje de consumo de cuota de 5 Horas y Semanal, con tiempo exacto para la renovación.
 
 ### 📶 Medidor de Latencia en Tiempo Real (Ping)
@@ -59,12 +72,15 @@ Cuando asignas tareas extensas a Antigravity IDE — como refactorizaciones masi
 
 ### 📱 Aplicación Nativa Android (APK Kotlin)
 Paquete `.apk` independiente con integración profunda en Android:
+* **Actualización Automática en el Menú**: Consulta en 1 toque de nuevas versiones publicadas en GitHub con descarga e instalación directa vía `FileProvider`.
+* **Distintivo Dinámico de Versión**: Identifica claramente si estás en el APK nativo (`vX.X.X (APK)`) o en el navegador web IP (`vX.X.X (IP)`).
 * **Modo OLED True Black (`#000000`)**: Máximo ahorro de batería en pantallas AMOLED.
+* **Interfaz Limpia sin Botones "✕"**: Cierre simplificado al tocar fuera de la ventana (backdrop click) o mediante el botón "Cerrar" inferior.
 * **Cierre Automático de Sesión al Salir**: Pausa la sesión al cerrar la app para total privacidad.
 * **▶ Volver a la Sesión (Sin Nuevo PIN)**: Reconexión inmediata si el servidor sigue abierto en la PC, con sesión criptográfica de 24 horas.
 * **📷 Entrar con Código QR vía Cámara (ZXing)**: Escáner nativo de cámara integrado para leer el código QR de la terminal de la PC con PIN dinámico incorporado (`?pin=XXXX`) para conexión instantánea sin tocar el teclado.
 * **⚡ Nueva Sesión**: Limpia los tokens anteriores para iniciar un nuevo emparejamiento.
-* **CI/CD Automatizado**: El APK se compila automáticamente en la nube vía **GitHub Actions**. Consulta el [Changelog exclusivo del APK](android/CHANGELOG.md).
+* **CI/CD Automatizado**: El APK se compila automáticamente en la nube vía **GitHub Actions**. Consulta los changelogs del APK: [Português](android/CHANGELOG.md) &bull; [English](android/CHANGELOG.en.md) &bull; [Español](android/CHANGELOG.es.md).
 
 ---
 
@@ -79,7 +95,9 @@ antigravity-mobile/
 │   │   ├── java/.../MainActivity.kt  # Gestor de Sesión, WebView y ZXing Scanner
 │   │   ├── res/layout/activity_main.xml  # Diseño OLED True Black
 │   │   └── AndroidManifest.xml
-│   └── CHANGELOG.md           # Historial de versiones del APK de Android
+│   ├── CHANGELOG.md           # Historial de versiones del APK (Português)
+│   ├── CHANGELOG.en.md        # Historial de versiones del APK (English)
+│   └── CHANGELOG.es.md        # Historial de versiones del APK (Español)
 ├── desktop-bridge/            # Daemon Local para Windows (Python / FastAPI)
 │   ├── Start_Server.bat       # Iniciador en 1 clic para Windows
 │   ├── run.py                 # CLI con código QR en ASCII y atajos de teclado
@@ -92,7 +110,9 @@ antigravity-mobile/
 │   └── static/                # Companion móvil PWA (HTML5, CSS, JS, Web Audio)
 │       ├── index.html         # Panel completo del companion
 │       └── manifest.json      # Especificaciones oficiales PWA
-├── CHANGELOG.md               # Changelog general del proyecto
+├── CHANGELOG.md               # Changelog general del proyecto (Português)
+├── CHANGELOG.en.md            # Changelog general del proyecto (English)
+├── CHANGELOG.es.md            # Changelog general del proyecto (Español)
 ├── LICENSE                    # Licencia MIT (Copyright © 2026 Dev LumiaG5)
 └── TUTORIAL.txt               # Guía paso a paso de conexión
 ```
