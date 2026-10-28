@@ -149,11 +149,10 @@ def run_tests():
         }
         assert_true(mon._extract_status_from_step(step_work) == "WORKING", "tool_call comum -> WORKING")
 
-        # Teste 3.4: Regra estrita de Done
-        # Se is_project_active for forçado a True, planner response DEVE retornar TASK_RUNNING
-        original_is_active_method = mon.is_project_active
+        # Teste 3.4: Regra estrita de Done com Background Tasks
+        original_bg_method = mon.has_active_background_tasks
         try:
-            mon.is_project_active = lambda cid=None: True
+            mon.has_active_background_tasks = lambda cid=None: True
             step_final = {
                 "source": "MODEL",
                 "type": "PLANNER_RESPONSE",
@@ -161,12 +160,16 @@ def run_tests():
                 "content": "Tarefa concluída!",
                 "tool_calls": []
             }
-            assert_true(mon._extract_status_from_step(step_final) == "TASK_RUNNING", "Se projeto ativo/tarefas em execução -> PLANNER_RESPONSE permanece TASK_RUNNING")
+            assert_true(mon._extract_status_from_step(step_final) == "TASK_RUNNING", "Se background tasks em execução -> PLANNER_RESPONSE permanece TASK_RUNNING")
 
-            mon.is_project_active = lambda cid=None: False
-            assert_true(mon._extract_status_from_step(step_final) == "DONE", "Se projeto 100% ocioso -> PLANNER_RESPONSE torna-se DONE")
+            mon.has_active_background_tasks = lambda cid=None: False
+            assert_true(mon._extract_status_from_step(step_final) == "DONE", "Se sem background tasks -> PLANNER_RESPONSE torna-se DONE")
         finally:
-            mon.is_project_active = original_is_active_method
+            mon.has_active_background_tasks = original_bg_method
+
+        # Teste 3.5: Detecção instantânea de Live Cascade Status (SQLite em tempo real)
+        live_stat = mon.detect_live_cascade_status(active_cid)
+        assert_true(live_stat in ["THOUGHT", "WORKING", "TASK_RUNNING", "DONE", "IDLE"], f"detect_live_cascade_status retornou status válido: {live_stat}")
 
     except Exception as e:
         assert_true(False, f"Erro no Monitor: {e}")

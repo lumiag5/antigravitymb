@@ -10,7 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
-## [2.4.3] - 2026-10-28 (Build 2424)
+## [2.4.3] - 2026-10-28 (Build 2425)
+
+### ⚡ Real-Time Thinking Sync & Done Transition Fix
+* **Fixed Transition to "Done"**: Fixed an issue where the mobile app remained stuck in "Task Running" even after tasks and tests concluded on PC. The app now accurately transitions to **"Completed"** (*Done*) upon conclusion.
+* **Instant "Thinking" Status Synchronization**: Implemented direct sub-second SQLite cascade step monitoring (`conversations/<conv_id>.db`). The mobile app switches **instantaneously** to **"Thinking..."** as soon as Antigravity PC enters thinking mode, without waiting for disk log flushes.
 
 ### ⚙️ Background Task Unification & Strict Completion
 * **Unification of "Background Task" and "Task Running"**: Mapped PC Background Tasks (background tasks, timers, subagents, and asynchronous commands) to the exact same status as **"Task Running..."** (*Executando Tarefa...* / *Ejecutando Tarea...*) with a pulsing cyan dot (`#0ea5e9`).

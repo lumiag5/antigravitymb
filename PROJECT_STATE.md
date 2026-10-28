@@ -10,7 +10,12 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
 3. **Métricas Oficiais de Quota**: Exibição em tempo real da porcentagem de uso diário (5h) e semanal do modelo de IA via RPC interna com adaptação dinâmica entre grupos de modelos.
 4. **Conectividade Flexível**: Suporte à rede local (Wi-Fi) e acesso remoto global via túnel HTTPS seguro (Cloudflare) sem configuração de portas.
 
-## FUNCIONALIDADES IMPLEMENTADAS (v2.4.3 • Build 2424)
+## FUNCIONALIDADES IMPLEMENTADAS (v2.4.3 • Build 2425)
+- **Sincronização Instantânea em Tempo Real (Thinking / Pensando...)**:
+  - Leitura direta dos passos de execução no banco SQLite da conversa ativa (`conversations/<conv_id>.db`). Assim que o usuário envia uma solicitação e o Antigravity PC entra no modo "Thinking...", o app mobile comuta **instantaneamente** para **"Pensando..."** com dot roxo pulsante (`#a855f7`), sem aguardar flush de logs no disco.
+- **Correção da Transição para "Concluído" (*Done*)**:
+  - Eliminação da dependência do `conversation_summaries.db` que mantinha o app preso em "Executando Tarefa".
+  - Ao término da geração da resposta final, o status transiciona imediatamente para **"Concluído"** (*Done*), acionando o som de conclusão, flash visual e o temporizador de 1 minuto.
 - **Unificação de "Background Task" com "Task Running"**:
   - Toda tarefa em segundo plano (*Background Task*, subagentes, comandos de fundo `manage_task`, `schedule`, `invoke_subagent`, `run_command` assíncronos) é mapeada rigorosamente para o mesmo status: **"Executando Tarefa..."** (*Task Running...* / *Ejecutando Tarea...*) com indicador ciano pulsante (`#0ea5e9`).
 - **Critério Estrito para o Status "Concluído" (*Done*)**:

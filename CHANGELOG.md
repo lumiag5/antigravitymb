@@ -10,7 +10,11 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [2.4.3] - 2026-10-28 (Build 2424)
+## [2.4.3] - 2026-10-28 (Build 2425)
+
+### ⚡ Sincronização em Tempo Real (Thinking) & Transição Concluído (Done)
+* **Correção da Transição para "Done" (Concluído)**: Corrigido o problema onde o app mobile permanecia com o status "Executando Tarefa" mesmo após a conclusão das tarefas e testes no PC. O status agora transiciona perfeitamente para **"Concluído"** (*Done*) ao finalizar a resposta.
+* **Detecção em Tempo Real do Status "Pensando..." (*Thinking*)**: Através de leitura direta dos passos no SQLite da conversa ativa (`conversations/<conv_id>.db`), o aplicativo mobile comuta **instantaneamente** para **"Pensando..."** assim que o Antigravity PC entra no modo "Thinking...", eliminando atrasos de sincronização.
 
 ### ⚙️ Unificação de Background Task & Conclusão Estrita
 * **Unificação de "Background Task" com "Task Running"**: O status "Background Task" do Antigravity PC (tarefas de segundo plano, temporizadores `schedule`, comandos `manage_task`, subagentes `invoke_subagent` e tarefas assíncronas de terminal) foi unificado rigorosamente como o mesmo status de **"Executando Tarefa..."** (*Task Running...* / *Ejecutando Tarea...*) com dot ciano pulsante (`#0ea5e9`).

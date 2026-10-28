@@ -229,75 +229,130 @@ class AntigravityMonitor:
             return cid
         return self.find_fallback_conversation()
 
-    def is_project_active(self, cid: Optional[str] = None) -> bool:
-        """Verifica se há qualquer atividade (execução, tarefa em background, subagente, cascade) no projeto atual.
-        O status Done só será realmente Done quando esta função retornar False.
-        """
+    def has_active_background_tasks(self, cid: Optional[str] = None) -> bool:
+        """Verifica se há alguma tarefa em segundo plano (background task) realmente em execução."""
         target_cid = cid or self.current_conversation_id
         if not target_cid:
             return False
 
-        # 1. Consulta oficial do estado no banco conversation_summaries.db
-        summaries_db = config.ANTIGRAVITY_DIR / "conversation_summaries.db"
-        if summaries_db.exists():
-            try:
-                conn = sqlite3.connect(f"file:{summaries_db}?mode=ro", uri=True, timeout=0.8)
-                cur = conn.cursor()
-                row = cur.execute(
-                    "SELECT status, not_fully_idle FROM conversation_summaries WHERE conversation_id = ?",
-                    (target_cid,)
-                ).fetchone()
-                if row:
-                    st, not_idle = row
-                    if st == "CASCADE_RUN_STATUS_RUNNING" or not_idle == 1:
-                        conn.close()
-                        return True
+        if target_cid in self.background_working_conversations:
+            return True
 
-                # Checa subagentes ou processos filhos vinculados a esta conversa
-                child_rows = cur.execute(
-                    "SELECT status, not_fully_idle FROM conversation_summaries WHERE parent_conversation_id = ?",
-                    (target_cid,)
-                ).fetchall()
-                for crow in child_rows:
-                    c_st, c_not_idle = crow
-                    if c_st == "CASCADE_RUN_STATUS_RUNNING" or c_not_idle == 1:
-                        conn.close()
-                        return True
-                conn.close()
-            except Exception:
-                pass
-
-        # 2. Checa tarefas de background ativas em .system_generated/tasks/
         tasks_dir = config.BRAIN_DIR / target_cid / ".system_generated" / "tasks"
         if tasks_dir.exists():
             try:
                 now = time.time()
                 for t_log in tasks_dir.glob("task-*.log"):
-                    if now - t_log.stat().st_mtime < 6.0:
+                    # Se algum arquivo de log de tarefa foi modificado nos últimos 5 segundos
+                    if (now - t_log.stat().st_mtime) < 5.0:
                         return True
             except Exception:
                 pass
 
-        # 3. Checa se a conversa está marcada no mapa de background working
-        if target_cid in self.background_working_conversations:
-            return True
-
         return False
+
+    def detect_live_cascade_status(self, cid: Optional[str] = None) -> str:
+        """Lê o estado ao vivo da cascata diretamente do banco SQLite da conversa em tempo real.
+        Detecta instantaneamente quando o agente entra em 'Thinking' (Pensando...),
+        executa ferramentas ('Working' / Trabalhando...), roda tarefas ('Task Running' / Executando Tarefa...)
+        ou conclui com a resposta final ('Done' / Concluído).
+        """
+        target_cid = cid or self.current_conversation_id
+        if not target_cid:
+            return "IDLE"
+
+        db_path = config.CONVERSATIONS_DIR / f"{target_cid}.db"
+        if not db_path.exists():
+            return "IDLE"
+
+        try:
+            con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=0.5)
+            cur = con.cursor()
+            rows = cur.execute(
+                "SELECT idx, step_type, status, step_payload FROM steps ORDER BY idx DESC LIMIT 3"
+            ).fetchall()
+            con.close()
+
+            if not rows:
+                return "IDLE"
+
+            latest_idx, latest_type, latest_status, latest_payload = rows[0]
+            payload_bytes = latest_payload or b""
+
+            # 1. Se a última etapa for USER_INPUT (14): o usuário acabou de enviar a mensagem e o modelo começou a pensar!
+            if latest_type == 14:
+                return "THOUGHT"
+
+            # 2. Se a etapa atual estiver RUNNING (status == 2):
+            if latest_status == 2:
+                if latest_type == 15:
+                    # Model está ativamente gerando o raciocínio ("Thinking..." no PC -> "Pensando..." no app)
+                    return "THOUGHT"
+                elif latest_type == 132:
+                    # Ferramenta está executando
+                    if any(k in payload_bytes for k in [b"manage_task", b"schedule", b"invoke_subagent", b"task-", b"background"]) or self.has_active_background_tasks(target_cid):
+                        return "TASK_RUNNING"
+                    return "WORKING"
+                else:
+                    return "WORKING"
+
+            # 3. Se a última etapa estiver CONCLUÍDA (status == 3):
+            if latest_status == 3:
+                if latest_type == 15:
+                    # Se não possui 'call_' no payload, é a resposta final de conclusão!
+                    if b"call_" not in payload_bytes:
+                        if self.has_active_background_tasks(target_cid):
+                            return "TASK_RUNNING"
+                        return "DONE"
+                    else:
+                        # Chamou ferramenta que vai rodar
+                        if any(k in payload_bytes for k in [b"manage_task", b"schedule", b"invoke_subagent", b"task-", b"background"]) or self.has_active_background_tasks(target_cid):
+                            return "TASK_RUNNING"
+                        return "WORKING"
+                elif latest_type in [132, 133]:
+                    # Ferramenta acabou de concluir, o modelo volta a pensar para a próxima ação
+                    return "THOUGHT"
+
+        except Exception:
+            pass
+
+        return "IDLE"
+
+    def is_project_active(self, cid: Optional[str] = None) -> bool:
+        """Verifica se há qualquer atividade em execução na conversa atual."""
+        target_cid = cid or self.current_conversation_id
+        if not target_cid:
+            return False
+
+        live = self.detect_live_cascade_status(target_cid)
+        if live in ["WORKING", "TASK_RUNNING", "THOUGHT"]:
+            return True
+        if live == "DONE":
+            return False
+
+        return self.has_active_background_tasks(target_cid)
 
     def _is_conversation_working(self, cid: str) -> bool:
         """Verifica se uma conversa possui uma tarefa em andamento ("Working...")."""
         if not cid:
             return False
 
-        # Se o banco oficial ou tarefas indicam atividade em execução, está ativa!
-        if self.is_project_active(cid):
+        # 1. Checa estado ao vivo no SQLite da conversa
+        live = self.detect_live_cascade_status(cid)
+        if live in ["WORKING", "TASK_RUNNING", "THOUGHT"]:
+            return True
+        if live == "DONE":
+            return False
+
+        # 2. Checa se há arquivos de tarefas ativas em .system_generated/tasks/
+        if self.has_active_background_tasks(cid):
             return True
 
+        # 3. Fallback: Leitura rápida do tail de transcript.jsonl
         tpath = config.BRAIN_DIR / cid / ".system_generated" / "logs" / "transcript.jsonl"
         if not tpath.exists():
             return False
         try:
-            # Se o arquivo não foi modificado nos últimos 30 minutos, consideramos inativo
             if time.time() - os.path.getmtime(tpath) > 1800:
                 return False
 
@@ -305,7 +360,7 @@ class AntigravityMonitor:
             if size == 0:
                 return False
 
-            read_len = min(size, 16384)
+            read_len = min(size, 8192)
             with open(tpath, "r", encoding="utf-8", errors="ignore") as f:
                 if size > read_len:
                     f.seek(size - read_len)
@@ -323,20 +378,7 @@ class AntigravityMonitor:
                     return True
 
                 if src == "MODEL" and stype == "PLANNER_RESPONSE" and not tc and bool(last_step.get("content")):
-                    # Só considera inativo se o projeto NÃO estiver com tarefas em execução
-                    return self.is_project_active(cid)
-
-                # Se o último step for SYSTEM_MESSAGE ou GENERIC, verifica passos anteriores recentes
-                for prev in reversed(lines[-8:]):
-                    p = json.loads(prev)
-                    p_tc = p.get("tool_calls", [])
-                    p_src = p.get("source", "")
-                    p_stype = p.get("type", "")
-                    p_st = p.get("status", "")
-                    if p_src == "MODEL" and p_stype == "PLANNER_RESPONSE" and not p_tc and bool(p.get("content")):
-                        return self.is_project_active(cid)
-                    if p_st == "RUNNING" or p_tc or p_src == "USER_EXPLICIT":
-                        return True
+                    return False
         except Exception:
             pass
         return False
@@ -1132,6 +1174,22 @@ class AntigravityMonitor:
                         }
                     })
             
+        # 4. Monitora em tempo real o status da cascata diretamente do banco da conversa (SQLite)
+        # Permite detectar imediatamente quando o modelo entra em 'Thinking' (Pensando...) no PC,
+        # sem atrasos de buffer de log
+        if self.current_conversation_id:
+            live_status = self.detect_live_cascade_status(self.current_conversation_id)
+            if live_status in ["THOUGHT", "WORKING", "TASK_RUNNING"] and live_status != self.current_turn_status:
+                self.current_turn_status = live_status
+                if self.on_event:
+                    await self.on_event({
+                        "event": "status_change",
+                        "data": {
+                            "status": live_status,
+                            "active_model": self.active_model
+                        }
+                    })
+            
         if not self.current_transcript_path or not self.current_transcript_path.exists():
             return
 
@@ -1141,6 +1199,36 @@ class AntigravityMonitor:
                 self.file_offset = 0
 
             if current_size == self.file_offset:
+                # Se não há novas linhas no transcript, mas o SQLite da cascata indica DONE e estávamos trabalhando:
+                if self.current_conversation_id and self.current_turn_status in ["TASK_RUNNING", "WORKING", "THOUGHT"]:
+                    live = self.detect_live_cascade_status(self.current_conversation_id)
+                    if live == "DONE" and not self.has_active_background_tasks(self.current_conversation_id):
+                        self.current_turn_status = "DONE"
+                        self.calculate_quota()
+                        if self.on_event:
+                            await self.on_event({
+                                "event": "status_change",
+                                "data": {
+                                    "status": "DONE",
+                                    "active_model": self.active_model
+                                }
+                            })
+                            recent_msgs = self.get_recent_messages(1)
+                            summary = ""
+                            if recent_msgs and recent_msgs[-1].get("role") == "assistant":
+                                c = recent_msgs[-1].get("content", "")
+                                summary = c[:180] + "..." if len(c) > 180 else c
+                            
+                            await self.on_event({
+                                "event": "task_completed",
+                                "data": {
+                                    "step_index": self.last_step_index,
+                                    "active_model": self.active_model,
+                                    "summary": summary,
+                                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                                    "quota": self.quota_stats
+                                }
+                            })
                 return
 
             with open(self.current_transcript_path, "r", encoding="utf-8", errors="ignore") as f:
@@ -1160,37 +1248,6 @@ class AntigravityMonitor:
 
         except Exception as e:
             print(f"[Monitor] Erro no polling: {e}")
-
-        # 5. Monitora se o projeto ativo concluiu todas as tarefas e background tasks, transitando para DONE
-        if self.current_turn_status in ["TASK_RUNNING", "WORKING", "THOUGHT"]:
-            if not self.is_project_active(self.current_conversation_id) and not self._is_conversation_working(self.current_conversation_id):
-                print(f"[Monitor] *** TODAS AS ATIVIDADES DO PROJETO FORAM CONCLUÍDAS ({self.current_conversation_id}) -> DONE ***")
-                self.current_turn_status = "DONE"
-                self.calculate_quota()
-                if self.on_event:
-                    await self.on_event({
-                        "event": "status_change",
-                        "data": {
-                            "status": "DONE",
-                            "active_model": self.active_model
-                        }
-                    })
-                    recent_msgs = self.get_recent_messages(1)
-                    summary = ""
-                    if recent_msgs and recent_msgs[-1].get("role") == "assistant":
-                        c = recent_msgs[-1].get("content", "")
-                        summary = c[:180] + "..." if len(c) > 180 else c
-                    
-                    await self.on_event({
-                        "event": "task_completed",
-                        "data": {
-                            "step_index": self.last_step_index,
-                            "active_model": self.active_model,
-                            "summary": summary,
-                            "timestamp": datetime.now(timezone.utc).isoformat(),
-                            "quota": self.quota_stats
-                        }
-                    })
 
     def _extract_status_from_step(self, step: Dict[str, Any]) -> str:
         """Determina o status exato (THOUGHT, TASK_RUNNING, WORKING, DONE ou IDLE).
@@ -1241,8 +1298,7 @@ class AntigravityMonitor:
         if status == "DONE":
             is_final = (source == "MODEL" and step_type == "PLANNER_RESPONSE" and not tools and bool(content))
             if is_final:
-                # O status Done só será realmente Done quando não houver atividade alguma em execução no projeto atual
-                if self.is_project_active(self.current_conversation_id):
+                if self.has_active_background_tasks(self.current_conversation_id):
                     return "TASK_RUNNING"
                 return "DONE"
 
@@ -1285,10 +1341,10 @@ class AntigravityMonitor:
                     }
                 })
         elif detected_status == "DONE":
-            # REQUISITO ESTRITO: O status Done só será realmente Done quando não houver atividade alguma em execução no projeto atual!
-            if self.is_project_active(self.current_conversation_id):
+            # Conclusão da tarefa: se há background tasks ativas no momento, mantém TASK_RUNNING
+            if self.has_active_background_tasks(self.current_conversation_id):
                 self.current_turn_status = "TASK_RUNNING"
-                print(f"[Monitor] Mensagem intermediária recebida, mas ainda há atividade/background no projeto {self.current_conversation_id}. Mantendo TASK_RUNNING.")
+                print(f"[Monitor] Mensagem intermediária recebida, mas ainda há background tasks ativas no projeto {self.current_conversation_id}. Mantendo TASK_RUNNING.")
                 if self.on_event:
                     if formatted:
                         await self.on_event({
@@ -1310,7 +1366,7 @@ class AntigravityMonitor:
                     # Recalcula cota oficial ao concluir
                     self.calculate_quota()
                     
-                    print(f"[Monitor] *** CONCLUSÃO FINAL CONFIRMADA (Projeto 100% ocioso - Step {step_index}) ***")
+                    print(f"[Monitor] *** CONCLUSÃO FINAL CONFIRMADA (Step {step_index}) -> DONE ***")
                     if self.on_event:
                         if formatted:
                             await self.on_event({
