@@ -294,7 +294,7 @@ def run_tests():
     # ---------------------------------------------------------
     # TESTE 7: GITHUB RELEASE ASSETS & APK LINKS
     # ---------------------------------------------------------
-    print("\n--- TESTE 7: GITHUB RELEASE ASSETS (v2.4.3 • Build 2424) ---")
+    print("\n--- TESTE 7: GITHUB RELEASE ASSETS (v2.4.3 • Build 2425) ---")
     try:
         headers = {"User-Agent": "AntigravityTest"}
         gh_pat = os.environ.get("GITHUB_TOKEN")
