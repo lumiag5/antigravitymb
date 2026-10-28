@@ -42,6 +42,8 @@ def run_tests():
             assert_true("status_done" in d, f"Idioma '{lang}' possui chave 'status_done'")
             assert_true("btn_chats" in d, f"Idioma '{lang}' possui chave 'btn_chats'")
             assert_true("chats_modal_title" in d, f"Idioma '{lang}' possui chave 'chats_modal_title'")
+            assert_true("battery_title" in d, f"Idioma '{lang}' possui chave 'battery_title'")
+            assert_true("menu_fullscreen_label" in d, f"Idioma '{lang}' possui chave 'menu_fullscreen_label'")
 
         assert_true(TRANSLATIONS["pt"]["status_task_running"] == "Executando Tarefa...", "PT-BR: Executando Tarefa...")
         assert_true(TRANSLATIONS["en"]["status_task_running"] == "Task Running...", "EN: Task Running...")
@@ -235,6 +237,11 @@ def run_tests():
         r_root = client.get("/")
         assert_true(r_root.status_code == 200 and "Antigravity Mobile" in r_root.text, "GET / -> 200 OK com index.html")
         assert_true("no-cache" in r_root.headers.get("Cache-Control", ""), "Header Cache-Control: no-cache presente")
+        assert_true('id="battery-badge"' in r_root.text, "Elemento 'battery-badge' presente no HTML")
+        assert_true('id="battery-val"' in r_root.text, "Elemento 'battery-val' presente no HTML")
+        assert_true('id="row-fullscreen-toggle"' in r_root.text, "Elemento 'row-fullscreen-toggle' presente no HTML")
+        assert_true('FullscreenHelper' in r_root.text, "Objeto JS 'FullscreenHelper' presente no HTML")
+        assert_true('BatteryManager' in r_root.text, "Objeto JS 'BatteryManager' presente no HTML")
 
     except Exception as e:
         assert_true(False, f"Erro nos endpoints FastAPI: {e}")

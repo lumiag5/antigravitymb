@@ -3,7 +3,7 @@
   "short_name": "Antigravity",
   "description": "Mobile companion para Antigravity IDE com monitoramento em tempo real, cotas oficiais e alertas sensoriais.",
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",

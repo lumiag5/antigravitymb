@@ -46,6 +46,11 @@
             background-color: #000000 !important;
             border-color: #12141a !important;
         }
+        body.theme-oled .latency-badge,
+        body.theme-oled .battery-badge {
+            background-color: #080808 !important;
+            border-color: #1a1a1a !important;
+        }
         body.theme-oled .quota-card {
             background-color: #040507 !important;
             border-color: #12141a !important;
@@ -125,6 +130,7 @@
         header {
             background: var(--bg-surface);
             padding: 12px 16px;
+            padding-top: max(12px, env(safe-area-inset-top, 12px));
             border-bottom: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
@@ -628,11 +634,11 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Rodapé Modernizado Responsivo & Anti-Corte */
+        /* Rodapé Modernizado Responsivo, Alinhado & Anti-Corte */
         footer {
             background: var(--bg-surface);
-            padding: 10px 16px;
-            padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
+            padding: 8px 12px;
+            padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
             border-top: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
@@ -641,22 +647,26 @@
             width: 100%;
             box-sizing: border-box;
             z-index: 40;
-            gap: 10px;
+            gap: 6px;
         }
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .footer-center {
-            display: flex;
+        footer .footer-item {
+            height: 28px;
+            min-height: 28px;
+            border-radius: 999px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            user-select: none;
+            white-space: nowrap;
+            transition: all 0.2s ease;
         }
-        .footer-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        footer .btn-pill {
+            padding: 4px 10px;
+            font-size: 11.5px;
+            font-weight: 600;
+            gap: 5px;
         }
         .btn-chats {
             background: rgba(59, 130, 246, 0.16) !important;
@@ -671,21 +681,14 @@
             color: #ffffff !important;
         }
         .latency-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            gap: 5px;
             background: rgba(23, 24, 31, 0.85);
             border: 1px solid var(--border-subtle);
-            padding: 5px 10px;
-            border-radius: 999px;
+            padding: 4px 8px;
             font-size: 11px;
             font-weight: 600;
             color: var(--text-secondary);
             font-family: 'JetBrains Mono', monospace;
-            transition: all 0.25s ease;
-            user-select: none;
-            min-height: 28px;
-            box-sizing: border-box;
         }
         .latency-badge.hidden {
             display: none !important;
@@ -696,6 +699,7 @@
             border-radius: 50%;
             background: #10b981;
             transition: background 0.3s ease, box-shadow 0.3s ease;
+            flex-shrink: 0;
         }
         .latency-good .latency-dot {
             background: #10b981;
@@ -717,6 +721,50 @@
         }
         .latency-bad {
             color: #f87171;
+        }
+        .battery-badge {
+            gap: 4px;
+            background: rgba(23, 24, 31, 0.85);
+            border: 1px solid var(--border-subtle);
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .battery-badge.battery-good {
+            color: #34d399;
+        }
+        .battery-badge.battery-medium {
+            color: #fbbf24;
+        }
+        .battery-badge.battery-low {
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+        .battery-badge.battery-charging {
+            color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 0 6px rgba(56, 189, 248, 0.25);
+        }
+        .battery-icon {
+            font-size: 11px;
+            line-height: 1;
+            display: inline-block;
+        }
+        @media (max-width: 380px) {
+            footer {
+                padding: 6px 8px;
+                gap: 4px;
+            }
+            footer .btn-pill {
+                padding: 4px 7px;
+                font-size: 11px;
+            }
+            .latency-badge, .battery-badge {
+                padding: 4px 6px;
+                font-size: 10.5px;
+            }
         }
         .toggle-group {
             display: flex;
@@ -1565,6 +1613,16 @@
                     <input type="checkbox" id="latency-toggle" checked style="accent-color: #3b82f6; transform: scale(1.15); cursor: pointer;" onchange="LatencyManager.toggleVisibility(this.checked)">
                 </div>
 
+                <div class="menu-row" id="row-fullscreen-toggle" style="display: flex;">
+                    <label for="btn-fullscreen-toggle">
+                        <span>📱</span>
+                        <span id="menu-fullscreen-label">Modo Tela Cheia</span>
+                    </label>
+                    <button id="btn-fullscreen-toggle" type="button" class="btn-pill" onclick="FullscreenHelper.toggle()">
+                        <span id="btn-fullscreen-icon">⛶</span> <span id="btn-fullscreen-text">Alternar</span>
+                    </button>
+                </div>
+
                 <button type="button" class="btn-menu-action" onclick="LogManager.open()">
                     <span>📜</span>
                     <span id="menu-btn-log-text">Ver Histórico de Conclusões</span>
@@ -1705,25 +1763,23 @@
     </button>
 
     <footer>
-        <div class="footer-left">
-            <button id="btn-menu-toggle" type="button" class="btn-pill" onclick="MenuManager.toggle()" title="Abrir Menu de Configurações">
-                ⚙️ <span id="btn-menu-text">Menu</span>
-            </button>
-            <div id="latency-badge" class="latency-badge latency-good" title="Latência de Conexão (Ping)">
-                <span id="latency-dot" class="latency-dot"></span>
-                <span id="latency-val">-- ms</span>
-            </div>
+        <button id="btn-menu-toggle" type="button" class="btn-pill footer-item" onclick="MenuManager.toggle()" title="Abrir Menu de Configurações">
+            ⚙️ <span id="btn-menu-text">Menu</span>
+        </button>
+        <div id="latency-badge" class="latency-badge latency-good footer-item" title="Latência de Conexão (Ping)">
+            <span id="latency-dot" class="latency-dot"></span>
+            <span id="latency-val">-- ms</span>
         </div>
-        <div class="footer-center">
-            <button id="btn-chats-toggle" type="button" class="btn-pill btn-chats" onclick="ChatsManager.open()" title="Explorar Chats do PC">
-                💬 <span id="btn-chats-text">Chats</span>
-            </button>
+        <div id="battery-badge" class="battery-badge battery-good footer-item" title="Bateria do Dispositivo">
+            <span id="battery-icon" class="battery-icon">🔋</span>
+            <span id="battery-val">--%</span>
         </div>
-        <div class="footer-actions">
-            <button id="btn-oled-toggle" type="button" class="btn-pill" onclick="ThemeManager.toggle()" title="Alternar Modo OLED True Black">
-                🌓 <span id="btn-oled-text">OLED</span>
-            </button>
-        </div>
+        <button id="btn-chats-toggle" type="button" class="btn-pill btn-chats footer-item" onclick="ChatsManager.open()" title="Explorar Chats do PC">
+            💬 <span id="btn-chats-text">Chats</span>
+        </button>
+        <button id="btn-oled-toggle" type="button" class="btn-pill footer-item" onclick="ThemeManager.toggle()" title="Alternar Modo OLED True Black">
+            🌓 <span id="btn-oled-text">OLED</span>
+        </button>
     </footer>
 
     <script>
@@ -1854,6 +1910,14 @@
 
             const elBtnNotifText = document.getElementById("btn-notif-text");
             if (elBtnNotifText) elBtnNotifText.textContent = t.btn_notifications_label || "Notificações";
+
+            // Fullscreen & Battery i18n
+            const elMenuFullscreenLabel = document.getElementById("menu-fullscreen-label");
+            if (elMenuFullscreenLabel && t.menu_fullscreen_label) elMenuFullscreenLabel.innerText = t.menu_fullscreen_label;
+            const elBtnFullscreenText = document.getElementById("btn-fullscreen-text");
+            if (elBtnFullscreenText && t.btn_fullscreen) elBtnFullscreenText.innerText = t.btn_fullscreen;
+            const elBatteryBadge = document.getElementById("battery-badge");
+            if (elBatteryBadge && t.battery_title) elBatteryBadge.title = t.battery_title;
 
             // Menu & Log i18n
             const elBtnMenuText = document.getElementById("btn-menu-text");
@@ -2010,6 +2074,7 @@
                     pinError.style.color = "var(--status-green)";
 
                     setTimeout(() => {
+                        FullscreenHelper.request();
                         pinScreen.classList.add("hidden");
                         fetchInitialData();
                         connectWS();
@@ -2086,6 +2151,144 @@
                 try {
                     if ("vibrate" in navigator) navigator.vibrate([120, 70, 120]);
                 } catch(e) {}
+            }
+        };
+
+                // GERENCIADOR DE TELA CHEIA (FULLSCREEN)
+        const FullscreenHelper = {
+            init() {
+                // Se for app Android nativo (APK), a barra de status já é ocultada nativamente
+                if (window.AndroidBridge) {
+                    const row = document.getElementById("row-fullscreen-toggle");
+                    if (row) row.style.display = "none";
+                    return;
+                }
+
+                // Tenta entrar em tela cheia no primeiro clique/toque do usuário no navegador (IP)
+                const onFirstInteraction = () => {
+                    this.request();
+                    window.removeEventListener("click", onFirstInteraction);
+                    window.removeEventListener("touchend", onFirstInteraction);
+                };
+                window.addEventListener("click", onFirstInteraction, { once: true });
+                window.addEventListener("touchend", onFirstInteraction, { once: true });
+            },
+
+            request() {
+                try {
+                    const doc = document.documentElement;
+                    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                        if (doc.requestFullscreen) {
+                            doc.requestFullscreen().catch(() => {});
+                        } else if (doc.webkitRequestFullscreen) {
+                            doc.webkitRequestFullscreen().catch(() => {});
+                        }
+                    }
+                } catch(e) {}
+            },
+
+            exit() {
+                try {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen().catch(() => {});
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen().catch(() => {});
+                    }
+                } catch(e) {}
+            },
+
+            toggle() {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    this.request();
+                    showToastNotification((currentI18n && currentI18n.fullscreen_active) || "Tela cheia ativada");
+                } else {
+                    this.exit();
+                    showToastNotification((currentI18n && currentI18n.fullscreen_disabled) || "Tela cheia desativada");
+                }
+            }
+        };
+
+        // GERENCIADOR DE BATERIA EM TEMPO REAL (APK & WEB)
+        const BatteryManager = {
+            badgeEl: null,
+            valEl: null,
+            iconEl: null,
+            currentLevel: null,
+            isCharging: false,
+
+            init() {
+                this.badgeEl = document.getElementById("battery-badge");
+                this.valEl = document.getElementById("battery-val");
+                this.iconEl = document.getElementById("battery-icon");
+                if (!this.badgeEl || !this.valEl) return;
+
+                // 1. AndroidBridge nativo (APK)
+                if (window.AndroidBridge && typeof window.AndroidBridge.getBatteryLevel === "function") {
+                    try {
+                        const lvl = window.AndroidBridge.getBatteryLevel();
+                        const charging = typeof window.AndroidBridge.isBatteryCharging === "function" 
+                            ? window.AndroidBridge.isBatteryCharging() 
+                            : false;
+                        if (lvl >= 0) {
+                            this.update(lvl, charging);
+                        }
+                        setInterval(() => {
+                            try {
+                                const l = window.AndroidBridge.getBatteryLevel();
+                                const c = typeof window.AndroidBridge.isBatteryCharging === "function" 
+                                    ? window.AndroidBridge.isBatteryCharging() 
+                                    : false;
+                                if (l >= 0) this.update(l, c);
+                            } catch (_) {}
+                        }, 8000);
+                    } catch(e) {}
+                }
+
+                // 2. Battery Status API (Navegadores modernos / IP)
+                if (navigator.getBattery) {
+                    navigator.getBattery().then(battery => {
+                        this.update(Math.round(battery.level * 100), battery.charging);
+
+                        battery.addEventListener("levelchange", () => {
+                            this.update(Math.round(battery.level * 100), battery.charging);
+                        });
+                        battery.addEventListener("chargingchange", () => {
+                            this.update(Math.round(battery.level * 100), battery.charging);
+                        });
+                    }).catch(err => {
+                        if (!window.AndroidBridge && this.currentLevel === null) {
+                            this.badgeEl.style.display = "none";
+                        }
+                    });
+                } else if (!window.AndroidBridge && this.currentLevel === null) {
+                    this.badgeEl.style.display = "none";
+                }
+            },
+
+            update(level, charging = false) {
+                if (level === undefined || level === null || level < 0) return;
+                this.currentLevel = level;
+                this.isCharging = charging;
+
+                if (this.badgeEl) this.badgeEl.style.display = "inline-flex";
+                if (this.valEl) this.valEl.innerText = `${level}%`;
+
+                if (this.iconEl) {
+                    this.iconEl.innerText = charging ? "⚡" : "🔋";
+                }
+
+                if (this.badgeEl) {
+                    this.badgeEl.classList.remove("battery-good", "battery-medium", "battery-low", "battery-charging");
+                    if (charging) {
+                        this.badgeEl.classList.add("battery-charging");
+                    } else if (level <= 20) {
+                        this.badgeEl.classList.add("battery-low");
+                    } else if (level <= 50) {
+                        this.badgeEl.classList.add("battery-medium");
+                    } else {
+                        this.badgeEl.classList.add("battery-good");
+                    }
+                }
             }
         };
 
@@ -3337,6 +3540,8 @@
             NotificationManager.init();
             SoundManager.init();
             LatencyManager.init();
+            BatteryManager.init();
+            FullscreenHelper.init();
             MenuManager.init();
             LogManager.init();
             ChatsManager.init();

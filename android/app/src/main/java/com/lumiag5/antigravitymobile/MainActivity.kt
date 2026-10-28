@@ -5,20 +5,24 @@ package com.lumiag5.antigravitymobile
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.net.http.SslError
+import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.view.View
+import android.view.WindowManager
 import android.webkit.*
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -27,6 +31,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
@@ -48,6 +54,26 @@ class MainActivity : AppCompatActivity() {
     private var hasError = false
     private var currentAttemptUrl = ""
 
+    private var isBatteryReceiverRegistered = false
+    private val batteryReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == Intent.ACTION_BATTERY_CHANGED) {
+                val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+                val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+                val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+                val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                        status == BatteryManager.BATTERY_STATUS_FULL
+                if (level >= 0 && scale > 0) {
+                    val pct = (level * 100 / scale.toFloat()).toInt()
+                    binding.webView.evaluateJavascript(
+                        "if (window.BatteryManager && window.BatteryManager.update) window.BatteryManager.update($pct, $isCharging);",
+                        null
+                    )
+                }
+            }
+        }
+    }
+
     // Lançador do Scanner de QR Code nativo (ZXing)
     private val qrScanLauncher = registerForActivityResult(ScanContract()) { result: ScanIntentResult ->
         if (result.contents != null) {
@@ -62,10 +88,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Configuração de tela inteira e OLED True Black
-        WindowCompat.setDecorFitsSystemWindows(window, true)
+        // Configuração de tela inteira imersiva (oculta HUD/status bar) e OLED True Black
         window.statusBarColor = Color.BLACK
         window.navigationBarColor = Color.BLACK
+        applyFullScreenImmersive()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -75,6 +101,7 @@ class MainActivity : AppCompatActivity() {
         setupWebView()
         setupListeners()
         requestNotificationPermission()
+        registerBatteryReceiver()
 
         // Exigência: Ao fechar e reabrir o app, sempre inicia deslogado na tela de gerenciamento de sessão
         showConnectScreen()
@@ -94,6 +121,56 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            applyFullScreenImmersive()
+        }
+    }
+
+    private fun applyFullScreenImmersive() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            val controller = WindowCompat.getInsetsController(window, window.decorView)
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.statusBars())
+        } else {
+            @Suppress("DEPRECATION")
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            )
+        }
+    }
+
+    private fun registerBatteryReceiver() {
+        if (!isBatteryReceiverRegistered) {
+            try {
+                registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                isBatteryReceiverRegistered = true
+            } catch (e: Exception) {}
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isBatteryReceiverRegistered) {
+            try {
+                unregisterReceiver(batteryReceiver)
+                isBatteryReceiverRegistered = false
+            } catch (e: Exception) {}
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -155,9 +232,11 @@ class MainActivity : AppCompatActivity() {
                         prefs.edit().putString(KEY_SERVER_URL, baseUrl).apply()
                     }
 
-                    // Notifica a página web sobre a versão nativa do APK e inicializa o menu de update
+                    // Notifica a página web sobre a versão nativa do APK e inicializa o menu de update e bateria
+                    val currentBattery = AndroidBridge().getBatteryLevel()
+                    val currentCharging = AndroidBridge().isBatteryCharging()
                     binding.webView.evaluateJavascript(
-                        "if (typeof updateAppVersionBadge === 'function') updateAppVersionBadge(); if (window.ApkUpdateManager) ApkUpdateManager.init();",
+                        "if (typeof updateAppVersionBadge === 'function') updateAppVersionBadge(); if (window.ApkUpdateManager) ApkUpdateManager.init(); if (window.BatteryManager && window.BatteryManager.update) window.BatteryManager.update($currentBattery, $currentCharging);",
                         null
                     )
                 }
@@ -601,6 +680,38 @@ class MainActivity : AppCompatActivity() {
         fun downloadAndInstallApk(url: String, version: String) {
             runOnUiThread {
                 startApkDownload(url, version)
+            }
+        }
+
+        @JavascriptInterface
+        fun getBatteryLevel(): Int {
+            return try {
+                val bm = getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
+                val capacity = bm?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1
+                if (capacity in 0..100) {
+                    capacity
+                } else {
+                    val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                    val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+                    val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
+                    if (level >= 0 && scale > 0) {
+                        (level * 100 / scale.toFloat()).toInt()
+                    } else -1
+                }
+            } catch (e: Exception) {
+                -1
+            }
+        }
+
+        @JavascriptInterface
+        fun isBatteryCharging(): Boolean {
+            return try {
+                val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+                status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                        status == BatteryManager.BATTERY_STATUS_FULL
+            } catch (e: Exception) {
+                false
             }
         }
     }

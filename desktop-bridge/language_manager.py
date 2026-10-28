@@ -142,7 +142,12 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "log_empty": "Nenhuma conclusão registrada ainda.",
         "log_clear": "Limpar Histórico",
         "log_cleared": "Histórico limpo com sucesso!",
-        "latency_label": "Latência"
+        "latency_label": "Latência",
+        "menu_fullscreen_label": "Modo Tela Cheia",
+        "btn_fullscreen": "Alternar",
+        "fullscreen_active": "Tela cheia ativada",
+        "fullscreen_disabled": "Tela cheia desativada",
+        "battery_title": "Bateria"
     },
     "en": {
         "lang_code": "en-US",
@@ -275,7 +280,12 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "log_empty": "No task completions logged yet.",
         "log_clear": "Clear History",
         "log_cleared": "History cleared successfully!",
-        "latency_label": "Latency"
+        "latency_label": "Latency",
+        "menu_fullscreen_label": "Fullscreen Mode",
+        "btn_fullscreen": "Toggle",
+        "fullscreen_active": "Fullscreen enabled",
+        "fullscreen_disabled": "Fullscreen disabled",
+        "battery_title": "Battery"
     },
     "es": {
         "lang_code": "es-ES",
@@ -408,7 +418,12 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "log_empty": "Aún no hay conclusiones registradas.",
         "log_clear": "Limpiar Historial",
         "log_cleared": "¡Historial borrado con éxito!",
-        "latency_label": "Latencia"
+        "latency_label": "Latencia",
+        "menu_fullscreen_label": "Modo Pantalla Completa",
+        "btn_fullscreen": "Alternar",
+        "fullscreen_active": "Pantalla completa activada",
+        "fullscreen_disabled": "Pantalla completa desactivada",
+        "battery_title": "Batería"
     }
 }
 
