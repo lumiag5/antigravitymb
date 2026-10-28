@@ -1,7 +1,7 @@
 # Changelog
 
 <p align="center">
-  <a href="CHANGELOG.md">Português</a> &bull; <a href="CHANGELOG.en.md">English</a> &bull; <b>Español</b>
+  <a href="https://github.com/lumiag5/antigravitymb/blob/main/CHANGELOG.md">Português</a> &bull; <a href="https://github.com/lumiag5/antigravitymb/blob/main/CHANGELOG.en.md">English</a> &bull; <b>Español</b>
 </p>
 
 Todos los cambios notables de **Antigravity Mobile** se documentarán en este archivo.
@@ -12,44 +12,29 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
-### ⚡ Sincronización en Tiempo Real (Thinking) & Transición Completado (Done)
-* **Corrección de Transición a "Done" (Completado)**: Se corrigió el fallo donde la app se quedaba en "Ejecutando Tarea" después de completada la tarea en PC. Ahora transiciona inmediatamente a **"Completado"** (*Done*).
-* **Detección Instantánea de "Pensando..." (*Thinking*)**: Mediante lectura directa de pasos en el SQLite de la conversación (`conversations/<conv_id>.db`), la app móvil pasa **instantáneamente** a **"Pensando..."** en cuanto Antigravity PC entra en "Thinking...".
-
-### ⚙️ Unificación de Background Task & Conclusión Estricta
-* **Unificación de "Background Task" y "Task Running"**: Las tareas en segundo plano (*Background Task*, subagentes, temporizadores y comandos asíncronos) se unificaron bajo el mismo estado visual de **"Ejecutando Tarea..."** (*Task Running...* / *Executando Tarefa...*) con punto cian pulsante (`#0ea5e9`).
-* **Criterio Estricto para el Estado "Completado" (*Done*)**: El estado "Done" (*Completado*) **únicamente se declara cuando no hay actividad alguna en ejecución en el proyecto actual** (`CASCADE_RUN_STATUS_IDLE`, `not_fully_idle == 0`, y ausencia de logs de tareas activos en `.system_generated/tasks/`). Mientras haya cualquier tarea en segundo plano, el estado permanece en `TASK_RUNNING`.
-
 ### 🐛 Corregido
-* **Aviso Indebido de Error al Abrir Historial en Chats**: Corregida la llamada de actualización del proyecto en la cabecera (`updateProjectName`), eliminando el error de script que disparaba la notificación *"Error al abrir historial de la conversación"* a pesar de que los mensajes se renderizaban correctamente.
-* **Desplazamiento Vertical del Chat en el APK**: Corregido el problema donde no era posible desplazarse hacia arriba para ver mensajes anteriores. Se eliminó `SwipeRefreshLayout` del diseño nativo (`activity_main.xml`), permitiendo que `WebView` maneje los eventos táctiles directamente sin intercepción.
-* **Carga de Conversaciones en Botón "Chats"**: Solucionado el error *"Error al cargar conversaciones de la PC"* con un mecanismo de respaldo que escanea directamente la carpeta `brain/` si SQLite se encuentra ocupado, garantizando el envío del token de autenticación.
-* **Eliminación Total de la "✕" de Cierre**: Se quitó el botón "✕" de todos los modales (Tutorial, Menú, Historial y Chats). Todos los modales se cierran al tocar fuera (backdrop click) o mediante un botón "Cerrar" en la parte inferior.
-* **Unificación de Estados "Thought" y "Thinking"**: Ambos estados ahora convergen en **"Pensando..."** con un punto púrpura pulsante (`#a855f7`).
+* **Desplazamiento Vertical de Mensajes en el APK**: Resuelto el problema en que el usuario no podía desplazarse hacia arriba en el APK para ver el historial anterior. Se eliminó `SwipeRefreshLayout` del diseño nativo de Android para que `WebView` reciba todos los toques sin captura indebida de gestos, garantizando paridad total con la versión web por IP.
+* **Eliminación Global del Ícono "✕" de Cierre**: El botón "✕" fue retirado de todos los modales (Tutorial, Menú, Historial y Chats). Todos los modales se auto-cierran al hacer clic fuera de la ventana (backdrop click) o mediante un botón limpio "Cerrar" en el pie.
 
 ### 🚀 Añadido
-* **Botón Central "Chats" en el Pie de Página**:
-  * Ubicado en el centro inferior de la pantalla (entre Menú/Latencia y el botón OLED).
-  * Abre un modal con todas las conversaciones y proyectos sincronizados de Antigravity PC (tanto en APK como en Web/IP).
-* **Indicadores Pulsantes Estrictos (Sin Texto al Frente)**:
-  * Si la conversación está procesando: muestra **solamente un punto pulsante naranja (`🟠`)**, sin texto ni mensaje al frente.
-  * Si la conversación está ociosa: muestra **solamente un punto pulsante verde (`🟢`)**, sin texto ni mensaje al frente.
-* **Inspección Remota Totalmente Independiente**:
-  * Al seleccionar cualquier chat en el móvil, carga todo el historial completo de mensajes sin modificar la ventana ni la conversación activa en la PC.
-  * Botón "Volver a la PC en Vivo" para retomar la sincronización en tiempo real con un toque.
-* **Nuevos Estados "Trabajando...", "Pensando..." y "Ejecutando Tarea..."**:
-  * "Procesando" renombrado a **"Trabajando..."** (*Working*).
-  * Añadido estado **"Pensando..."** (*Thought*).
-  * Añadido estado **"Ejecutando Tarea..."** (*Task Running*) con indicador cian pulsante (`#0ea5e9`) para comandos en segundo plano, subagentes y automatizaciones.
-  * Al finalizar tareas, el estado muestra **"Completado"** (*Done*) durante **1 minuto** antes de regresar a "Conectado" (o hasta que comience una nueva actividad).
-  * Traducciones completas en español, portugués e inglés.
-* **Diferenciación de Versión en Encabezado (APK vs IP)**:
-  * El distintivo de versión ahora detecta si está en el APK nativo (`vX.X.X (APK) • Dev LumiaG5`) o en el navegador por IP (`v2.4.3 (IP) • Dev LumiaG5`).
-* **Actualización Automática de APK en el Menú (Exclusivo Android)**:
-  * Nueva sección en el modal `⚙️ Menú` para comprobar nuevas versiones en GitHub Releases y descargar/instalar con 1 toque mediante `FileProvider`.
-* **Auditoría de Seguridad**:
-  * Confirmación de cero credenciales o tokens en código o historial Git.
-  * Sanitización contra *Path Traversal* en endpoints del servidor.
+* **Botón "Chats" Central en el Pie de Página**:
+  * Ubicado en el centro inferior de la pantalla (entre Menú/Latencia a la izquierda y el botón OLED a la derecha).
+  * Abre el modal de selección de conversaciones y proyectos sincronizados de Antigravity PC en ambas versiones (APK e IP/Web).
+* **Indicadores Pulsantes Estrictos por Conversación**:
+  * Si Antigravity está procesando algo en esa conversación: muestra **únicamente un punto pulsante naranja (`🟠`)**, sin texto ni mensaje al frente.
+  * Si está ocioso/no procesando: muestra **únicamente un punto pulsante verde (`🟢`)**, sin texto ni mensaje al frente.
+* **Lectura Remota Totalmente Independiente**:
+  * Al seleccionar cualquier chat/proyecto en la lista desde el móvil, la app obtiene y renderiza el historial completo directamente del transcript sin alterar la ventana ni la conversación abierta en la PC y sin simular clics remotos de ratón.
+  * Banner con botón "Volver a la PC en Vivo" para alternar rápidamente de regreso a la sincronización en tiempo real.
+* **Estados "Trabajando...", "Pensando..." y "Ejecutando Tarea..."**:
+  * Estado "Procesando" renombrado a **"Trabajando..."** (*Working*).
+  * Estado **"Pensando..."** (*Thought* / *Thinking*).
+  * Nuevo estado **"Ejecutando Tarea..."** (*Task Running*) con indicador visual cian pulsante (`#0ea5e9`).
+  * Al concluir tareas, el estado **"Completado"** (*Done*) se activa y permanece visible durante **1 minuto** (o hasta que inicie una nueva actividad), regresando a "Conectado" al finalizar el tiempo.
+* **Diferenciación Visual de Versión (APK vs IP)**:
+  * El encabezado ahora diferencia la versión del APK instalado en el dispositivo (`vX.X.X (APK) • Dev LumiaG5`) y la versión companion por IP (`v2.4.3 (IP) • Dev LumiaG5`), eliminando confusiones de caché.
+* **Actualización Automática del APK en el Menú (Exclusiva para Android)**:
+  * Añadida sección dedicada en el menú `⚙️ Menú` del APK para comprobación y descarga en 1 toque de nuevas versiones directamente desde GitHub Releases, abriendo el instalador nativo del sistema vía `FileProvider`.
 
 ---
 

@@ -1,7 +1,7 @@
 # Changelog
 
 <p align="center">
-  <a href="CHANGELOG.md">Português</a> &bull; <b>English</b> &bull; <a href="CHANGELOG.es.md">Español</a>
+  <a href="https://github.com/lumiag5/antigravitymb/blob/main/CHANGELOG.md">Português</a> &bull; <b>English</b> &bull; <a href="https://github.com/lumiag5/antigravitymb/blob/main/CHANGELOG.es.md">Español</a>
 </p>
 
 All notable changes to **Antigravity Mobile** will be documented in this file.
@@ -12,44 +12,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
-### ⚡ Real-Time Thinking Sync & Done Transition Fix
-* **Fixed Transition to "Done"**: Fixed an issue where the mobile app remained stuck in "Task Running" even after tasks and tests concluded on PC. The app now accurately transitions to **"Completed"** (*Done*) upon conclusion.
-* **Instant "Thinking" Status Synchronization**: Implemented direct sub-second SQLite cascade step monitoring (`conversations/<conv_id>.db`). The mobile app switches **instantaneously** to **"Thinking..."** as soon as Antigravity PC enters thinking mode, without waiting for disk log flushes.
-
-### ⚙️ Background Task Unification & Strict Completion
-* **Unification of "Background Task" and "Task Running"**: Mapped PC Background Tasks (background tasks, timers, subagents, and asynchronous commands) to the exact same status as **"Task Running..."** (*Executando Tarefa...* / *Ejecutando Tarea...*) with a pulsing cyan dot (`#0ea5e9`).
-* **Strict "Done" Completion Rule**: Status transitions to **"Completed"** (*Done* / *Concluído*) **only when there is absolutely no activity running in the current project** (`CASCADE_RUN_STATUS_IDLE`, `not_fully_idle == 0`, and no active task logs or running subagents). While any background activity remains active, status stays as `TASK_RUNNING`.
-
 ### 🐛 Fixed
-* **History Loading Error Toast in Chats**: Fixed project header update call (`updateProjectName`), preventing the ReferenceError that triggered the misleading *"Error opening history"* toast when conversations loaded successfully.
-* **Native APK Chat Scrolling**: Resolved an issue where users were unable to scroll up to view earlier messages on Android. Removed `SwipeRefreshLayout` from the native Android layout (`activity_main.xml`), allowing `WebView` to handle touch drags directly without gesture interception.
-* **PC Chats Loading Fix**: Resolved *"Error loading PC chats"* by implementing resilient direct directory scanning of `brain/` as a fallback when SQLite summaries are busy/locked, and ensuring authentication token delivery.
+* **Native APK Chat Scrolling**: Resolved an issue where users were unable to scroll up to view earlier messages on Android. Removed `SwipeRefreshLayout` from the native Android layout (`activity_main.xml`), allowing `WebView` to handle touch drags directly without gesture interception, ensuring full parity with the web version.
 * **Global Removal of "✕" Close Crosses**: Removed the "✕" button from all modals (Tutorial, Menu, Log, and Chats). All modal windows now auto-close by clicking outside (backdrop click) or via a bottom "Close" button.
-* **Unification of "Thought" & "Thinking" Statuses**: Unified both states into **"Thinking..."** (*Pensando...*) with a pulsing purple dot (`#a855f7`).
 
 ### 🚀 Added
 * **Central "Chats" Button in Footer**:
-  * Positioned in the bottom center of the screen (between Menu/Latency and OLED buttons).
-  * Opens a responsive modal listing all recent Antigravity PC conversations and projects (available on both APK and Web/IP versions).
-* **Strict Pulsing Dot Status (No Preceding Text)**:
-  * When a conversation is processing/working: displays **ONLY a pulsing orange dot (`🟠`)**, with no status text in front.
-  * When a conversation is idle: displays **ONLY a pulsing green dot (`🟢`)**, with no status text in front.
-* **Independent Remote Chat Inspection**:
-  * Selecting any conversation loads its complete message history on mobile without clicking or altering the active conversation on the PC.
-  * "Return to Live PC" banner button to quickly switch back to real-time sync with the host machine.
-* **"Working...", "Thinking...", and "Task Running..." Dynamic Statuses**:
-  * "Processing" renamed to **"Working..."** (*Trabalhando...*).
-  * Added **"Thinking..."** (*Pensando...*) status during model thought phases.
-  * Added new **"Task Running..."** (*Executando Tarefa...*) status with a pulsing cyan indicator (`#0ea5e9`) for background commands, subagents, and automations.
-  * When a task finishes, status displays **"Completed"** (*Concluído*) for **1 minute** before returning to "Connected" (or until a new activity starts).
-* **Environment Version Badge Differentiation (APK vs IP)**:
-  * The header badge now differentiates between the installed native APK version (`vX.X.X (APK) • Dev LumiaG5`) and the IP web companion (`v2.4.3 (IP) • Dev LumiaG5`).
-* **Android In-App Auto-Update Feature in Menu**:
-  * Added a dedicated APK update section in the `⚙️ Menu` modal (visible exclusively on Android APK).
-  * Queries the latest GitHub release, checks semver, downloads the new `.apk` in background and launches the system installer via secure `FileProvider`.
-* **Security Audit**:
-  * Full scan confirming zero GitHub tokens, secrets, or API keys exposed in repository or Git commit history.
-  * Path traversal sanitization added to server endpoints.
+  * Located in the bottom center of the screen (between Menu/Latency to the left and the OLED button to the right).
+  * Opens a modal to select conversations and projects synchronized from Antigravity PC in both versions (APK and IP/Web).
+* **Strict Pulsing Dot Status by Conversation**:
+  * If Antigravity is processing something in that conversation: displays **only a pulsing orange dot (`🟠`)**, with no text or message in front.
+  * If idle/not processing: displays **only a pulsing green dot (`🟢`)**, with no text or message in front.
+* **Fully Independent Remote Reading**:
+  * Selecting any chat/project in the list loads and renders the full transcript history directly without changing the active conversation or window on the PC and without simulating mouse clicks.
+  * Banner with "Return to Live PC" button to quickly switch back to real-time synchronization.
+* **Statuses "Working...", "Thinking...", and "Task Running..."**:
+  * Status "Processing" renamed to **"Working..."** (*Trabalhando...*).
+  * Status **"Thinking..."** (*Thought* / *Thinking*).
+  * New status **"Task Running..."** (*Executando Tarefa...*) with cyan pulsing indicator (`#0ea5e9`).
+  * Upon task completion, status **"Completed"** (*Concluído*) activates and remains displayed for **1 minute** (or until a new activity starts), reverting to "Connected" after the countdown ends.
+* **Version Badge Differentiation (APK vs IP)**:
+  * The header now differentiates between the installed APK version on device (`vX.X.X (APK) • Dev LumiaG5`) and the companion IP version (`v2.4.3 (IP) • Dev LumiaG5`), eliminating cache confusion.
+* **Android In-App Auto-Update Feature in Menu (Exclusive to Android)**:
+  * Dedicated section in `⚙️ Menu` of the APK to check and download new versions in 1 tap directly from GitHub Releases, opening the native system installer via `FileProvider`.
 
 ---
 

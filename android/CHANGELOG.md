@@ -1,7 +1,7 @@
 # Changelog &bull; Antigravity Mobile APK (Android Nativo)
 
 <p align="center">
-  <b>Português</b> &bull; <a href="CHANGELOG.en.md">English</a> &bull; <a href="CHANGELOG.es.md">Español</a>
+  <b>Português</b> &bull; <a href="https://github.com/lumiag5/antigravitymb/blob/main/android/CHANGELOG.en.md">English</a> &bull; <a href="https://github.com/lumiag5/antigravitymb/blob/main/android/CHANGELOG.es.md">Español</a>
 </p>
 
 Todas as alterações, correções e novos recursos dedicados exclusivamente ao aplicativo nativo Android (**Antigravity Mobile APK**) estão documentados neste arquivo.

@@ -1,7 +1,7 @@
 # Changelog
 
 <p align="center">
-  <b>Português</b> &bull; <a href="CHANGELOG.en.md">English</a> &bull; <a href="CHANGELOG.es.md">Español</a>
+  <b>Português</b> &bull; <a href="https://github.com/lumiag5/antigravitymb/blob/main/CHANGELOG.en.md">English</a> &bull; <a href="https://github.com/lumiag5/antigravitymb/blob/main/CHANGELOG.es.md">Español</a>
 </p>
 
 Todas as alterações notáveis do **Antigravity Mobile** serão documentadas neste arquivo.
@@ -12,20 +12,9 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
-### ⚡ Sincronização em Tempo Real (Thinking) & Transição Concluído (Done)
-* **Correção da Transição para "Done" (Concluído)**: Corrigido o problema onde o app mobile permanecia com o status "Executando Tarefa" mesmo após a conclusão das tarefas e testes no PC. O status agora transiciona perfeitamente para **"Concluído"** (*Done*) ao finalizar a resposta.
-* **Detecção em Tempo Real do Status "Pensando..." (*Thinking*)**: Através de leitura direta dos passos no SQLite da conversa ativa (`conversations/<conv_id>.db`), o aplicativo mobile comuta **instantaneamente** para **"Pensando..."** assim que o Antigravity PC entra no modo "Thinking...", eliminando atrasos de sincronização.
-
-### ⚙️ Unificação de Background Task & Conclusão Estrita
-* **Unificação de "Background Task" com "Task Running"**: O status "Background Task" do Antigravity PC (tarefas de segundo plano, temporizadores `schedule`, comandos `manage_task`, subagentes `invoke_subagent` e tarefas assíncronas de terminal) foi unificado rigorosamente como o mesmo status de **"Executando Tarefa..."** (*Task Running...* / *Ejecutando Tarea...*) com dot ciano pulsante (`#0ea5e9`).
-* **Critério Estrito para o Status "Concluído" (*Done*)**: O status "Done" (*Concluído*) **só é declarado quando não houver atividade alguma em execução no projeto atual** (verificação rigorosa de `status == 'CASCADE_RUN_STATUS_IDLE'`, `not_fully_idle == 0`, ausência de tarefas ativas em `.system_generated/tasks/` e subagentes concluídos). Enquanto houver tarefas em execução, o status permanece em `TASK_RUNNING` ("Executando Tarefa...").
-
 ### 🐛 Corrigido
-* **Aviso de Erro ao Abrir Histórico no Chats**: Corrigida a chamada da função de atualização do cabeçalho de projetos (`updateProjectName`), eliminando o erro de script que disparava indevidamente o alerta *"Falha ao abrir histórico da conversa"* no topo da tela quando o histórico era carregado.
 * **Rolamento Vertical de Mensagens no APK**: Resolvido o problema em que o usuário não conseguia rolar o chat para cima no APK para ver o histórico anterior. O `SwipeRefreshLayout` foi removido do layout nativo Android para que o `WebView` receba todos os toques sem captura indevida de gestos, garantindo paridade total com a versão web por IP.
-* **Carregamento de Conversas no Botão "Chats"**: Resolvido o erro *"Erro ao carregar conversas do pc"* com a implementação de fallback robusto varrendo diretamente a pasta `brain/` e garantindo envio transparente do token de autenticação em cache.
 * **Remoção Global do Ícone "✕" de Fechar**: O botão "✕" foi retirado de todos os modais (Tutorial, Menu, Log e Chats). Todos os modais se auto-fecham ao clicar fora da janela (backdrop click) ou através de um botão "Fechar" limpo no rodapé.
-* **Unificação dos Estados "Thought" e "Thinking"**: Ambos os estados agora convergem para **"Pensando..."** com indicador roxo pulsante (`#a855f7`).
 
 ### 🚀 Adicionado
 * **Botão "Chats" Central no Rodapé**:
@@ -46,9 +35,6 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
   * O cabeçalho agora diferencia a versão do APK instalado no dispositivo (`vX.X.X (APK) • Dev LumiaG5`) e a versão companion por IP (`v2.4.3 (IP) • Dev LumiaG5`), eliminando confusões visuais de cache.
 * **Atualização Automática do APK no Menu (Exclusiva para Android)**:
   * Adicionada seção dedicada no menu `⚙️ Menu` do APK para verificação e download em 1 toque de novas versões diretamente do GitHub Releases, abrindo o instalador nativo do sistema via `FileProvider`.
-* **Auditoria Completa de Segurança**:
-  * Varredura do histórico Git e repositório confirmando ausência total de tokens, senhas ou dados sensíveis.
-  * Sanitização de entradas contra *Path Traversal* adicionada no servidor.
 
 ---
 
