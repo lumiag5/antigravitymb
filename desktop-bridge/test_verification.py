@@ -333,6 +333,51 @@ def run_tests():
         assert_true(False, f"Erro ao verificar GitHub Release: {e}")
 
     # ---------------------------------------------------------
+    # TESTE 8: ANDROID KOTLIN CODE & FULLSCREEN/BATTERY BRIDGES
+    # ---------------------------------------------------------
+    print("\n--- TESTE 8: ANDROID KOTLIN CODE & FULLSCREEN/BATTERY BRIDGES ---")
+    try:
+        main_kt = bridge_dir.parent / "android" / "app" / "src" / "main" / "java" / "com" / "lumiag5" / "antigravitymobile" / "MainActivity.kt"
+        assert_true(main_kt.exists(), "MainActivity.kt existe no caminho esperado")
+        kt_code = main_kt.read_text(encoding="utf-8")
+        assert_true("applyFullScreenImmersive()" in kt_code, "applyFullScreenImmersive() declarado e chamado no APK")
+        assert_true("LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES" in kt_code, "Suporte a entalhe/câmera (Short Edges) presente")
+        assert_true("WindowInsetsCompat.Type.statusBars()" in kt_code, "Ocultação de statusBars configurada para Android 11+")
+        assert_true("SYSTEM_UI_FLAG_FULLSCREEN" in kt_code, "Fallback de tela cheia legado configurado")
+        assert_true("onWindowFocusChanged" in kt_code, "Reaplicação de tela cheia em onWindowFocusChanged presente")
+        assert_true("ACTION_BATTERY_CHANGED" in kt_code, "BroadcastReceiver ACTION_BATTERY_CHANGED configurado")
+        assert_true("getBatteryLevel()" in kt_code, "Método nativo getBatteryLevel() implementado")
+        assert_true("isBatteryCharging()" in kt_code, "Método nativo isBatteryCharging() implementado")
+        assert_true("@JavascriptInterface" in kt_code, "Anotação @JavascriptInterface presente para ponte WebView")
+    except Exception as e:
+        assert_true(False, f"Erro ao verificar código Android nativo: {e}")
+
+    # ---------------------------------------------------------
+    # TESTE 9: WEB MANIFEST & HARMONIZAÇÃO DO RODAPÉ
+    # ---------------------------------------------------------
+    print("\n--- TESTE 9: WEB MANIFEST & HARMONIZAÇÃO DO RODAPÉ ---")
+    try:
+        manifest_file = bridge_dir / "static" / "manifest.json"
+        assert_true(manifest_file.exists(), "manifest.json existe")
+        m_json = json.loads(manifest_file.read_text(encoding="utf-8"))
+        assert_true(m_json.get("display") == "fullscreen", "manifest.json com display: fullscreen")
+
+        index_file = bridge_dir / "static" / "index.html"
+        assert_true(index_file.exists(), "index.html existe")
+        html_content = index_file.read_text(encoding="utf-8")
+        assert_true("safe-area-inset-top" in html_content, "CSS possui suporte a safe-area-inset-top para notch")
+        assert_true("height: 28px" in html_content, "Altura padronizada de 28px nos botões e badges do rodapé")
+        assert_true("border-radius: 999px" in html_content, "Bordas arredondadas (pill) padronizadas em 999px")
+        assert_true('id="battery-badge"' in html_content, "Badge de bateria presente")
+        assert_true('id="latency-badge"' in html_content, "Badge de latência presente")
+        assert_true('id="btn-chats-toggle"' in html_content, "Botão de chats presente")
+        assert_true('id="btn-oled-toggle"' in html_content, "Botão de OLED presente")
+        assert_true('id="btn-menu-toggle"' in html_content, "Botão de Menu presente")
+        assert_true("${level}%" in html_content, "Formatação estrita de porcentagem sem texto de label")
+    except Exception as e:
+        assert_true(False, f"Erro ao verificar UI e Manifest: {e}")
+
+    # ---------------------------------------------------------
     # SUMÁRIO
     # ---------------------------------------------------------
     print("\n" + "=" * 60)
