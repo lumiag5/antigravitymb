@@ -574,12 +574,27 @@ class MainActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun getAppVersion(): String {
-            return BuildConfig.VERSION_NAME
+            return try {
+                val pInfo = packageManager.getPackageInfo(packageName, 0)
+                pInfo.versionName ?: "2.4.3"
+            } catch (e: Exception) {
+                "2.4.3"
+            }
         }
 
         @JavascriptInterface
         fun getAppVersionCode(): Int {
-            return BuildConfig.VERSION_CODE
+            return try {
+                val pInfo = packageManager.getPackageInfo(packageName, 0)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    pInfo.longVersionCode.toInt()
+                } else {
+                    @Suppress("DEPRECATION")
+                    pInfo.versionCode
+                }
+            } catch (e: Exception) {
+                2421
+            }
         }
 
         @JavascriptInterface
