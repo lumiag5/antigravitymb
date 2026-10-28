@@ -698,8 +698,7 @@ class AntigravityMonitor:
                         is_proc = True
                     elif cid == self.current_conversation_id and self.current_turn_status in [
                         "WORKING", "THOUGHT", "THINKING", "RUNNING", "TASK_RUNNING", "TASK RUNNING",
-                        "ANALYZED", "RAN", "PROCESSANDO", "TRABALHANDO", "PENSANDO", "EXECUTANDO TAREFA",
-                        "ANALISADO", "EXECUTADO"
+                        "PROCESSANDO", "TRABALHANDO", "PENSANDO", "EXECUTANDO TAREFA"
                     ]:
                         is_proc = True
                     else:
@@ -1114,20 +1113,11 @@ class AntigravityMonitor:
                         tname = tname.split(":")[-1]
                     tools.append(tname)
 
-        if any(t in ["run_command", "execute_command"] for t in tools):
-            return "RAN"
-
-        if any(t in ["read_file", "search_web", "gemini_search_docs", "gemini_get_doc", "read_resource", "list_resources", "search_marketplace", "get_doc"] for t in tools):
-            return "ANALYZED"
-
         if any(t in ["manage_task", "schedule", "invoke_subagent"] for t in tools) or ("TASK" in str(status).upper() and "RUN" in str(status).upper()):
             return "TASK_RUNNING"
 
-        if any(t in ["edit_file", "write_file", "save_file", "create_file", "delete_file"] for t in tools):
-            return "WORKING"
-
         is_thinking = bool(step.get("thinking")) or "thinking" in step.get("truncated_fields", [])
-        if is_thinking:
+        if is_thinking and not tools:
             return "THOUGHT"
 
         if status == "RUNNING" or tools:

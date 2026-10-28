@@ -10,19 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
-## [2.4.3] - 2026-10-27 (Build 2422)
+## [2.4.3] - 2026-10-28 (Build 2423)
 
 ### 🐛 Fixed
+* **History Loading Error Toast in Chats**: Fixed project header update call (`updateProjectName`), preventing the ReferenceError that triggered the misleading *"Error opening history"* toast when conversations loaded successfully.
 * **Native APK Chat Scrolling**: Resolved an issue where users were unable to scroll up to view earlier messages on Android. Removed `SwipeRefreshLayout` from the native Android layout (`activity_main.xml`), allowing `WebView` to handle touch drags directly without gesture interception.
 * **PC Chats Loading Fix**: Resolved *"Error loading PC chats"* by implementing resilient direct directory scanning of `brain/` as a fallback when SQLite summaries are busy/locked, and ensuring authentication token delivery.
 * **Global Removal of "✕" Close Crosses**: Removed the "✕" button from all modals (Tutorial, Menu, Log, and Chats). All modal windows now auto-close by clicking outside (backdrop click) or via a bottom "Close" button.
 * **Unification of "Thought" & "Thinking" Statuses**: Unified both states into **"Thinking..."** (*Pensando...*) with a pulsing purple dot (`#a855f7`).
 
 ### 🚀 Added
-* **New Statuses from Antigravity PC: "Analyzed" & "Ran"**:
-  * Accurate detection of file/docs reading actions (`read_file`, `search_web`, `gemini_search_docs`) showing the **"Analyzed"** (*Analisado* / *Analizado*) status with teal/emerald badge.
-  * Accurate detection of terminal commands (`run_command`) showing the **"Ran"** (*Executado* / *Ejecutado*) status with royal blue badge.
-  * Full localization across English, Portuguese, and Spanish.
 * **Central "Chats" Button in Footer**:
   * Positioned in the bottom center of the screen (between Menu/Latency and OLED buttons).
   * Opens a responsive modal listing all recent Antigravity PC conversations and projects (available on both APK and Web/IP versions).

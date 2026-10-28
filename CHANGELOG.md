@@ -10,19 +10,16 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [2.4.3] - 2026-10-27 (Build 2422)
+## [2.4.3] - 2026-10-28 (Build 2423)
 
 ### 🐛 Corrigido
+* **Aviso de Erro ao Abrir Histórico no Chats**: Corrigida a chamada da função de atualização do cabeçalho de projetos (`updateProjectName`), eliminando o erro de script que disparava indevidamente o alerta *"Falha ao abrir histórico da conversa"* no topo da tela quando o histórico era carregado.
 * **Rolamento Vertical de Mensagens no APK**: Resolvido o problema em que o usuário não conseguia rolar o chat para cima no APK para ver o histórico anterior. O `SwipeRefreshLayout` foi removido do layout nativo Android para que o `WebView` receba todos os toques sem captura indevida de gestos, garantindo paridade total com a versão web por IP.
 * **Carregamento de Conversas no Botão "Chats"**: Resolvido o erro *"Erro ao carregar conversas do pc"* com a implementação de fallback robusto varrendo diretamente a pasta `brain/` e garantindo envio transparente do token de autenticação em cache.
 * **Remoção Global do Ícone "✕" de Fechar**: O botão "✕" foi retirado de todos os modais (Tutorial, Menu, Log e Chats). Todos os modais se auto-fecham ao clicar fora da janela (backdrop click) ou através de um botão "Fechar" limpo no rodapé.
 * **Unificação dos Estados "Thought" e "Thinking"**: Ambos os estados agora convergem para **"Pensando..."** com indicador roxo pulsante (`#a855f7`).
 
 ### 🚀 Adicionado
-* **Novos Status do Antigravity PC: "Analisado" (*Analyzed*) & "Executado" (*Ran*)**:
-  * Detecção de leitura e análise de arquivos de projeto (`read_file`, `search_web`, `gemini_search_docs`) com status **"Analisado"** (*Analyzed* / *Analizado*) e pílula verde-esmeralda/teal.
-  * Detecção de execução de comandos no console (`run_command`) com status **"Executado"** (*Ran* / *Ejecutado*) e pílula azul safira.
-  * Traduções completas em Português-Brasil, Inglês e Espanhol.
 * **Botão "Chats" Central no Rodapé**:
   * Localizado no centro inferior da tela (entre o menu/latência à esquerda e o botão OLED à direita).
   * Abre modal de seleção de conversas e projetos sincronizados do Antigravity PC em ambas as versões (APK e IP/Web).

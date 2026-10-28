@@ -200,10 +200,6 @@ def get_status(token: Optional[str] = None):
     upper_st = current_status.upper().strip()
     if "TASK" in upper_st and ("RUN" in upper_st or "EXEC" in upper_st):
         current_status = "TASK_RUNNING"
-    elif "ANALYZ" in upper_st or "ANALIS" in upper_st:
-        current_status = "ANALYZED"
-    elif upper_st == "RAN" or "EXECUTAD" in upper_st or "EXECUTOU" in upper_st or "EJECUTAD" in upper_st:
-        current_status = "RAN"
     elif upper_st in ["THOUGHT", "THINKING", "PENSANDO"]:
         current_status = "THOUGHT"
     elif upper_st in ["WORKING", "RUNNING", "PROCESSANDO", "TRABALHANDO"]:
@@ -288,4 +284,11 @@ def ping():
 
 @app.get("/")
 def index():
-    return FileResponse(STATIC_DIR / "index.html")
+    return FileResponse(
+        STATIC_DIR / "index.html",
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )

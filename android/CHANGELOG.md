@@ -6,21 +6,23 @@ O formato segue o padrão [Keep a Changelog](https://keepachangelog.com/pt-BR/1.
 
 ---
 
-## [2.4.3] - 2026-10-27 (Build 2422)
+## [2.4.3] - 2026-10-28 (Build 2423)
 
 ### 🐛 Correções de Rolamento & Gestos
 * **Correção Definitiva do Scroll do Chat no APK**:
   * Remoção completa do wrapper `SwipeRefreshLayout` no layout nativo (`activity_main.xml`) e de seus ouvintes no `MainActivity.kt`.
   * Como a página web possui altura fixa (100vh) com rolagem interna em `#chat-feed`, o `SwipeRefreshLayout` interceptava indevidamente todos os gestos de arrasto para baixo (`canScrollVertically(-1) == false`), travando o rolamento e impedindo o usuário de ver mensagens anteriores no APK.
   * O `WebView` agora opera diretamente dentro do `FrameLayout` com `isVerticalScrollBarEnabled = true` e `OVER_SCROLL_IF_CONTENT_SCROLLS`, restaurando rolagem nativa 100% fluida para todo o histórico de mensagens anteriores.
+  * Desativação de cache do WebView (`LOAD_NO_CACHE`) para garantir que novas telas e scripts sejam carregados imediatamente.
 
-### 💬 Navegação de Chats & Correção do Carregamento Remoto
+### 💬 Navegação de Chats & Correção do Toast de Histórico
+* **Correção do Aviso Indevido de Erro ao Abrir Histórico**:
+  * Corrigida a chamada de atualização do título do projeto ativo na barra superior (`updateProjectName`), eliminando o erro de referência de script que disparava o toast indevido *"Falha ao abrir histórico da conversa"* mesmo quando as mensagens já haviam sido carregadas com sucesso na tela.
 * **Botão "Chats" Central no Rodapé**:
   * Novo botão `💬 Chats` posicionado no centro inferior da tela (entre Menu/Latência e o botão OLED).
   * Abertura instantânea de modal responsivo listando todas as conversas e projetos recentes do PC.
 * **Correção do "Erro ao carregar conversas do pc"**:
   * Adicionado fallback com varredura direta dos subdiretórios em `brain/`, garantindo que a lista de projetos e conversas nunca falhe mesmo se o banco SQLite de resumos estiver bloqueado ou inacessível.
-  * Resolução do envio do `authToken` em cache na requisição `/api/conversations`.
 * **Indicadores Pulsantes Exclusivos (Sem Texto Frontal)**:
   * Conversas ativas/processando: exibem estritamente um ponto pulsante laranja (`🟠`).
   * Conversas ociosas: exibem estritamente um ponto pulsante verde (`🟢`).
@@ -28,12 +30,11 @@ O formato segue o padrão [Keep a Changelog](https://keepachangelog.com/pt-BR/1.
 * **Inspeção de Histórico Remota e Independente**:
   * Ao tocar em qualquer projeto/chat, o app puxa todo o histórico de conversas do PC sem simular cliques de mouse ou trocar a conversa ativa na tela do computador.
 
-### 🔄 Novos Status do Antigravity PC & Unificação
+### 🔄 Estados de Execução & Unificação
 * **Status "Pensando..." (Unificação de "Thought" e "Thinking")**:
   * Correção e unificação dos estados "Thought" e "Thinking", mapeados exatamente para "Pensando..." (PT-BR) / "Thinking..." (EN) / "Pensando..." (ES) com indicador roxo pulsante (`#a855f7`).
-* **Novos Status "Analisado" (*Analyzed*) & "Executado" (*Ran*)**:
-  * Detecção precisa de ferramentas de leitura/análise (`read_file`, `search_web`, `gemini_search_docs`) exibindo o status **"Analisado"** (*Analyzed* / *Analizado*) com pílula verde-esmeralda/teal.
-  * Detecção de execução de comandos de console (`run_command`) exibindo o status **"Executado"** (*Ran* / *Ejecutado*) com pílula azul safira.
+* **Ajuste de Estados Solicitado**:
+  * Estados intermediários "Analyzed" e "Ran" removidos conforme solicitado pelo usuário, consolidando a execução nas fases principais: "Pensando...", "Trabalhando...", "Executando Tarefa..." e "Concluído" (por 1 minuto).
 * **Status Existentes Preservados**:
   * "Processando" renomeado para "Trabalhando...".
   * "Executando Tarefa..." (*Task Running*) com indicador ciano elétrico pulsante.

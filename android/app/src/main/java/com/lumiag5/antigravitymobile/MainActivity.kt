@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
         settings.databaseEnabled = true
         settings.useWideViewPort = true
         settings.loadWithOverviewMode = true
-        settings.cacheMode = WebSettings.LOAD_DEFAULT
+        settings.cacheMode = WebSettings.LOAD_NO_CACHE
         settings.mediaPlaybackRequiresUserGesture = false
         settings.allowContentAccess = true
         settings.allowFileAccess = true

@@ -342,40 +342,6 @@
             box-shadow: 0 0 9px #0ea5e9 !important;
             animation: pulse-dot 0.85s infinite alternate;
         }
-        /* Verde Esmeralda/Teal quando ANALISADO / ANALYZED */
-        .status-pill.state-analyzed,
-        .status-pill.ANALYZED,
-        .status-pill.ANALISADO,
-        .status-pill.ANALIZADO {
-            background: rgba(20, 184, 166, 0.16) !important;
-            border-color: rgba(20, 184, 166, 0.45) !important;
-            color: #2dd4bf !important;
-        }
-        .status-pill.state-analyzed .status-dot,
-        .status-pill.ANALYZED .status-dot,
-        .status-pill.ANALISADO .status-dot,
-        .status-pill.ANALIZADO .status-dot {
-            background: #14b8a6 !important;
-            box-shadow: 0 0 9px #14b8a6 !important;
-            animation: pulse-dot 0.8s infinite alternate;
-        }
-        /* Azul Real quando EXECUTADO / RAN / EJECUTADO */
-        .status-pill.state-ran,
-        .status-pill.RAN,
-        .status-pill.EXECUTADO,
-        .status-pill.EJECUTADO {
-            background: rgba(59, 130, 246, 0.16) !important;
-            border-color: rgba(59, 130, 246, 0.45) !important;
-            color: #60a5fa !important;
-        }
-        .status-pill.state-ran .status-dot,
-        .status-pill.RAN .status-dot,
-        .status-pill.EXECUTADO .status-dot,
-        .status-pill.EJECUTADO .status-dot {
-            background: #3b82f6 !important;
-            box-shadow: 0 0 9px #3b82f6 !important;
-            animation: pulse-dot 0.8s infinite alternate;
-        }
         /* Vermelho quando DESCONECTADO / DISCONNECTED */
         .status-pill.state-disconnected,
         .status-pill.DISCONNECTED,
@@ -2721,10 +2687,7 @@
                         chatFeed.innerHTML = `<div class="empty-state"><div class="empty-title">Conversa Vazia</div><div class="empty-sub">Nenhuma mensagem registrada nesta conversa.</div></div>`;
                     }
 
-                    if (data.active_project || project) {
-                        projectName.innerText = data.active_project || project;
-                        projectBadge.style.display = "inline-flex";
-                    }
+                    updateProjectName(data.active_project || project, data.conversation_title || title);
 
                     if (data.active_model && modelBadge) {
                         modelBadge.innerText = data.active_model;
@@ -2737,7 +2700,8 @@
                     ScrollManager.scrollToBottom(false);
                     setTimeout(() => ScrollManager.scrollToBottom(true), 150);
                 } catch(e) {
-                    showToastNotification("Falha ao abrir histórico da conversa.");
+                    console.error("[ChatsManager] Erro ao carregar mensagens:", e);
+                    showToastNotification("Falha ao abrir histórico da conversa: " + (e.message || "Erro"));
                 }
             },
 
@@ -3074,12 +3038,6 @@
             } else if ((raw.includes("TASK") && (raw.includes("RUN") || raw.includes("EXEC"))) || raw.includes("TAREFA")) {
                 state = "task-running";
                 label = t.status_task_running || "Executando Tarefa...";
-            } else if (raw.includes("ANALYZ") || raw.includes("ANALIS")) {
-                state = "analyzed";
-                label = t.status_analyzed || "Analisado";
-            } else if (raw === "RAN" || raw.includes("EXECUTADO") || raw.includes("EXECUTOU") || raw.includes("EJECUTADO")) {
-                state = "ran";
-                label = t.status_ran || "Executado";
             } else if (raw.includes("THOUGHT") || raw.includes("PENSANDO") || raw.includes("THINK")) {
                 state = "thought";
                 label = t.status_thought || "Pensando...";
