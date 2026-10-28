@@ -13,7 +13,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
 ### Corrigido
-* **Rolamento no APK**: Remoção do `SwipeRefreshLayout` do layout nativo, permitindo rolar mensagens livremente sem travas de toque.
+* **Rolagem no APK**: Remoção do `SwipeRefreshLayout` do layout nativo, permitindo rolar mensagens livremente sem travas de toque.
 * **Transição para Concluído**: O status transiciona imediatamente para "Concluído" assim que o modelo finaliza a resposta.
 * **Aviso ao abrir histórico**: Corrigido toast de erro indevido ao abrir conversas pelo modal de chats.
 * **Remoção de botões "✕"**: Modais agora fecham ao tocar fora ou pelo botão "Fechar" no rodapé.

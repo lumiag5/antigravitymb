@@ -13,13 +13,13 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
 ### Corrigido
-* **Rolamento no APK**: Remoção do `SwipeRefreshLayout` no app Android, permitindo rolar o histórico do chat livremente sem travas de gestos.
+* **Rolagem no APK**: Remoção do `SwipeRefreshLayout` no app Android, permitindo rolar o histórico do chat livremente sem travas de toque.
 * **Remoção de botões "✕"**: Modais agora fecham ao tocar fora ou pelo botão "Fechar" no rodapé.
 
 ### Adicionado
 * **Botão "Chats"**: Modal para alternar entre conversas e projetos sincronizados do PC, com indicadores de status (`🟠` processando / `🟢` ocioso).
 * **Leitura remota de conversas**: Permite visualizar o histórico completo de qualquer conversa no celular sem alterar a tela ativa no PC.
-* **Status em tempo real**: Adicionados os status *Pensando...*, *Trabalhando...*, *Executando Tarefa...* (com dot ciano) e *Concluído* (exibido por 1 minuto ao finalizar).
+* **Status em tempo real**: Adicionados os status *Pensando...*, *Trabalhando...*, *Executando Tarefa...* (com ponto ciano) e *Concluído* (exibido por 1 minuto ao finalizar).
 * **Identificação de versão**: O cabeçalho agora mostra se a versão em execução é nativa `(APK)` ou navegador `(IP)`.
 * **Atualização do APK no menu**: Opção no menu para baixar e instalar novas versões direto do GitHub Releases.
 
