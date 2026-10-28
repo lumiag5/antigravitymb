@@ -20,8 +20,16 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
 - **Novos Status de Tarefa e Temporizador de Conclusão**:
   - Renomeação de "Processando" para **"Trabalhando..."** (*Working*).
   - Adição do status **"Pensando..."** (*Thought*).
+  - Adição do status **"Executando Tarefa..."** (*Task Running*) com indicador visual ciano pulsante (`#0ea5e9`).
   - O status **"Concluído"** (*Done*) permanece ativo por **1 minuto** (ou até iniciar nova atividade) antes de transicionar para "Conectado".
   - Paridade total e traduções em PT-BR, EN e ES para ambas as versões (APK e IP/Web).
+- **Diferenciação de Versão no Badge (APK vs IP)**:
+  - O cabeçalho identifica automaticamente se está executando no APK Android (`vX.X.X (APK) • Dev LumiaG5`) ou via navegador IP (`v2.4.3 (IP) • Dev LumiaG5`).
+- **Atualização Automática no Menu (Exclusiva para Android APK)**:
+  * Seção no modal `⚙️ Menu` exibida apenas no APK nativo para checagem com 1 clique de novas releases no GitHub, download em background e instalação automática via `FileProvider`.
+- **Auditoria de Segurança**:
+  * Confirmação de ausência de chaves, tokens GitHub ou credenciais vazadas.
+  * Proteção e sanitização contra *Path Traversal* adicionada no endpoint de mensagens.
 
 - **Desktop Bridge Daemon (PC)** (`antrigavitymb/desktop-bridge/`):
   - **QR Code no Terminal**: Renderização de QR Code em ASCII compacto diretamente no console do PC para conexão instantânea pela câmera do celular.

@@ -26,11 +26,19 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 * **Leitura Remota Totalmente Independente**:
   * Ao selecionar qualquer chat/projeto na lista pelo celular, o app busca e renderiza o histórico completo diretamente do transcript sem alterar a janela ou conversa aberta no PC e sem simular cliques remotos de mouse.
   * Banner com botão "Voltar ao PC ao Vivo" para alternar rapidamente de volta à sincronização em tempo real.
-* **Status "Trabalhando..." e "Pensando..." com Temporizador de 1 Minuto**:
+* **Status "Trabalhando...", "Pensando..." e "Executando Tarefa..."**:
   * Status "Processando" renomeado para **"Trabalhando..."** (*Working*).
   * Adicionado status **"Pensando..."** (*Thought*).
+  * Adicionado novo status **"Executando Tarefa..."** (*Task Running*) com indicador visual ciano pulsante (`#0ea5e9`) para execuções de comandos de terminal, automações e subagentes.
   * Ao concluir tarefas, o status **"Concluído"** é ativado e permanece exibido por **1 minuto** (ou até que uma nova atividade comece), retornando para "Conectado" após o término do tempo.
   * Traduções completas em Português, Inglês e Espanhol.
+* **Diferenciação Visual de Versão (APK vs IP)**:
+  * O cabeçalho agora diferencia a versão do APK instalado no dispositivo (`vX.X.X (APK) • Dev LumiaG5`) e a versão companion por IP (`v2.4.3 (IP) • Dev LumiaG5`), eliminando confusões visuais de cache.
+* **Atualização Automática do APK no Menu (Exclusiva para Android)**:
+  * Adicionada seção dedicada no menu `⚙️ Menu` do APK para verificação e download em 1 toque de novas versões diretamente do GitHub Releases, abrindo o instalador nativo do sistema via `FileProvider`.
+* **Auditoria Completa de Segurança**:
+  * Varredura do histórico Git e repositório confirmando ausência total de tokens, senhas ou dados sensíveis.
+  * Sanitização de entradas contra *Path Traversal* adicionada no servidor.
 
 ---
 

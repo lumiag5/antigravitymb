@@ -7,13 +7,17 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.net.Uri
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import android.view.View
 import android.webkit.*
 import android.widget.Toast
@@ -21,11 +25,16 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.WindowCompat
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import com.lumiag5.antigravitymobile.databinding.ActivityMainBinding
+import java.io.File
+import java.io.FileOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 class MainActivity : AppCompatActivity() {
 
@@ -145,6 +154,12 @@ class MainActivity : AppCompatActivity() {
                         val baseUrl = cleanServerUrl(loadedUrl).substringBefore("?")
                         prefs.edit().putString(KEY_SERVER_URL, baseUrl).apply()
                     }
+
+                    // Notifica a página web sobre a versão nativa do APK e inicializa o menu de update
+                    binding.webView.evaluateJavascript(
+                        "if (typeof updateAppVersionBadge === 'function') updateAppVersionBadge(); if (window.ApkUpdateManager) ApkUpdateManager.init();",
+                        null
+                    )
                 }
             }
 
@@ -453,12 +468,124 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Bridge JS chamada quando o usuário clica em "Sair / Desconectar" no menu da web
+    private fun startApkDownload(downloadUrl: String, version: String) {
+        Toast.makeText(this, "Iniciando download da atualização v$version...", Toast.LENGTH_SHORT).show()
+        Thread {
+            try {
+                var currentUrl = downloadUrl
+                var conn: HttpURLConnection
+                var responseCode: Int
+
+                // Segue redirecionamentos automáticos do GitHub Releases
+                while (true) {
+                    val urlObj = URL(currentUrl)
+                    conn = urlObj.openConnection() as HttpURLConnection
+                    conn.instanceFollowRedirects = true
+                    conn.connectTimeout = 15000
+                    conn.readTimeout = 30000
+                    conn.connect()
+                    responseCode = conn.responseCode
+                    if (responseCode in 300..399) {
+                        val loc = conn.getHeaderField("Location")
+                        if (!loc.isNullOrBlank()) {
+                            currentUrl = loc
+                            continue
+                        }
+                    }
+                    break
+                }
+
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    runOnUiThread {
+                        Toast.makeText(this, "Falha no download (HTTP $responseCode)", Toast.LENGTH_LONG).show()
+                    }
+                    return@Thread
+                }
+
+                val downloadDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: cacheDir
+                val apkFile = File(downloadDir, "Antigravity-$version.apk")
+                if (apkFile.exists()) apkFile.delete()
+
+                conn.inputStream.use { input ->
+                    FileOutputStream(apkFile).use { output ->
+                        val buffer = ByteArray(8192)
+                        var bytesRead: Int
+                        while (input.read(buffer).also { bytesRead = it } != -1) {
+                            output.write(buffer, 0, bytesRead)
+                        }
+                    }
+                }
+
+                runOnUiThread {
+                    Toast.makeText(this, "Download concluído! Abrindo instalador...", Toast.LENGTH_SHORT).show()
+                    installApk(apkFile)
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    Toast.makeText(this, "Erro ao baixar atualização: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
+    }
+
+    private fun installApk(file: File) {
+        try {
+            if (!file.exists()) return
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!packageManager.canRequestPackageInstalls()) {
+                    Toast.makeText(this, "Permita a instalação para atualizar o app", Toast.LENGTH_LONG).show()
+                    val permissionIntent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                        data = Uri.parse("package:$packageName")
+                    }
+                    startActivity(permissionIntent)
+                }
+            }
+
+            val apkUri = FileProvider.getUriForFile(
+                this,
+                "${packageName}.fileprovider",
+                file
+            )
+
+            val installIntent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(apkUri, "application/vnd.android.package-archive")
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+            }
+            startActivity(installIntent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Erro ao abrir instalador: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    // Bridge JS chamada pelo WebView da interface web
     inner class AndroidBridge {
         @JavascriptInterface
         fun exitSession() {
             runOnUiThread {
                 showConnectScreen()
+            }
+        }
+
+        @JavascriptInterface
+        fun isAndroidApp(): Boolean {
+            return true
+        }
+
+        @JavascriptInterface
+        fun getAppVersion(): String {
+            return BuildConfig.VERSION_NAME
+        }
+
+        @JavascriptInterface
+        fun getAppVersionCode(): Int {
+            return BuildConfig.VERSION_CODE
+        }
+
+        @JavascriptInterface
+        fun downloadAndInstallApk(url: String, version: String) {
+            runOnUiThread {
+                startApkDownload(url, version)
             }
         }
     }

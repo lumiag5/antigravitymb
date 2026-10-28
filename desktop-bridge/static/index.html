@@ -325,6 +325,23 @@
             box-shadow: 0 0 9px #a855f7 !important;
             animation: pulse-dot 0.8s infinite alternate;
         }
+        /* Azul Ciano quando EXECUTANDO TAREFA / TASK RUNNING */
+        .status-pill.state-task-running,
+        .status-pill.TASK_RUNNING,
+        .status-pill.TASK_RUN,
+        .status-pill.EXECUTANDO_TAREFA {
+            background: rgba(14, 165, 233, 0.16) !important;
+            border-color: rgba(14, 165, 233, 0.45) !important;
+            color: #38bdf8 !important;
+        }
+        .status-pill.state-task-running .status-dot,
+        .status-pill.TASK_RUNNING .status-dot,
+        .status-pill.TASK_RUN .status-dot,
+        .status-pill.EXECUTANDO_TAREFA .status-dot {
+            background: #0ea5e9 !important;
+            box-shadow: 0 0 9px #0ea5e9 !important;
+            animation: pulse-dot 0.85s infinite alternate;
+        }
         /* Vermelho quando DESCONECTADO / DISCONNECTED */
         .status-pill.state-disconnected,
         .status-pill.DISCONNECTED,
@@ -1551,6 +1568,22 @@
                     <span id="menu-btn-log-text">Ver Histórico de Conclusões</span>
                 </button>
 
+                <!-- Seção Exclusiva APK Android: Atualização Automática -->
+                <div id="menu-apk-update-section" class="menu-section" style="display: none; border-top: 1px solid var(--border-subtle); padding-top: 10px; margin-top: 6px;">
+                    <span class="menu-section-title" id="menu-update-section-title">📱 Aplicativo Android</span>
+                    <div class="menu-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 12px; font-weight: 500;">Versão Instalada:</span>
+                            <span id="menu-apk-version-label" style="font-size: 12px; font-weight: 700; color: #38bdf8;">--</span>
+                        </div>
+                        <button type="button" class="btn-menu-action" id="btn-check-update" onclick="ApkUpdateManager.checkAndUpdate(false)" style="border-color: rgba(59, 130, 246, 0.4); color: #93c5fd;">
+                            <span>🔄</span>
+                            <span id="btn-check-update-text">Atualização Automática do APK</span>
+                        </button>
+                        <div id="apk-update-status" style="font-size: 11px; color: var(--text-muted); text-align: center; display: none;"></div>
+                    </div>
+                </div>
+
                 <button type="button" class="btn-menu-action" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.35); margin-top: 10px;" onclick="disconnectSession()">
                     <span>🚪</span>
                     <span id="menu-btn-logout-text">Sair / Desconectar da Sessão</span>
@@ -1629,7 +1662,7 @@
                 <span class="status-dot"></span>
                 <span id="status-text">CONECTANDO...</span>
             </div>
-            <span class="app-version">v2.4.3 • Dev LumiaG5</span>
+            <span class="app-version" id="app-version-badge">v2.4.3 (IP) • Dev LumiaG5</span>
         </div>
     </header>
 
@@ -1876,6 +1909,15 @@
 
             const elChatsLiveBtnText = document.getElementById("chats-live-btn-text");
             if (elChatsLiveBtnText && t.chats_live_pc_btn) elChatsLiveBtnText.innerText = t.chats_live_pc_btn;
+
+            // APK Updater i18n
+            const elMenuUpdateTitle = document.getElementById("menu-update-section-title");
+            if (elMenuUpdateTitle && t.menu_update_section_title) elMenuUpdateTitle.innerText = `📱 ${t.menu_update_section_title}`;
+
+            const elBtnCheckUpdate = document.getElementById("btn-check-update-text");
+            if (elBtnCheckUpdate && t.btn_check_update) elBtnCheckUpdate.innerText = t.btn_check_update;
+
+            updateAppVersionBadge();
 
             NotificationManager.updateBtnState();
 
@@ -2326,6 +2368,7 @@
             open() {
                 if (!this.modal) this.init();
                 if (this.modal) this.modal.classList.add("active");
+                if (window.ApkUpdateManager) ApkUpdateManager.init();
             },
             close() {
                 if (!this.modal) this.init();
@@ -2337,6 +2380,116 @@
                     if (this.modal.classList.contains("active")) this.close();
                     else this.open();
                 }
+            }
+        };
+
+        function updateAppVersionBadge() {
+            const el = document.getElementById("app-version-badge") || document.querySelector(".app-version");
+            if (!el) return;
+            try {
+                if (window.AndroidBridge && typeof window.AndroidBridge.getAppVersion === "function") {
+                    const apkVer = window.AndroidBridge.getAppVersion();
+                    el.innerText = `v${apkVer} (APK) • Dev LumiaG5`;
+                    el.title = `Antigravity Mobile Nativo Android (APK v${apkVer})`;
+                    return;
+                }
+            } catch(e) {}
+            el.innerText = `v2.4.3 (IP) • Dev LumiaG5`;
+            el.title = `Antigravity Mobile Web Companion (IP v2.4.3)`;
+        }
+
+        // GERENCIADOR DE ATUALIZAÇÃO AUTOMÁTICA DO APK ANDROID
+        const ApkUpdateManager = {
+            GITHUB_API: "https://api.github.com/repos/lumiag5/antigravitymb/releases/latest",
+
+            init() {
+                const isApk = Boolean(window.AndroidBridge && typeof window.AndroidBridge.isAndroidApp === "function" && window.AndroidBridge.isAndroidApp());
+                const section = document.getElementById("menu-apk-update-section");
+                const verLabel = document.getElementById("menu-apk-version-label");
+                if (section) {
+                    if (isApk) {
+                        section.style.display = "flex";
+                        if (verLabel && typeof window.AndroidBridge.getAppVersion === "function") {
+                            verLabel.innerText = "v" + window.AndroidBridge.getAppVersion();
+                        }
+                    } else {
+                        section.style.display = "none";
+                    }
+                }
+            },
+
+            async checkAndUpdate(silent = false) {
+                const isApk = Boolean(window.AndroidBridge && typeof window.AndroidBridge.downloadAndInstallApk === "function");
+                const statusEl = document.getElementById("apk-update-status");
+                const t = currentI18n || {};
+
+                if (!isApk) {
+                    if (!silent) showToastNotification("Atualização automática disponível apenas no APK Android.");
+                    return;
+                }
+
+                const currentVer = (window.AndroidBridge.getAppVersion() || "").replace(/^v/, "").trim();
+                if (statusEl) {
+                    statusEl.style.display = "block";
+                    statusEl.innerText = "Buscando novas versões...";
+                    statusEl.style.color = "var(--text-muted)";
+                }
+
+                try {
+                    const res = await fetch(this.GITHUB_API);
+                    if (!res.ok) throw new Error("Falha ao consultar releases do GitHub");
+                    const release = await res.json();
+                    const latestTag = (release.tag_name || "").replace(/^v/, "").trim();
+                    
+                    const isNewer = this.compareSemver(latestTag, currentVer) > 0;
+
+                    if (isNewer) {
+                        if (statusEl) {
+                            statusEl.innerText = `${t.update_available || "Nova versão encontrada: "} v${latestTag}`;
+                            statusEl.style.color = "#34d399";
+                        }
+                        showToastNotification(`Nova versão v${latestTag} encontrada! Iniciando download...`);
+
+                        let apkUrl = "";
+                        if (release.assets && release.assets.length > 0) {
+                            const relAsset = release.assets.find(a => a.name.includes("release") && a.name.endsWith(".apk"));
+                            const anyAsset = release.assets.find(a => a.name.endsWith(".apk"));
+                            if (relAsset) apkUrl = relAsset.browser_download_url;
+                            else if (anyAsset) apkUrl = anyAsset.browser_download_url;
+                        }
+                        if (!apkUrl) {
+                            apkUrl = `https://github.com/lumiag5/antigravitymb/releases/download/v${latestTag}/app-release.apk`;
+                        }
+
+                        window.AndroidBridge.downloadAndInstallApk(apkUrl, latestTag);
+                    } else {
+                        if (statusEl) {
+                            statusEl.innerText = t.update_up_to_date || "O app já está na versão mais recente!";
+                            statusEl.style.color = "var(--text-muted)";
+                        }
+                        if (!silent) {
+                            showToastNotification(`Seu app já está atualizado (v${currentVer})!`);
+                        }
+                    }
+                } catch(e) {
+                    if (statusEl) {
+                        statusEl.innerText = "Erro ao verificar atualizações.";
+                        statusEl.style.color = "var(--status-red)";
+                    }
+                    if (!silent) showToastNotification("Não foi possível verificar atualizações no GitHub.");
+                }
+            },
+
+            compareSemver(a, b) {
+                const pa = a.split(".").map(n => parseInt(n, 10) || 0);
+                const pb = b.split(".").map(n => parseInt(n, 10) || 0);
+                for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+                    const na = pa[i] || 0;
+                    const nb = pb[i] || 0;
+                    if (na > nb) return 1;
+                    if (na < nb) return -1;
+                }
+                return 0;
             }
         };
 
@@ -2874,6 +3027,9 @@
             if (raw.includes("CONNECTING") || raw.includes("CONECTANDO")) {
                 state = "connecting";
                 label = t.status_connecting || "Conectando...";
+            } else if ((raw.includes("TASK") && (raw.includes("RUN") || raw.includes("EXEC"))) || raw.includes("TAREFA")) {
+                state = "task-running";
+                label = t.status_task_running || "Executando Tarefa...";
             } else if (raw.includes("THOUGHT") || raw.includes("PENSANDO") || raw.includes("THINK")) {
                 state = "thought";
                 label = t.status_thought || "Pensando...";
@@ -3171,6 +3327,9 @@
             LatencyManager.init();
             MenuManager.init();
             LogManager.init();
+            ChatsManager.init();
+            ApkUpdateManager.init();
+            updateAppVersionBadge();
             await loadI18n();
             let hasValidCache = false;
 

@@ -1,6 +1,7 @@
 # Copyright (c) 2026 Dev LumiaG5. All rights reserved.
 # Licensed under the MIT License.
 
+import re
 import json
 import asyncio
 import logging
@@ -195,15 +196,18 @@ async def websocket_endpoint(websocket: WebSocket, token: Optional[str] = Query(
 def get_status(token: Optional[str] = None):
     if config.REQUIRE_AUTH and not auth_manager.is_valid_token(token):
         raise HTTPException(status_code=401, detail="PIN de acesso inválido ou expirado")
-    current_status = monitor.current_turn_status
-    if current_status in ["IDLE", "CONNECTED", "CONECTADO"]:
-        current_status = "CONNECTED"
-    elif current_status in ["WORKING", "RUNNING", "PROCESSANDO", "TRABALHANDO"]:
+    current_status = monitor.current_turn_status or "CONNECTED"
+    upper_st = current_status.upper().strip()
+    if "TASK" in upper_st and ("RUN" in upper_st or "EXEC" in upper_st):
+        current_status = "TASK_RUNNING"
+    elif upper_st in ["WORKING", "RUNNING", "PROCESSANDO", "TRABALHANDO"]:
         current_status = "WORKING"
-    elif current_status in ["THOUGHT", "PENSANDO"]:
+    elif upper_st in ["THOUGHT", "PENSANDO"]:
         current_status = "THOUGHT"
-    elif current_status in ["DONE", "CONCLUÍDO"]:
+    elif upper_st in ["DONE", "CONCLUÍDO", "CONCLUIDO"]:
         current_status = "DONE"
+    else:
+        current_status = "CONNECTED"
 
     return {
         "conversation_id": monitor.current_conversation_id,
@@ -230,6 +234,8 @@ def get_messages(conversation_id: Optional[str] = None, limit: int = 50, token: 
         raise HTTPException(status_code=401, detail="PIN de acesso inválido ou expirado")
 
     if conversation_id and conversation_id != monitor.current_conversation_id:
+        if not re.match(r"^[a-zA-Z0-9_\-\.]+$", conversation_id) or ".." in conversation_id:
+            raise HTTPException(status_code=400, detail="ID de conversa inválido")
         return monitor.get_conversation_messages(conversation_id, limit)
 
     return {

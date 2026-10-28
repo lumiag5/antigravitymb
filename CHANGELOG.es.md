@@ -26,11 +26,19 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 * **Inspección Remota Totalmente Independiente**:
   * Al seleccionar cualquier chat en el móvil, carga todo el historial completo de mensajes sin modificar la ventana ni la conversación activa en la PC.
   * Botón "Volver a la PC en Vivo" para retomar la sincronización en tiempo real con un toque.
-* **Nuevos Estados "Trabajando..." y "Pensando..." con Temporizador de 1 Minuto**:
+* **Nuevos Estados "Trabajando...", "Pensando..." y "Ejecutando Tarea..."**:
   * "Procesando" renombrado a **"Trabajando..."** (*Working*).
   * Añadido estado **"Pensando..."** (*Thought*).
+  * Añadido estado **"Ejecutando Tarea..."** (*Task Running*) con indicador cian pulsante (`#0ea5e9`) para comandos en segundo plano, subagentes y automatizaciones.
   * Al finalizar tareas, el estado muestra **"Completado"** (*Done*) durante **1 minuto** antes de regresar a "Conectado" (o hasta que comience una nueva actividad).
   * Traducciones completas en español, portugués e inglés.
+* **Diferenciación de Versión en Encabezado (APK vs IP)**:
+  * El distintivo de versión ahora detecta si está en el APK nativo (`vX.X.X (APK) • Dev LumiaG5`) o en el navegador por IP (`v2.4.3 (IP) • Dev LumiaG5`).
+* **Actualización Automática de APK en el Menú (Exclusivo Android)**:
+  * Nueva sección en el modal `⚙️ Menú` para comprobar nuevas versiones en GitHub Releases y descargar/instalar con 1 toque mediante `FileProvider`.
+* **Auditoría de Seguridad**:
+  * Confirmación de cero credenciales o tokens en código o historial Git.
+  * Sanitización contra *Path Traversal* en endpoints del servidor.
 
 ---
 

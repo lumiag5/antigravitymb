@@ -27,7 +27,19 @@ O formato segue o padrão [Keep a Changelog](https://keepachangelog.com/pt-BR/1.
 * **Novos Status Dinâmicos**:
   * "Processando" renomeado para "Trabalhando...".
   * Adicionado status "Pensando..." durante a fase de raciocínio.
+  * Adicionado status "Executando Tarefa..." (*Task Running*) com indicador ciano elétrico pulsante para comandos de terminal e subagentes.
   * Status "Concluído" permanece exibido por 1 minuto ao finalizar uma tarefa antes de retornar para "Conectado".
+
+### 📱 Diferenciação de Versão & Atualizador Automático
+* **Badge de Versão Dinâmico no Cabeçalho**:
+  * Identificação automática do ambiente de execução: o APK detecta a versão do binário nativo instalado no aparelho e exibe `vX.X.X (APK) • Dev LumiaG5`, corrigindo a discrepância onde exibia versões legadas da web. Na versão acessada por IP, o badge exibe `v2.4.3 (IP) • Dev LumiaG5`.
+* **Atualização Automática do APK Integrada ao Menu**:
+  * Nova seção exclusiva para o APK dentro do modal `⚙️ Menu`.
+  * Consulta automática de novas releases no GitHub com comparação semântica de versão (SemVer).
+  * Download em segundo plano do instalador `.apk` e acionamento automático do instalador do Android via `FileProvider` seguro (`ACTION_VIEW`).
+* **Auditoria de Segurança**:
+  * Varredura completa confirmando ausência de chaves de API, PATs do GitHub ou dados sensíveis no código e no histórico do Git.
+  * Sanitização de parâmetros contra *Path Traversal* adicionada no servidor.
 
 ---
 

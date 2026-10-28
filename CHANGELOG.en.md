@@ -26,11 +26,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 * **Independent Remote Chat Inspection**:
   * Selecting any conversation loads its complete message history on mobile without clicking or altering the active conversation on the PC.
   * "Return to Live PC" banner button to quickly switch back to real-time sync with the host machine.
-* **"Working..." and "Thinking..." Dynamic Statuses**:
+* **"Working...", "Thinking...", and "Task Running..." Dynamic Statuses**:
   * "Processing" renamed to **"Working..."** (*Trabalhando...*).
   * Added **"Thinking..."** (*Pensando...*) status during model thought phases.
+  * Added new **"Task Running..."** (*Executando Tarefa...*) status with a pulsing cyan indicator (`#0ea5e9`) for background commands, subagents, and automations.
   * When a task finishes, status displays **"Completed"** (*Concluído*) for **1 minute** before returning to "Connected" (or until a new activity starts).
   * Full localization across English, Portuguese, and Spanish.
+* **Environment Version Badge Differentiation (APK vs IP)**:
+  * The header badge now differentiates between the installed native APK version (`vX.X.X (APK) • Dev LumiaG5`) and the IP web companion (`v2.4.3 (IP) • Dev LumiaG5`).
+* **Android In-App Auto-Update Feature in Menu**:
+  * Added a dedicated APK update section in the `⚙️ Menu` modal (visible exclusively on Android APK).
+  * Queries the latest GitHub release, checks semver, downloads the new `.apk` in background and launches the system installer via secure `FileProvider`.
+* **Security Audit**:
+  * Full scan confirming zero GitHub tokens, secrets, or API keys exposed in repository or Git commit history.
+  * Path traversal sanitization added to server endpoints.
 
 ---
 

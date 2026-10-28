@@ -696,7 +696,7 @@ class AntigravityMonitor:
                         is_proc = True
                     elif cid in self.background_working_conversations:
                         is_proc = True
-                    elif cid == self.current_conversation_id and self.current_turn_status in ["WORKING", "THOUGHT", "RUNNING", "PROCESSANDO", "TRABALHANDO", "PENSANDO"]:
+                    elif cid == self.current_conversation_id and self.current_turn_status in ["WORKING", "THOUGHT", "RUNNING", "TASK_RUNNING", "TASK RUNNING", "PROCESSANDO", "TRABALHANDO", "PENSANDO", "EXECUTANDO TAREFA"]:
                         is_proc = True
                     else:
                         is_proc = self._is_conversation_working(cid)
@@ -1077,13 +1077,29 @@ class AntigravityMonitor:
                         "active_model": self.active_model
                     }
                 })
+        elif "TASK" in str(status).upper() and "RUN" in str(status).upper():
+            self.current_turn_status = "TASK_RUNNING"
+            if self.on_event:
+                await self.on_event({
+                    "event": "status_change",
+                    "data": {
+                        "status": "TASK_RUNNING",
+                        "active_model": self.active_model
+                    }
+                })
         elif status == "RUNNING" or tool_calls:
-            # Detecta se é THOUGHT (pensando) ou WORKING (trabalhando)
+            # Detecta se é THOUGHT (pensando), TASK_RUNNING (executando tarefa) ou WORKING (trabalhando)
             is_thinking = bool(step.get("thinking")) or "thinking" in step.get("truncated_fields", [])
             has_tools = bool(tool_calls)
+            is_task_exec = any(
+                isinstance(tc, dict) and tc.get("tool_name", "") in ["run_command", "manage_task", "invoke_subagent", "execute_command"]
+                for tc in tool_calls
+            )
             
             if is_thinking and not has_tools:
                 self.current_turn_status = "THOUGHT"
+            elif is_task_exec:
+                self.current_turn_status = "TASK_RUNNING"
             else:
                 self.current_turn_status = "WORKING"
 

@@ -64,9 +64,17 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "status_processing": "Trabalhando...",
         "status_working": "Trabalhando...",
         "status_thought": "Pensando...",
+        "status_task_running": "Executando Tarefa...",
         "status_done": "Concluído",
         "status_disconnected": "DESCONECTADO",
         "status_connecting": "CONECTANDO...",
+
+        # Atualizador do APK Android
+        "menu_update_section_title": "Aplicativo Android",
+        "btn_check_update": "Verificar e Atualizar App",
+        "update_up_to_date": "O app já está atualizado!",
+        "update_available": "Nova versão encontrada: ",
+        "update_downloading": "Baixando atualização do APK...",
 
         # Botão e Modal de Chats
         "btn_chats": "Chats",
@@ -187,9 +195,17 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "status_processing": "Working...",
         "status_working": "Working...",
         "status_thought": "Thinking...",
+        "status_task_running": "Task Running...",
         "status_done": "Completed",
         "status_disconnected": "DISCONNECTED",
         "status_connecting": "CONNECTING...",
+
+        # Android APK Updater
+        "menu_update_section_title": "Android App",
+        "btn_check_update": "Check & Update App",
+        "update_up_to_date": "App is already up to date!",
+        "update_available": "New version found: ",
+        "update_downloading": "Downloading APK update...",
 
         # Chats Button and Modal
         "btn_chats": "Chats",
@@ -310,9 +326,17 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "status_processing": "Trabajando...",
         "status_working": "Trabajando...",
         "status_thought": "Pensando...",
+        "status_task_running": "Ejecutando Tarea...",
         "status_done": "Completado",
         "status_disconnected": "DESCONECTADO",
         "status_connecting": "CONECTANDO...",
+
+        # Actualizador de APK Android
+        "menu_update_section_title": "Aplicación Android",
+        "btn_check_update": "Verificar y Actualizar App",
+        "update_up_to_date": "¡La app ya está actualizada!",
+        "update_available": "Nueva versión encontrada: ",
+        "update_downloading": "Descargando actualización del APK...",
 
         # Botón y Modal de Chats
         "btn_chats": "Chats",
