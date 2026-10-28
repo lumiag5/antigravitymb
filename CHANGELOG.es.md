@@ -10,11 +10,19 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
-## [2.4.3] - 2026-10-27 (Build 2421)
+## [2.4.3] - 2026-10-27 (Build 2422)
 
 ### 🐛 Corregido
 * **Desplazamiento Vertical del Chat en el APK**: Corregido el problema donde no era posible desplazarse hacia arriba para ver mensajes anteriores. Se eliminó `SwipeRefreshLayout` del diseño nativo (`activity_main.xml`), permitiendo que `WebView` maneje los eventos táctiles directamente sin intercepción.
-* **Directivas Táctiles en el Feed Web**: Añadidos `-webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior-y: contain;` para suavidad táctil total en navegadores móviles.
+* **Carga de Conversaciones en Botón "Chats"**: Solucionado el error *"Error al cargar conversaciones de la PC"* con un mecanismo de respaldo que escanea directamente la carpeta `brain/` si SQLite se encuentra ocupado, garantizando el envío del token de autenticación.
+* **Eliminación Total de la "✕" de Cierre**: Se quitó el botón "✕" de todos los modales (Tutorial, Menú, Historial y Chats). Todos los modales se cierran al tocar fuera (backdrop click) o mediante un botón "Cerrar" en la parte inferior.
+* **Unificación de Estados "Thought" y "Thinking"**: Ambos estados ahora convergen en **"Pensando..."** con un punto púrpura pulsante (`#a855f7`).
+
+### 🚀 Añadido
+* **Nuevos Estados de Antigravity PC: "Analizado" (*Analyzed*) y "Ejecutado" (*Ran*)**:
+  * Detección de lectura y análisis de archivos (`read_file`, `search_web`, `gemini_search_docs`) mostrando el estado **"Analizado"** (*Analyzed* / *Analisado*) con distintivo verde azulado/teal.
+  * Detección de ejecución de comandos de terminal (`run_command`) mostrando el estado **"Ejecutado"** (*Ran* / *Executado*) con distintivo azul zafiro.
+  * Traducciones completas en español, portugués e inglés.
 
 ### 🚀 Añadido
 * **Botón Central "Chats" en el Pie de Página**:

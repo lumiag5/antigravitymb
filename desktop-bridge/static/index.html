@@ -342,6 +342,40 @@
             box-shadow: 0 0 9px #0ea5e9 !important;
             animation: pulse-dot 0.85s infinite alternate;
         }
+        /* Verde Esmeralda/Teal quando ANALISADO / ANALYZED */
+        .status-pill.state-analyzed,
+        .status-pill.ANALYZED,
+        .status-pill.ANALISADO,
+        .status-pill.ANALIZADO {
+            background: rgba(20, 184, 166, 0.16) !important;
+            border-color: rgba(20, 184, 166, 0.45) !important;
+            color: #2dd4bf !important;
+        }
+        .status-pill.state-analyzed .status-dot,
+        .status-pill.ANALYZED .status-dot,
+        .status-pill.ANALISADO .status-dot,
+        .status-pill.ANALIZADO .status-dot {
+            background: #14b8a6 !important;
+            box-shadow: 0 0 9px #14b8a6 !important;
+            animation: pulse-dot 0.8s infinite alternate;
+        }
+        /* Azul Real quando EXECUTADO / RAN / EJECUTADO */
+        .status-pill.state-ran,
+        .status-pill.RAN,
+        .status-pill.EXECUTADO,
+        .status-pill.EJECUTADO {
+            background: rgba(59, 130, 246, 0.16) !important;
+            border-color: rgba(59, 130, 246, 0.45) !important;
+            color: #60a5fa !important;
+        }
+        .status-pill.state-ran .status-dot,
+        .status-pill.RAN .status-dot,
+        .status-pill.EXECUTADO .status-dot,
+        .status-pill.EJECUTADO .status-dot {
+            background: #3b82f6 !important;
+            box-shadow: 0 0 9px #3b82f6 !important;
+            animation: pulse-dot 0.8s infinite alternate;
+        }
         /* Vermelho quando DESCONECTADO / DISCONNECTED */
         .status-pill.state-disconnected,
         .status-pill.DISCONNECTED,
@@ -1457,7 +1491,6 @@
         <div class="tutorial-card">
             <div class="tutorial-header">
                 <h2 id="tut-title">Guia Rápido de Conexão</h2>
-                <button type="button" style="background:none;border:none;color:#94a3b8;font-size:16px;cursor:pointer;" onclick="toggleTutorial(false)">✕</button>
             </div>
             
             <div class="tutorial-step">
@@ -1491,7 +1524,6 @@
         <div class="menu-card">
             <div class="menu-header">
                 <h2 id="menu-title-text">⚙️ Configurações</h2>
-                <button type="button" class="modal-close-btn" onclick="MenuManager.close()">✕</button>
             </div>
 
             <!-- Seção 1: Alertas e Notificações -->
@@ -1601,7 +1633,6 @@
         <div class="log-card">
             <div class="log-header">
                 <h2 id="log-title-text">📜 Histórico de Conclusões</h2>
-                <button type="button" class="modal-close-btn" onclick="LogManager.close()">✕</button>
             </div>
 
             <div id="log-list" class="log-list">
@@ -1624,7 +1655,6 @@
         <div class="chats-card">
             <div class="chats-header">
                 <h2 id="chats-modal-title">💬 Conversas & Projetos</h2>
-                <button type="button" class="modal-close-btn" onclick="ChatsManager.close()">✕</button>
             </div>
 
             <div id="chats-custom-banner" class="chat-banner-custom" style="display: none;">
@@ -1637,6 +1667,10 @@
             <div id="chats-list" class="chats-list">
                 <div style="text-align: center; color: var(--text-muted); padding: 20px;">Carregando chats...</div>
             </div>
+
+            <button type="button" class="btn-tutorial-close" onclick="ChatsManager.close()" id="chats-close-btn" style="margin-top: 10px; width: 100%;">
+                Fechar
+            </button>
         </div>
     </div>
 
@@ -1909,6 +1943,9 @@
 
             const elChatsLiveBtnText = document.getElementById("chats-live-btn-text");
             if (elChatsLiveBtnText && t.chats_live_pc_btn) elChatsLiveBtnText.innerText = t.chats_live_pc_btn;
+
+            const elChatsCloseBtn = document.getElementById("chats-close-btn");
+            if (elChatsCloseBtn && t.menu_close) elChatsCloseBtn.innerText = t.menu_close;
 
             // APK Updater i18n
             const elMenuUpdateTitle = document.getElementById("menu-update-section-title");
@@ -2599,15 +2636,21 @@
             async loadConversations() {
                 if (!this.listEl) this.init();
                 if (!this.listEl) return;
+                const t = currentI18n || {};
                 this.listEl.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">Carregando chats...</div>`;
                 try {
-                    const res = await fetch(`/api/conversations?token=${encodeURIComponent(authToken)}`);
-                    if (!res.ok) throw new Error("Erro na requisição");
+                    const token = authToken || localStorage.getItem("antigravity_auth_token") || "";
+                    const res = await fetch(`/api/conversations?token=${encodeURIComponent(token)}`);
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.detail || `HTTP ${res.status}`);
+                    }
                     const data = await res.json();
                     this.activePcConversationId = data.active_pc_conversation_id;
                     this.renderList(data.conversations || []);
                 } catch(e) {
-                    this.listEl.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--status-red); font-size: 13px;">Erro ao carregar conversas do PC.</div>`;
+                    console.error("[ChatsManager] Erro:", e);
+                    this.listEl.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--status-red); font-size: 13px;">${t.chats_error || "Erro ao carregar conversas do PC."}</div>`;
                 }
             },
 
@@ -2666,7 +2709,8 @@
                 showToastNotification(`Carregando conversa: ${title || "Projeto"}...`);
 
                 try {
-                    const res = await fetch(`/api/messages?conversation_id=${encodeURIComponent(cid)}&limit=60&token=${encodeURIComponent(authToken)}`);
+                    const token = authToken || localStorage.getItem("antigravity_auth_token") || "";
+                    const res = await fetch(`/api/messages?conversation_id=${encodeURIComponent(cid)}&limit=60&token=${encodeURIComponent(token)}`);
                     if (!res.ok) throw new Error("Erro ao carregar mensagens");
                     const data = await res.json();
 
@@ -3030,6 +3074,12 @@
             } else if ((raw.includes("TASK") && (raw.includes("RUN") || raw.includes("EXEC"))) || raw.includes("TAREFA")) {
                 state = "task-running";
                 label = t.status_task_running || "Executando Tarefa...";
+            } else if (raw.includes("ANALYZ") || raw.includes("ANALIS")) {
+                state = "analyzed";
+                label = t.status_analyzed || "Analisado";
+            } else if (raw === "RAN" || raw.includes("EXECUTADO") || raw.includes("EXECUTOU") || raw.includes("EJECUTADO")) {
+                state = "ran";
+                label = t.status_ran || "Executado";
             } else if (raw.includes("THOUGHT") || raw.includes("PENSANDO") || raw.includes("THINK")) {
                 state = "thought";
                 label = t.status_thought || "Pensando...";

@@ -334,8 +334,8 @@ class AntigravityMonitor:
                                 src = last_step.get("source", "")
                                 stype = last_step.get("type", "")
                                 if st == "RUNNING" or tc or src == "USER_EXPLICIT" or stype == "USER_INPUT":
-                                    is_thinking = bool(last_step.get("thinking")) or "thinking" in last_step.get("truncated_fields", [])
-                                    self.current_turn_status = "THOUGHT" if (is_thinking and not tc) else "WORKING"
+                                    step_stat = self._extract_status_from_step(last_step)
+                                    self.current_turn_status = step_stat if step_stat != "IDLE" else "WORKING"
                                 else:
                                     self.current_turn_status = "IDLE"
             except Exception:
@@ -665,13 +665,13 @@ class AntigravityMonitor:
         summaries_db = config.ANTIGRAVITY_DIR / "conversation_summaries.db"
         if summaries_db.exists():
             try:
-                conn = sqlite3.connect(f"file:{summaries_db}?mode=ro", uri=True, timeout=0.8)
+                conn = sqlite3.connect(f"file:{summaries_db}?mode=ro", uri=True, timeout=2.5)
                 cursor = conn.cursor()
                 rows = cursor.execute("""
                     SELECT conversation_id, title, workspace_uris, last_modified_time, status, not_fully_idle
                     FROM conversation_summaries
                     ORDER BY last_modified_time DESC
-                    LIMIT 35
+                    LIMIT 40
                 """).fetchall()
                 conn.close()
 
@@ -696,7 +696,11 @@ class AntigravityMonitor:
                         is_proc = True
                     elif cid in self.background_working_conversations:
                         is_proc = True
-                    elif cid == self.current_conversation_id and self.current_turn_status in ["WORKING", "THOUGHT", "RUNNING", "TASK_RUNNING", "TASK RUNNING", "PROCESSANDO", "TRABALHANDO", "PENSANDO", "EXECUTANDO TAREFA"]:
+                    elif cid == self.current_conversation_id and self.current_turn_status in [
+                        "WORKING", "THOUGHT", "THINKING", "RUNNING", "TASK_RUNNING", "TASK RUNNING",
+                        "ANALYZED", "RAN", "PROCESSANDO", "TRABALHANDO", "PENSANDO", "EXECUTANDO TAREFA",
+                        "ANALISADO", "EXECUTADO"
+                    ]:
                         is_proc = True
                     else:
                         is_proc = self._is_conversation_working(cid)
@@ -721,7 +725,54 @@ class AntigravityMonitor:
                         "is_processing": is_proc
                     })
             except Exception as e:
-                print(f"[Monitor] Erro ao listar conversas: {e}")
+                print(f"[Monitor] Erro ao listar conversas do SQLite: {e}")
+
+        # Fallback / Suplementação varrendo diretamente o diretório brain/ para garantir que nunca retorne vazio
+        try:
+            brain_dir = config.BRAIN_DIR
+            if brain_dir.exists():
+                subdirs = [d for d in brain_dir.iterdir() if d.is_dir() and d.name != "tempmediaStorage"]
+                subdirs.sort(key=lambda d: d.stat().st_mtime, reverse=True)
+                for d in subdirs[:35]:
+                    cid = d.name
+                    if cid in seen_cids:
+                        continue
+                    seen_cids.add(cid)
+                    tpath = d / ".system_generated" / "logs" / "transcript.jsonl"
+                    title = f"Conversa {cid[:8]}"
+                    clean_time = datetime.fromtimestamp(d.stat().st_mtime).strftime("%d/%m %H:%M")
+
+                    if tpath.exists():
+                        try:
+                            with open(tpath, "r", encoding="utf-8", errors="ignore") as f:
+                                for _ in range(12):
+                                    line = f.readline()
+                                    if not line:
+                                        break
+                                    try:
+                                        s = json.loads(line)
+                                        if s.get("source") == "USER_EXPLICIT" or s.get("type") == "USER_INPUT":
+                                            c_txt = s.get("content", "").strip()
+                                            if c_txt:
+                                                title = c_txt[:55] + ("..." if len(c_txt) > 55 else "")
+                                                break
+                                    except Exception:
+                                        pass
+                        except Exception:
+                            pass
+
+                    is_proc = (cid == self.current_conversation_id and self.current_turn_status not in ["IDLE", "DONE", "CONNECTED"])
+
+                    conversations.append({
+                        "conversation_id": cid,
+                        "title": title,
+                        "project": "Antigravity",
+                        "last_modified": clean_time,
+                        "is_active_on_pc": (cid == self.current_conversation_id),
+                        "is_processing": is_proc
+                    })
+        except Exception as e:
+            print(f"[Monitor] Erro na varredura de fallback do brain/: {e}")
 
         return conversations
 
@@ -1043,6 +1094,52 @@ class AntigravityMonitor:
         except Exception as e:
             print(f"[Monitor] Erro no polling: {e}")
 
+    def _extract_status_from_step(self, step: Dict[str, Any]) -> str:
+        """Determina o status exato (THOUGHT, ANALYZED, RAN, TASK_RUNNING, WORKING, DONE ou IDLE)."""
+        source = step.get("source", "")
+        step_type = step.get("type", "")
+        status = step.get("status", "")
+        tool_calls = step.get("tool_calls", [])
+        content = step.get("content", "")
+
+        if source == "USER_EXPLICIT" or step_type == "USER_INPUT":
+            return "THOUGHT"
+
+        tools = []
+        if isinstance(tool_calls, list):
+            for tc in tool_calls:
+                if isinstance(tc, dict):
+                    tname = (tc.get("name") or tc.get("tool_name") or tc.get("function", {}).get("name") or "").lower()
+                    if ":" in tname:
+                        tname = tname.split(":")[-1]
+                    tools.append(tname)
+
+        if any(t in ["run_command", "execute_command"] for t in tools):
+            return "RAN"
+
+        if any(t in ["read_file", "search_web", "gemini_search_docs", "gemini_get_doc", "read_resource", "list_resources", "search_marketplace", "get_doc"] for t in tools):
+            return "ANALYZED"
+
+        if any(t in ["manage_task", "schedule", "invoke_subagent"] for t in tools) or ("TASK" in str(status).upper() and "RUN" in str(status).upper()):
+            return "TASK_RUNNING"
+
+        if any(t in ["edit_file", "write_file", "save_file", "create_file", "delete_file"] for t in tools):
+            return "WORKING"
+
+        is_thinking = bool(step.get("thinking")) or "thinking" in step.get("truncated_fields", [])
+        if is_thinking:
+            return "THOUGHT"
+
+        if status == "RUNNING" or tools:
+            return "WORKING"
+
+        if status == "DONE":
+            is_final = (source == "MODEL" and step_type == "PLANNER_RESPONSE" and not tools and bool(content))
+            if is_final:
+                return "DONE"
+
+        return "IDLE"
+
     async def _process_step(self, step: Dict[str, Any]):
         """Analisa a etapa recebida e dispara eventos de WebSocket."""
         # Revalida modelo ativo na chegada de novas etapas
@@ -1061,9 +1158,11 @@ class AntigravityMonitor:
         if formatted:
             formatted["active_model"] = self.active_model
 
-        # 1. Usuário fez uma solicitação no PC
+        detected_status = self._extract_status_from_step(step)
+
+        # 1. Usuário fez uma solicitação no PC (o agente começa pensando)
         if source == "USER_EXPLICIT" or step_type == "USER_INPUT":
-            self.current_turn_status = "WORKING"
+            self.current_turn_status = "THOUGHT"
             if self.on_event:
                 if formatted:
                     await self.on_event({
@@ -1073,53 +1172,12 @@ class AntigravityMonitor:
                 await self.on_event({
                     "event": "status_change",
                     "data": {
-                        "status": "WORKING",
+                        "status": "THOUGHT",
                         "active_model": self.active_model
                     }
                 })
-        elif "TASK" in str(status).upper() and "RUN" in str(status).upper():
-            self.current_turn_status = "TASK_RUNNING"
-            if self.on_event:
-                await self.on_event({
-                    "event": "status_change",
-                    "data": {
-                        "status": "TASK_RUNNING",
-                        "active_model": self.active_model
-                    }
-                })
-        elif status == "RUNNING" or tool_calls:
-            # Detecta se é THOUGHT (pensando), TASK_RUNNING (executando tarefa) ou WORKING (trabalhando)
-            is_thinking = bool(step.get("thinking")) or "thinking" in step.get("truncated_fields", [])
-            has_tools = bool(tool_calls)
-            is_task_exec = any(
-                isinstance(tc, dict) and tc.get("tool_name", "") in ["run_command", "manage_task", "invoke_subagent", "execute_command"]
-                for tc in tool_calls
-            )
-            
-            if is_thinking and not has_tools:
-                self.current_turn_status = "THOUGHT"
-            elif is_task_exec:
-                self.current_turn_status = "TASK_RUNNING"
-            else:
-                self.current_turn_status = "WORKING"
-
-            if self.on_event:
-                await self.on_event({
-                    "event": "status_change",
-                    "data": {
-                        "status": self.current_turn_status,
-                        "active_model": self.active_model
-                    }
-                })
-        elif status == "DONE":
-            is_final_response = (
-                source == "MODEL" 
-                and step_type == "PLANNER_RESPONSE" 
-                and not tool_calls 
-                and bool(content)
-            )
-
-            if is_final_response and self.last_notified_step != step_index:
+        elif detected_status == "DONE":
+            if self.last_notified_step != step_index:
                 self.last_notified_step = step_index
                 self.current_turn_status = "DONE"
                 
@@ -1143,6 +1201,16 @@ class AntigravityMonitor:
                             "quota": self.quota_stats
                         }
                     })
+        elif detected_status != "IDLE":
+            self.current_turn_status = detected_status
+            if self.on_event:
+                await self.on_event({
+                    "event": "status_change",
+                    "data": {
+                        "status": self.current_turn_status,
+                        "active_model": self.active_model
+                    }
+                })
 
     async def run_loop(self):
         """Loop contínuo de monitoramento assíncrono."""

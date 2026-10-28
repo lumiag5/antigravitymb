@@ -10,19 +10,24 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
 3. **Métricas Oficiais de Quota**: Exibição em tempo real da porcentagem de uso diário (5h) e semanal do modelo de IA via RPC interna com adaptação dinâmica entre grupos de modelos.
 4. **Conectividade Flexível**: Suporte à rede local (Wi-Fi) e acesso remoto global via túnel HTTPS seguro (Cloudflare) sem configuração de portas.
 
-## FUNCIONALIDADES IMPLEMENTADAS (v2.4.3 • Build 2421)
+## FUNCIONALIDADES IMPLEMENTADAS (v2.4.3 • Build 2422)
 - **Correção de Rolamento Vertical do Chat no APK**: Remoção do `SwipeRefreshLayout` em `activity_main.xml` e no `MainActivity.kt`, restaurando 100% a rolagem nativa de mensagens anteriores no APK Android, igual à versão por IP.
 - **Navegação Multi-Conversas com Botão "Chats"**:
   - Botão `💬 Chats` no centro inferior do rodapé (entre Menu/Latência e o botão OLED).
   - Modal com listagem de conversas e projetos sincronizados do Antigravity PC com leitura de transcripts em background.
+  - Correção do erro *"Erro ao carregar conversas do pc"* através de timeout resiliente e varredura de fallback em `brain/`, além do envio transparente do `authToken` em cache.
   - Indicadores pulsantes estritos na frente de cada conversa: **somente dot laranja (`🟠`)** se o Antigravity estiver processando algo, ou **somente dot verde (`🟢`)** se estiver ocioso, sem textos frontais.
   - Carregamento de histórico completo com liberdade remota pelo smartphone sem alterar nem clicar na conversa aberta no PC.
-- **Novos Status de Tarefa e Temporizador de Conclusão**:
+- **Novos Status de Tarefa, Unificação e Temporizador de Conclusão**:
+  - Unificação de **"Thought"** e **"Thinking"** mapeados para o mesmo estado: **"Pensando..."** (*Thinking...*) com dot roxo pulsante (`#a855f7`).
+  - Adição dos status **"Analisado"** (*Analyzed*) com pílula verde-esmeralda/teal para leitura/análise de arquivos e docs.
+  - Adição dos status **"Executado"** (*Ran*) com pílula azul safira para comandos de console (`run_command`).
   - Renomeação de "Processando" para **"Trabalhando..."** (*Working*).
-  - Adição do status **"Pensando..."** (*Thought*).
   - Adição do status **"Executando Tarefa..."** (*Task Running*) com indicador visual ciano pulsante (`#0ea5e9`).
   - O status **"Concluído"** (*Done*) permanece ativo por **1 minuto** (ou até iniciar nova atividade) antes de transicionar para "Conectado".
   - Paridade total e traduções em PT-BR, EN e ES para ambas as versões (APK e IP/Web).
+- **Remoção Global do Ícone "✕" de Fechar**:
+  - Eliminação do "✕" em todos os modais (Tutorial, Menu, Log, Chats). Todos os modais se auto-fecham ao tocar no fundo externo (backdrop click) ou via botão "Fechar" limpo no rodapé.
 - **Diferenciação de Versão no Badge (APK vs IP)**:
   - O cabeçalho identifica automaticamente se está executando no APK Android (`vX.X.X (APK) • Dev LumiaG5`) ou via navegador IP (`v2.4.3 (IP) • Dev LumiaG5`).
 - **Atualização Automática no Menu (Exclusiva para Android APK)**:

@@ -64,7 +64,10 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "status_processing": "Trabalhando...",
         "status_working": "Trabalhando...",
         "status_thought": "Pensando...",
+        "status_thinking": "Pensando...",
         "status_task_running": "Executando Tarefa...",
+        "status_analyzed": "Analisado",
+        "status_ran": "Executado",
         "status_done": "Concluído",
         "status_disconnected": "DESCONECTADO",
         "status_connecting": "CONECTANDO...",
@@ -83,6 +86,7 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "chats_live_pc_btn": "⚡ Voltar ao Chat Ativo do PC",
         "chats_viewing_custom": "Visualizando conversa selecionada",
         "chats_no_active": "Nenhuma conversa encontrada",
+        "chats_error": "Erro ao carregar conversas do PC.",
         
         # Tutorial de Conexão Rápido
         "tutorial_btn": "❓ Como Conectar ao Celular",
@@ -195,7 +199,10 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "status_processing": "Working...",
         "status_working": "Working...",
         "status_thought": "Thinking...",
+        "status_thinking": "Thinking...",
         "status_task_running": "Task Running...",
+        "status_analyzed": "Analyzed",
+        "status_ran": "Ran",
         "status_done": "Completed",
         "status_disconnected": "DISCONNECTED",
         "status_connecting": "CONNECTING...",
@@ -214,6 +221,7 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "chats_live_pc_btn": "⚡ View Live PC Chat",
         "chats_viewing_custom": "Viewing selected conversation",
         "chats_no_active": "No conversations found",
+        "chats_error": "Error loading PC chats.",
         
         # Quick Connection Tutorial
         "tutorial_btn": "❓ How to Connect",
@@ -326,7 +334,10 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "status_processing": "Trabajando...",
         "status_working": "Trabajando...",
         "status_thought": "Pensando...",
+        "status_thinking": "Pensando...",
         "status_task_running": "Ejecutando Tarea...",
+        "status_analyzed": "Analizado",
+        "status_ran": "Ejecutado",
         "status_done": "Completado",
         "status_disconnected": "DESCONECTADO",
         "status_connecting": "CONECTANDO...",
@@ -345,6 +356,7 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "chats_live_pc_btn": "⚡ Ver Conversación Activa de PC",
         "chats_viewing_custom": "Viendo conversación seleccionada",
         "chats_no_active": "No se encontraron conversaciones",
+        "chats_error": "Error al cargar conversaciones de la PC.",
         
         # Tutorial de Conexión Rápido
         "tutorial_btn": "❓ Cómo Conectar al Móvil",

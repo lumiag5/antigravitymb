@@ -200,11 +200,15 @@ def get_status(token: Optional[str] = None):
     upper_st = current_status.upper().strip()
     if "TASK" in upper_st and ("RUN" in upper_st or "EXEC" in upper_st):
         current_status = "TASK_RUNNING"
+    elif "ANALYZ" in upper_st or "ANALIS" in upper_st:
+        current_status = "ANALYZED"
+    elif upper_st == "RAN" or "EXECUTAD" in upper_st or "EXECUTOU" in upper_st or "EJECUTAD" in upper_st:
+        current_status = "RAN"
+    elif upper_st in ["THOUGHT", "THINKING", "PENSANDO"]:
+        current_status = "THOUGHT"
     elif upper_st in ["WORKING", "RUNNING", "PROCESSANDO", "TRABALHANDO"]:
         current_status = "WORKING"
-    elif upper_st in ["THOUGHT", "PENSANDO"]:
-        current_status = "THOUGHT"
-    elif upper_st in ["DONE", "CONCLUÍDO", "CONCLUIDO"]:
+    elif upper_st in ["DONE", "CONCLUÍDO", "CONCLUIDO", "COMPLETED", "COMPLETADO"]:
         current_status = "DONE"
     else:
         current_status = "CONNECTED"
@@ -223,10 +227,19 @@ def get_status(token: Optional[str] = None):
 def get_conversations(token: Optional[str] = None):
     if config.REQUIRE_AUTH and not auth_manager.is_valid_token(token):
         raise HTTPException(status_code=401, detail="PIN de acesso inválido ou expirado")
-    return {
-        "conversations": monitor.get_conversations_list(),
-        "active_pc_conversation_id": monitor.current_conversation_id
-    }
+    try:
+        conv_list = monitor.get_conversations_list()
+        return {
+            "conversations": conv_list,
+            "active_pc_conversation_id": monitor.current_conversation_id
+        }
+    except Exception as e:
+        print(f"[Server] Erro ao obter lista de conversas: {e}")
+        return {
+            "conversations": [],
+            "active_pc_conversation_id": monitor.current_conversation_id,
+            "error": str(e)
+        }
 
 @app.get("/api/messages")
 def get_messages(conversation_id: Optional[str] = None, limit: int = 50, token: Optional[str] = None):

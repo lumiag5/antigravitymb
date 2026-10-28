@@ -6,7 +6,7 @@ O formato segue o padrão [Keep a Changelog](https://keepachangelog.com/pt-BR/1.
 
 ---
 
-## [2.4.3] - 2026-10-27 (Build 2421)
+## [2.4.3] - 2026-10-27 (Build 2422)
 
 ### 🐛 Correções de Rolamento & Gestos
 * **Correção Definitiva do Scroll do Chat no APK**:
@@ -14,21 +14,35 @@ O formato segue o padrão [Keep a Changelog](https://keepachangelog.com/pt-BR/1.
   * Como a página web possui altura fixa (100vh) com rolagem interna em `#chat-feed`, o `SwipeRefreshLayout` interceptava indevidamente todos os gestos de arrasto para baixo (`canScrollVertically(-1) == false`), travando o rolamento e impedindo o usuário de ver mensagens anteriores no APK.
   * O `WebView` agora opera diretamente dentro do `FrameLayout` com `isVerticalScrollBarEnabled = true` e `OVER_SCROLL_IF_CONTENT_SCROLLS`, restaurando rolagem nativa 100% fluida para todo o histórico de mensagens anteriores.
 
-### 💬 Navegação de Chats & Novos Status
+### 💬 Navegação de Chats & Correção do Carregamento Remoto
 * **Botão "Chats" Central no Rodapé**:
   * Novo botão `💬 Chats` posicionado no centro inferior da tela (entre Menu/Latência e o botão OLED).
   * Abertura instantânea de modal responsivo listando todas as conversas e projetos recentes do PC.
+* **Correção do "Erro ao carregar conversas do pc"**:
+  * Adicionado fallback com varredura direta dos subdiretórios em `brain/`, garantindo que a lista de projetos e conversas nunca falhe mesmo se o banco SQLite de resumos estiver bloqueado ou inacessível.
+  * Resolução do envio do `authToken` em cache na requisição `/api/conversations`.
 * **Indicadores Pulsantes Exclusivos (Sem Texto Frontal)**:
   * Conversas ativas/processando: exibem estritamente um ponto pulsante laranja (`🟠`).
   * Conversas ociosas: exibem estritamente um ponto pulsante verde (`🟢`).
   * Conforme especificação, sem nenhuma mensagem ou texto posicionado na frente do ponto indicador.
 * **Inspeção de Histórico Remota e Independente**:
   * Ao tocar em qualquer projeto/chat, o app puxa todo o histórico de conversas do PC sem simular cliques de mouse ou trocar a conversa ativa na tela do computador.
-* **Novos Status Dinâmicos**:
+
+### 🔄 Novos Status do Antigravity PC & Unificação
+* **Status "Pensando..." (Unificação de "Thought" e "Thinking")**:
+  * Correção e unificação dos estados "Thought" e "Thinking", mapeados exatamente para "Pensando..." (PT-BR) / "Thinking..." (EN) / "Pensando..." (ES) com indicador roxo pulsante (`#a855f7`).
+* **Novos Status "Analisado" (*Analyzed*) & "Executado" (*Ran*)**:
+  * Detecção precisa de ferramentas de leitura/análise (`read_file`, `search_web`, `gemini_search_docs`) exibindo o status **"Analisado"** (*Analyzed* / *Analizado*) com pílula verde-esmeralda/teal.
+  * Detecção de execução de comandos de console (`run_command`) exibindo o status **"Executado"** (*Ran* / *Ejecutado*) com pílula azul safira.
+* **Status Existentes Preservados**:
   * "Processando" renomeado para "Trabalhando...".
-  * Adicionado status "Pensando..." durante a fase de raciocínio.
-  * Adicionado status "Executando Tarefa..." (*Task Running*) com indicador ciano elétrico pulsante para comandos de terminal e subagentes.
-  * Status "Concluído" permanece exibido por 1 minuto ao finalizar uma tarefa antes de retornar para "Conectado".
+  * "Executando Tarefa..." (*Task Running*) com indicador ciano elétrico pulsante.
+  * "Concluído" permanece exibido por 1 minuto ao finalizar uma tarefa antes de retornar para "Conectado".
+
+### 🧹 Remoção de Ícones "✕" & Fechamento por Toque Externo
+* **Remoção Global do "✕" de Fechar**:
+  * Ícone "✕" removido de todos os modais da interface (Tutorial, Menu de Configurações, Histórico de Conclusões e Modal de Chats).
+  * Todos os modais fecham automaticamente ao tocar na área externa/fundo (backdrop click) ou através de um botão limpo "Fechar" posicionado na base inferior.
 
 ### 📱 Diferenciação de Versão & Atualizador Automático
 * **Badge de Versão Dinâmico no Cabeçalho**:

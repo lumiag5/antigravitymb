@@ -10,13 +10,19 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [2.4.3] - 2026-10-27 (Build 2421)
+## [2.4.3] - 2026-10-27 (Build 2422)
 
 ### 🐛 Corrigido
 * **Rolamento Vertical de Mensagens no APK**: Resolvido o problema em que o usuário não conseguia rolar o chat para cima no APK para ver o histórico anterior. O `SwipeRefreshLayout` foi removido do layout nativo Android para que o `WebView` receba todos os toques sem captura indevida de gestos, garantindo paridade total com a versão web por IP.
-* **Diretivas Touch no Feed Web**: Adicionados `-webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior-y: contain;` para suavidade de rolagem em navegadores mobile.
+* **Carregamento de Conversas no Botão "Chats"**: Resolvido o erro *"Erro ao carregar conversas do pc"* com a implementação de fallback robusto varrendo diretamente a pasta `brain/` e garantindo envio transparente do token de autenticação em cache.
+* **Remoção Global do Ícone "✕" de Fechar**: O botão "✕" foi retirado de todos os modais (Tutorial, Menu, Log e Chats). Todos os modais se auto-fecham ao clicar fora da janela (backdrop click) ou através de um botão "Fechar" limpo no rodapé.
+* **Unificação dos Estados "Thought" e "Thinking"**: Ambos os estados agora convergem para **"Pensando..."** com indicador roxo pulsante (`#a855f7`).
 
 ### 🚀 Adicionado
+* **Novos Status do Antigravity PC: "Analisado" (*Analyzed*) & "Executado" (*Ran*)**:
+  * Detecção de leitura e análise de arquivos de projeto (`read_file`, `search_web`, `gemini_search_docs`) com status **"Analisado"** (*Analyzed* / *Analizado*) e pílula verde-esmeralda/teal.
+  * Detecção de execução de comandos no console (`run_command`) com status **"Executado"** (*Ran* / *Ejecutado*) e pílula azul safira.
+  * Traduções completas em Português-Brasil, Inglês e Espanhol.
 * **Botão "Chats" Central no Rodapé**:
   * Localizado no centro inferior da tela (entre o menu/latência à esquerda e o botão OLED à direita).
   * Abre modal de seleção de conversas e projetos sincronizados do Antigravity PC em ambas as versões (APK e IP/Web).
@@ -28,10 +34,9 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
   * Banner com botão "Voltar ao PC ao Vivo" para alternar rapidamente de volta à sincronização em tempo real.
 * **Status "Trabalhando...", "Pensando..." e "Executando Tarefa..."**:
   * Status "Processando" renomeado para **"Trabalhando..."** (*Working*).
-  * Adicionado status **"Pensando..."** (*Thought*).
-  * Adicionado novo status **"Executando Tarefa..."** (*Task Running*) com indicador visual ciano pulsante (`#0ea5e9`) para execuções de comandos de terminal, automações e subagentes.
+  * Status **"Pensando..."** (*Thought* / *Thinking*).
+  * Novo status **"Executando Tarefa..."** (*Task Running*) com indicador visual ciano pulsante (`#0ea5e9`).
   * Ao concluir tarefas, o status **"Concluído"** é ativado e permanece exibido por **1 minuto** (ou até que uma nova atividade comece), retornando para "Conectado" após o término do tempo.
-  * Traduções completas em Português, Inglês e Espanhol.
 * **Diferenciação Visual de Versão (APK vs IP)**:
   * O cabeçalho agora diferencia a versão do APK instalado no dispositivo (`vX.X.X (APK) • Dev LumiaG5`) e a versão companion por IP (`v2.4.3 (IP) • Dev LumiaG5`), eliminando confusões visuais de cache.
 * **Atualização Automática do APK no Menu (Exclusiva para Android)**:

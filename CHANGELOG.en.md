@@ -10,13 +10,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
-## [2.4.3] - 2026-10-27 (Build 2421)
+## [2.4.3] - 2026-10-27 (Build 2422)
 
 ### 🐛 Fixed
 * **Native APK Chat Scrolling**: Resolved an issue where users were unable to scroll up to view earlier messages on Android. Removed `SwipeRefreshLayout` from the native Android layout (`activity_main.xml`), allowing `WebView` to handle touch drags directly without gesture interception.
-* **Touch Directives in Web Feed**: Added `-webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior-y: contain;` for smooth, uninterrupted vertical scrolling on mobile browsers.
+* **PC Chats Loading Fix**: Resolved *"Error loading PC chats"* by implementing resilient direct directory scanning of `brain/` as a fallback when SQLite summaries are busy/locked, and ensuring authentication token delivery.
+* **Global Removal of "✕" Close Crosses**: Removed the "✕" button from all modals (Tutorial, Menu, Log, and Chats). All modal windows now auto-close by clicking outside (backdrop click) or via a bottom "Close" button.
+* **Unification of "Thought" & "Thinking" Statuses**: Unified both states into **"Thinking..."** (*Pensando...*) with a pulsing purple dot (`#a855f7`).
 
 ### 🚀 Added
+* **New Statuses from Antigravity PC: "Analyzed" & "Ran"**:
+  * Accurate detection of file/docs reading actions (`read_file`, `search_web`, `gemini_search_docs`) showing the **"Analyzed"** (*Analisado* / *Analizado*) status with teal/emerald badge.
+  * Accurate detection of terminal commands (`run_command`) showing the **"Ran"** (*Executado* / *Ejecutado*) status with royal blue badge.
+  * Full localization across English, Portuguese, and Spanish.
 * **Central "Chats" Button in Footer**:
   * Positioned in the bottom center of the screen (between Menu/Latency and OLED buttons).
   * Opens a responsive modal listing all recent Antigravity PC conversations and projects (available on both APK and Web/IP versions).
@@ -31,7 +37,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   * Added **"Thinking..."** (*Pensando...*) status during model thought phases.
   * Added new **"Task Running..."** (*Executando Tarefa...*) status with a pulsing cyan indicator (`#0ea5e9`) for background commands, subagents, and automations.
   * When a task finishes, status displays **"Completed"** (*Concluído*) for **1 minute** before returning to "Connected" (or until a new activity starts).
-  * Full localization across English, Portuguese, and Spanish.
 * **Environment Version Badge Differentiation (APK vs IP)**:
   * The header badge now differentiates between the installed native APK version (`vX.X.X (APK) • Dev LumiaG5`) and the IP web companion (`v2.4.3 (IP) • Dev LumiaG5`).
 * **Android In-App Auto-Update Feature in Menu**:
