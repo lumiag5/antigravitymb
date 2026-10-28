@@ -17,6 +17,15 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("release.jks")
+            storePassword = "antigravity"
+            keyAlias = "antigravity"
+            keyPassword = "antigravity"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -24,11 +33,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             applicationIdSuffix = ".debug"
             isDebuggable = true
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

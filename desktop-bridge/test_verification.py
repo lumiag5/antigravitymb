@@ -351,6 +351,10 @@ def run_tests():
         assert_true("getBatteryLevel()" in kt_code, "Método nativo getBatteryLevel() implementado")
         assert_true("isBatteryCharging()" in kt_code, "Método nativo isBatteryCharging() implementado")
         assert_true("@JavascriptInterface" in kt_code, "Anotação @JavascriptInterface presente para ponte WebView")
+        keystore_path = bridge_dir.parent / "android" / "app" / "release.jks"
+        assert_true(keystore_path.exists(), "Chave de assinatura permanente release.jks presente no projeto")
+        gradle_kts = (bridge_dir.parent / "android" / "app" / "build.gradle.kts").read_text(encoding="utf-8")
+        assert_true("signingConfigs" in gradle_kts and "release.jks" in gradle_kts, "Assinatura fixa configurada em build.gradle.kts")
     except Exception as e:
         assert_true(False, f"Erro ao verificar código Android nativo: {e}")
 

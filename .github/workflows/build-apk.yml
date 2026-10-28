@@ -40,7 +40,13 @@ jobs:
 
       - name: Build Release & Debug APK
         working-directory: android
-        run: ./gradlew assembleRelease assembleDebug --stacktrace
+        run: |
+          ./gradlew assembleRelease assembleDebug --stacktrace
+          cd app/build/outputs/apk/release
+          cp app-release.apk antigravitymb.apk
+          if [ -n "${{ github.ref_name }}" ]; then
+            cp app-release.apk "antigravitymb-${{ github.ref_name }}.apk" || true
+          fi
 
       - name: Upload Release APK Artifact
         uses: actions/upload-artifact@v4
