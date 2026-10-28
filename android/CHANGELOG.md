@@ -6,7 +6,15 @@ O formato segue o padrão [Keep a Changelog](https://keepachangelog.com/pt-BR/1.
 
 ---
 
-## [2.4.3] - 2026-10-28 (Build 2423)
+## [2.4.3] - 2026-10-28 (Build 2424)
+
+### ⚙️ Unificação de Background Task & Critério Rigoroso de Conclusão (Done)
+* **Unificação de "Background Task" com "Task Running"**:
+  * Tarefas em segundo plano do Antigravity PC (*Background Task*, subagentes `invoke_subagent`, temporizadores `schedule`, comandos `manage_task` e tarefas assíncronas de shell) foram unificadas exatamente sob o mesmo status visual e sonoro de **"Executando Tarefa..."** (*Task Running...* / *Ejecutando Tarea...*).
+  * Indicador visual: ponto pulsante ciano elétrico (`#0ea5e9`).
+* **Critério Estrito para o Status "Concluído" (*Done*)**:
+  * O status **"Concluído"** (*Done*) agora **SÓ É DECLARADO** quando não houver absolutamente nenhuma atividade em execução no projeto atual (`conversation_summaries.db`: `status == 'CASCADE_RUN_STATUS_IDLE'` e `not_fully_idle == 0`, ausência de logs ativos em `.system_generated/tasks/` e nenhum subagente em andamento).
+  * Enquanto houver qualquer tarefa em background ativa no projeto atual, o status permanece em `TASK_RUNNING` ("Executando Tarefa..."). Ao término total de todas as atividades, o status transiciona para `DONE` ("Concluído"), disparando o alerta sonoro e iniciando o temporizador de 1 minuto.
 
 ### 🐛 Correções de Rolamento & Gestos
 * **Correção Definitiva do Scroll do Chat no APK**:

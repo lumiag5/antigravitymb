@@ -10,7 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
-## [2.4.3] - 2026-10-28 (Build 2423)
+## [2.4.3] - 2026-10-28 (Build 2424)
+
+### ⚙️ Background Task Unification & Strict Completion
+* **Unification of "Background Task" and "Task Running"**: Mapped PC Background Tasks (background tasks, timers, subagents, and asynchronous commands) to the exact same status as **"Task Running..."** (*Executando Tarefa...* / *Ejecutando Tarea...*) with a pulsing cyan dot (`#0ea5e9`).
+* **Strict "Done" Completion Rule**: Status transitions to **"Completed"** (*Done* / *Concluído*) **only when there is absolutely no activity running in the current project** (`CASCADE_RUN_STATUS_IDLE`, `not_fully_idle == 0`, and no active task logs or running subagents). While any background activity remains active, status stays as `TASK_RUNNING`.
 
 ### 🐛 Fixed
 * **History Loading Error Toast in Chats**: Fixed project header update call (`updateProjectName`), preventing the ReferenceError that triggered the misleading *"Error opening history"* toast when conversations loaded successfully.

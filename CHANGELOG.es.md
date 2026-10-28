@@ -10,7 +10,11 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
-## [2.4.3] - 2026-10-28 (Build 2423)
+## [2.4.3] - 2026-10-28 (Build 2424)
+
+### ⚙️ Unificación de Background Task & Conclusión Estricta
+* **Unificación de "Background Task" y "Task Running"**: Las tareas en segundo plano (*Background Task*, subagentes, temporizadores y comandos asíncronos) se unificaron bajo el mismo estado visual de **"Ejecutando Tarea..."** (*Task Running...* / *Executando Tarefa...*) con punto cian pulsante (`#0ea5e9`).
+* **Criterio Estricto para el Estado "Completado" (*Done*)**: El estado "Done" (*Completado*) **únicamente se declara cuando no hay actividad alguna en ejecución en el proyecto actual** (`CASCADE_RUN_STATUS_IDLE`, `not_fully_idle == 0`, y ausencia de logs de tareas activos en `.system_generated/tasks/`). Mientras haya cualquier tarea en segundo plano, el estado permanece en `TASK_RUNNING`.
 
 ### 🐛 Corregido
 * **Aviso Indebido de Error al Abrir Historial en Chats**: Corregida la llamada de actualización del proyecto en la cabecera (`updateProjectName`), eliminando el error de script que disparaba la notificación *"Error al abrir historial de la conversación"* a pesar de que los mensajes se renderizaban correctamente.

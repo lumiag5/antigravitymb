@@ -10,7 +10,11 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [2.4.3] - 2026-10-28 (Build 2423)
+## [2.4.3] - 2026-10-28 (Build 2424)
+
+### ⚙️ Unificação de Background Task & Conclusão Estrita
+* **Unificação de "Background Task" com "Task Running"**: O status "Background Task" do Antigravity PC (tarefas de segundo plano, temporizadores `schedule`, comandos `manage_task`, subagentes `invoke_subagent` e tarefas assíncronas de terminal) foi unificado rigorosamente como o mesmo status de **"Executando Tarefa..."** (*Task Running...* / *Ejecutando Tarea...*) com dot ciano pulsante (`#0ea5e9`).
+* **Critério Estrito para o Status "Concluído" (*Done*)**: O status "Done" (*Concluído*) **só é declarado quando não houver atividade alguma em execução no projeto atual** (verificação rigorosa de `status == 'CASCADE_RUN_STATUS_IDLE'`, `not_fully_idle == 0`, ausência de tarefas ativas em `.system_generated/tasks/` e subagentes concluídos). Enquanto houver tarefas em execução, o status permanece em `TASK_RUNNING` ("Executando Tarefa...").
 
 ### 🐛 Corrigido
 * **Aviso de Erro ao Abrir Histórico no Chats**: Corrigida a chamada da função de atualização do cabeçalho de projetos (`updateProjectName`), eliminando o erro de script que disparava indevidamente o alerta *"Falha ao abrir histórico da conversa"* no topo da tela quando o histórico era carregado.

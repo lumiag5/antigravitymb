@@ -10,7 +10,12 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
 3. **Métricas Oficiais de Quota**: Exibição em tempo real da porcentagem de uso diário (5h) e semanal do modelo de IA via RPC interna com adaptação dinâmica entre grupos de modelos.
 4. **Conectividade Flexível**: Suporte à rede local (Wi-Fi) e acesso remoto global via túnel HTTPS seguro (Cloudflare) sem configuração de portas.
 
-## FUNCIONALIDADES IMPLEMENTADAS (v2.4.3 • Build 2423)
+## FUNCIONALIDADES IMPLEMENTADAS (v2.4.3 • Build 2424)
+- **Unificação de "Background Task" com "Task Running"**:
+  - Toda tarefa em segundo plano (*Background Task*, subagentes, comandos de fundo `manage_task`, `schedule`, `invoke_subagent`, `run_command` assíncronos) é mapeada rigorosamente para o mesmo status: **"Executando Tarefa..."** (*Task Running...* / *Ejecutando Tarea...*) com indicador ciano pulsante (`#0ea5e9`).
+- **Critério Estrito para o Status "Concluído" (*Done*)**:
+  - O status **"Concluído"** (*Done*) **SÓ É ATIVADO** quando não houver absolutamente nenhuma atividade em execução no projeto atual (`conversation_summaries.db`: `status == 'CASCADE_RUN_STATUS_IDLE'` e `not_fully_idle == 0`, ausência de tarefas em `.system_generated/tasks/` e ausência de subagentes ou etapas em andamento).
+  - Enquanto qualquer tarefa em background ou processo estiver ativo no projeto atual, o status permanece em `TASK_RUNNING` ("Executando Tarefa..."). Ao término total de todas as atividades, o status transiciona para `DONE` ("Concluído") e dispara o alerta sensorial e o temporizador de 1 minuto.
 - **Correção de Rolamento Vertical do Chat no APK**: Remoção do `SwipeRefreshLayout` em `activity_main.xml` e no `MainActivity.kt`, restaurando 100% a rolagem nativa de mensagens anteriores no APK Android, igual à versão por IP.
 - **Navegação Multi-Conversas com Botão "Chats"**:
   - Botão `💬 Chats` no centro inferior do rodapé (entre Menu/Latência e o botão OLED).

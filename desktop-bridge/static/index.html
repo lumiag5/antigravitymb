@@ -325,10 +325,12 @@
             box-shadow: 0 0 9px #a855f7 !important;
             animation: pulse-dot 0.8s infinite alternate;
         }
-        /* Azul Ciano quando EXECUTANDO TAREFA / TASK RUNNING */
+        /* Azul Ciano quando EXECUTANDO TAREFA / TASK RUNNING / BACKGROUND TASK */
         .status-pill.state-task-running,
         .status-pill.TASK_RUNNING,
         .status-pill.TASK_RUN,
+        .status-pill.BACKGROUND_TASK,
+        .status-pill.BACKGROUND,
         .status-pill.EXECUTANDO_TAREFA {
             background: rgba(14, 165, 233, 0.16) !important;
             border-color: rgba(14, 165, 233, 0.45) !important;
@@ -337,6 +339,8 @@
         .status-pill.state-task-running .status-dot,
         .status-pill.TASK_RUNNING .status-dot,
         .status-pill.TASK_RUN .status-dot,
+        .status-pill.BACKGROUND_TASK .status-dot,
+        .status-pill.BACKGROUND .status-dot,
         .status-pill.EXECUTANDO_TAREFA .status-dot {
             background: #0ea5e9 !important;
             box-shadow: 0 0 9px #0ea5e9 !important;
@@ -3035,7 +3039,7 @@
             if (raw.includes("CONNECTING") || raw.includes("CONECTANDO")) {
                 state = "connecting";
                 label = t.status_connecting || "Conectando...";
-            } else if ((raw.includes("TASK") && (raw.includes("RUN") || raw.includes("EXEC"))) || raw.includes("TAREFA")) {
+            } else if (raw.includes("BACKGROUND") || (raw.includes("TASK") && (raw.includes("RUN") || raw.includes("EXEC"))) || raw.includes("TAREFA")) {
                 state = "task-running";
                 label = t.status_task_running || "Executando Tarefa...";
             } else if (raw.includes("THOUGHT") || raw.includes("PENSANDO") || raw.includes("THINK")) {

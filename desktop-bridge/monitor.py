@@ -229,10 +229,70 @@ class AntigravityMonitor:
             return cid
         return self.find_fallback_conversation()
 
+    def is_project_active(self, cid: Optional[str] = None) -> bool:
+        """Verifica se há qualquer atividade (execução, tarefa em background, subagente, cascade) no projeto atual.
+        O status Done só será realmente Done quando esta função retornar False.
+        """
+        target_cid = cid or self.current_conversation_id
+        if not target_cid:
+            return False
+
+        # 1. Consulta oficial do estado no banco conversation_summaries.db
+        summaries_db = config.ANTIGRAVITY_DIR / "conversation_summaries.db"
+        if summaries_db.exists():
+            try:
+                conn = sqlite3.connect(f"file:{summaries_db}?mode=ro", uri=True, timeout=0.8)
+                cur = conn.cursor()
+                row = cur.execute(
+                    "SELECT status, not_fully_idle FROM conversation_summaries WHERE conversation_id = ?",
+                    (target_cid,)
+                ).fetchone()
+                if row:
+                    st, not_idle = row
+                    if st == "CASCADE_RUN_STATUS_RUNNING" or not_idle == 1:
+                        conn.close()
+                        return True
+
+                # Checa subagentes ou processos filhos vinculados a esta conversa
+                child_rows = cur.execute(
+                    "SELECT status, not_fully_idle FROM conversation_summaries WHERE parent_conversation_id = ?",
+                    (target_cid,)
+                ).fetchall()
+                for crow in child_rows:
+                    c_st, c_not_idle = crow
+                    if c_st == "CASCADE_RUN_STATUS_RUNNING" or c_not_idle == 1:
+                        conn.close()
+                        return True
+                conn.close()
+            except Exception:
+                pass
+
+        # 2. Checa tarefas de background ativas em .system_generated/tasks/
+        tasks_dir = config.BRAIN_DIR / target_cid / ".system_generated" / "tasks"
+        if tasks_dir.exists():
+            try:
+                now = time.time()
+                for t_log in tasks_dir.glob("task-*.log"):
+                    if now - t_log.stat().st_mtime < 6.0:
+                        return True
+            except Exception:
+                pass
+
+        # 3. Checa se a conversa está marcada no mapa de background working
+        if target_cid in self.background_working_conversations:
+            return True
+
+        return False
+
     def _is_conversation_working(self, cid: str) -> bool:
         """Verifica se uma conversa possui uma tarefa em andamento ("Working...")."""
         if not cid:
             return False
+
+        # Se o banco oficial ou tarefas indicam atividade em execução, está ativa!
+        if self.is_project_active(cid):
+            return True
+
         tpath = config.BRAIN_DIR / cid / ".system_generated" / "logs" / "transcript.jsonl"
         if not tpath.exists():
             return False
@@ -263,7 +323,8 @@ class AntigravityMonitor:
                     return True
 
                 if src == "MODEL" and stype == "PLANNER_RESPONSE" and not tc and bool(last_step.get("content")):
-                    return False
+                    # Só considera inativo se o projeto NÃO estiver com tarefas em execução
+                    return self.is_project_active(cid)
 
                 # Se o último step for SYSTEM_MESSAGE ou GENERIC, verifica passos anteriores recentes
                 for prev in reversed(lines[-8:]):
@@ -273,7 +334,7 @@ class AntigravityMonitor:
                     p_stype = p.get("type", "")
                     p_st = p.get("status", "")
                     if p_src == "MODEL" and p_stype == "PLANNER_RESPONSE" and not p_tc and bool(p.get("content")):
-                        return False
+                        return self.is_project_active(cid)
                     if p_st == "RUNNING" or p_tc or p_src == "USER_EXPLICIT":
                         return True
         except Exception:
@@ -333,7 +394,7 @@ class AntigravityMonitor:
                                 tc = last_step.get("tool_calls", [])
                                 src = last_step.get("source", "")
                                 stype = last_step.get("type", "")
-                                if st == "RUNNING" or tc or src == "USER_EXPLICIT" or stype == "USER_INPUT":
+                                if self.is_project_active(conv_id) or st == "RUNNING" or tc or src == "USER_EXPLICIT" or stype == "USER_INPUT":
                                     step_stat = self._extract_status_from_step(last_step)
                                     self.current_turn_status = step_stat if step_stat != "IDLE" else "WORKING"
                                 else:
@@ -698,11 +759,11 @@ class AntigravityMonitor:
                         is_proc = True
                     elif cid == self.current_conversation_id and self.current_turn_status in [
                         "WORKING", "THOUGHT", "THINKING", "RUNNING", "TASK_RUNNING", "TASK RUNNING",
-                        "PROCESSANDO", "TRABALHANDO", "PENSANDO", "EXECUTANDO TAREFA"
+                        "BACKGROUND_TASK", "BACKGROUND", "PROCESSANDO", "TRABALHANDO", "PENSANDO", "EXECUTANDO TAREFA"
                     ]:
                         is_proc = True
                     else:
-                        is_proc = self._is_conversation_working(cid)
+                        is_proc = self._is_conversation_working(cid) or self.is_project_active(cid)
 
                     clean_time = ""
                     if lmt:
@@ -856,8 +917,11 @@ class AntigravityMonitor:
             print(f"[Monitor] Erro ao ler transcript de {conversation_id}: {e}")
 
         model = self.detect_model_name(conversation_id) or self.active_model
-        is_working = self._is_conversation_working(conversation_id)
-        conv_status = "WORKING" if is_working else "IDLE"
+        is_working = self._is_conversation_working(conversation_id) or self.is_project_active(conversation_id)
+        if conversation_id == self.current_conversation_id:
+            conv_status = self.current_turn_status
+        else:
+            conv_status = "WORKING" if is_working else "IDLE"
 
         return {
             "conversation_id": conversation_id,
@@ -1004,6 +1068,10 @@ class AntigravityMonitor:
                         )
 
                         if is_final_response:
+                            # O status Done só será realmente Done quando não houver atividade alguma em execução
+                            if self.is_project_active(bg_cid):
+                                continue
+
                             print(f"[Monitor] *** TAREFA EM SEGUNDO PLANO CONCLUÍDA ({bg_cid} - Step {step_index}) ***")
                             self.background_working_conversations.pop(bg_cid, None)
                             
@@ -1012,7 +1080,7 @@ class AntigravityMonitor:
                             self.suppressed_view_until_key = current_view_key
                             
                             # 1. Comuta automaticamente para a conversa que concluiu
-                            await self.switch_conversation(bg_cid, notify=True, status="CONCLUÍDO")
+                            await self.switch_conversation(bg_cid, notify=True, status="DONE")
                             
                             # 2. Dispara alerta sensorial duplo: Flash 2x na tela + som ampliado + notificação Web
                             if self.on_event:
@@ -1093,8 +1161,41 @@ class AntigravityMonitor:
         except Exception as e:
             print(f"[Monitor] Erro no polling: {e}")
 
+        # 5. Monitora se o projeto ativo concluiu todas as tarefas e background tasks, transitando para DONE
+        if self.current_turn_status in ["TASK_RUNNING", "WORKING", "THOUGHT"]:
+            if not self.is_project_active(self.current_conversation_id) and not self._is_conversation_working(self.current_conversation_id):
+                print(f"[Monitor] *** TODAS AS ATIVIDADES DO PROJETO FORAM CONCLUÍDAS ({self.current_conversation_id}) -> DONE ***")
+                self.current_turn_status = "DONE"
+                self.calculate_quota()
+                if self.on_event:
+                    await self.on_event({
+                        "event": "status_change",
+                        "data": {
+                            "status": "DONE",
+                            "active_model": self.active_model
+                        }
+                    })
+                    recent_msgs = self.get_recent_messages(1)
+                    summary = ""
+                    if recent_msgs and recent_msgs[-1].get("role") == "assistant":
+                        c = recent_msgs[-1].get("content", "")
+                        summary = c[:180] + "..." if len(c) > 180 else c
+                    
+                    await self.on_event({
+                        "event": "task_completed",
+                        "data": {
+                            "step_index": self.last_step_index,
+                            "active_model": self.active_model,
+                            "summary": summary,
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "quota": self.quota_stats
+                        }
+                    })
+
     def _extract_status_from_step(self, step: Dict[str, Any]) -> str:
-        """Determina o status exato (THOUGHT, ANALYZED, RAN, TASK_RUNNING, WORKING, DONE ou IDLE)."""
+        """Determina o status exato (THOUGHT, TASK_RUNNING, WORKING, DONE ou IDLE).
+        Unifica Task Running e Background Task sob o mesmo status TASK_RUNNING.
+        """
         source = step.get("source", "")
         step_type = step.get("type", "")
         status = step.get("status", "")
@@ -1113,7 +1214,21 @@ class AntigravityMonitor:
                         tname = tname.split(":")[-1]
                     tools.append(tname)
 
-        if any(t in ["manage_task", "schedule", "invoke_subagent"] for t in tools) or ("TASK" in str(status).upper() and "RUN" in str(status).upper()):
+        # Unificação estrita: Background Task e Task Running são o mesmo status TASK_RUNNING
+        raw_status = str(status).upper()
+        raw_type = str(step_type).upper()
+        raw_content = str(content).upper()
+
+        is_bg_or_task = (
+            any(t in ["manage_task", "schedule", "invoke_subagent"] for t in tools)
+            or ("TASK" in raw_status and "RUN" in raw_status)
+            or "BACKGROUND" in raw_status
+            or "BACKGROUND" in raw_type
+            or "BACKGROUND TASK" in raw_content
+            or "TASK RUNNING" in raw_content
+        )
+
+        if is_bg_or_task:
             return "TASK_RUNNING"
 
         is_thinking = bool(step.get("thinking")) or "thinking" in step.get("truncated_fields", [])
@@ -1126,6 +1241,9 @@ class AntigravityMonitor:
         if status == "DONE":
             is_final = (source == "MODEL" and step_type == "PLANNER_RESPONSE" and not tools and bool(content))
             if is_final:
+                # O status Done só será realmente Done quando não houver atividade alguma em execução no projeto atual
+                if self.is_project_active(self.current_conversation_id):
+                    return "TASK_RUNNING"
                 return "DONE"
 
         return "IDLE"
@@ -1167,33 +1285,57 @@ class AntigravityMonitor:
                     }
                 })
         elif detected_status == "DONE":
-            if self.last_notified_step != step_index:
-                self.last_notified_step = step_index
-                self.current_turn_status = "DONE"
-                
-                # Recalcula cota oficial ao concluir
-                self.calculate_quota()
-                
-                print(f"[Monitor] *** CONCLUSÃO FINAL DETECTADA (Step {step_index}) ***")
-                if self.on_event and formatted:
+            # REQUISITO ESTRITO: O status Done só será realmente Done quando não houver atividade alguma em execução no projeto atual!
+            if self.is_project_active(self.current_conversation_id):
+                self.current_turn_status = "TASK_RUNNING"
+                print(f"[Monitor] Mensagem intermediária recebida, mas ainda há atividade/background no projeto {self.current_conversation_id}. Mantendo TASK_RUNNING.")
+                if self.on_event:
+                    if formatted:
+                        await self.on_event({
+                            "event": "user_message" if formatted.get("role") == "user" else "assistant_step",
+                            "data": formatted
+                        })
                     await self.on_event({
-                        "event": "conclusion_message",
-                        "data": formatted
-                    })
-                    # DISPARO DO ALERTA: Aciona flash na tela e som suave no celular
-                    await self.on_event({
-                        "event": "task_completed",
+                        "event": "status_change",
                         "data": {
-                            "step_index": step_index,
-                            "active_model": self.active_model,
-                            "summary": content[:180] + "..." if len(content) > 180 else content,
-                            "timestamp": datetime.now(timezone.utc).isoformat(),
-                            "quota": self.quota_stats
+                            "status": "TASK_RUNNING",
+                            "active_model": self.active_model
                         }
                     })
+            else:
+                if self.last_notified_step != step_index:
+                    self.last_notified_step = step_index
+                    self.current_turn_status = "DONE"
+                    
+                    # Recalcula cota oficial ao concluir
+                    self.calculate_quota()
+                    
+                    print(f"[Monitor] *** CONCLUSÃO FINAL CONFIRMADA (Projeto 100% ocioso - Step {step_index}) ***")
+                    if self.on_event:
+                        if formatted:
+                            await self.on_event({
+                                "event": "conclusion_message",
+                                "data": formatted
+                            })
+                        # DISPARO DO ALERTA: Aciona flash na tela e som suave no celular
+                        await self.on_event({
+                            "event": "task_completed",
+                            "data": {
+                                "step_index": step_index,
+                                "active_model": self.active_model,
+                                "summary": content[:180] + "..." if len(content) > 180 else content,
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "quota": self.quota_stats
+                            }
+                        })
         elif detected_status != "IDLE":
             self.current_turn_status = detected_status
             if self.on_event:
+                if formatted and detected_status == "TASK_RUNNING":
+                    await self.on_event({
+                        "event": "assistant_step",
+                        "data": formatted
+                    })
                 await self.on_event({
                     "event": "status_change",
                     "data": {
