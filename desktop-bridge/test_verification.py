@@ -1,0 +1,339 @@
+# Copyright (c) 2026 Dev LumiaG5. All rights reserved.
+# Automated Verification Suite for Antigravity Mobile v2.4.3
+
+import os
+import sys
+import json
+import sqlite3
+import urllib.request
+from pathlib import Path
+
+# Adiciona desktop-bridge ao sys.path
+bridge_dir = Path(__file__).parent
+sys.path.insert(0, str(bridge_dir))
+
+def run_tests():
+    print("=" * 60)
+    print("INICIANDO SUITE DE TESTES COMPLETOS - ANTIGRAVITY MOBILE v2.4.3")
+    print("=" * 60)
+    passed = 0
+    failed = 0
+
+    def assert_true(condition, msg):
+        nonlocal passed, failed
+        if condition:
+            print(f"  [PASS] {msg}")
+            passed += 1
+        else:
+            print(f"  [FAIL] {msg}")
+            failed += 1
+
+    # ---------------------------------------------------------
+    # TESTE 1: LANGUAGE MANAGER & TRADUÇÕES DE STATUS
+    # ---------------------------------------------------------
+    print("\n--- TESTE 1: LANGUAGE MANAGER & STATUS I18N ---")
+    try:
+        from language_manager import language_manager, TRANSLATIONS
+        for lang in ["pt", "en", "es"]:
+            d = TRANSLATIONS[lang]
+            assert_true("status_task_running" in d, f"Idioma '{lang}' possui chave 'status_task_running'")
+            assert_true("status_working" in d, f"Idioma '{lang}' possui chave 'status_working'")
+            assert_true("status_thought" in d, f"Idioma '{lang}' possui chave 'status_thought'")
+            assert_true("status_done" in d, f"Idioma '{lang}' possui chave 'status_done'")
+            assert_true("btn_chats" in d, f"Idioma '{lang}' possui chave 'btn_chats'")
+            assert_true("chats_modal_title" in d, f"Idioma '{lang}' possui chave 'chats_modal_title'")
+
+        assert_true(TRANSLATIONS["pt"]["status_task_running"] == "Executando Tarefa...", "PT-BR: Executando Tarefa...")
+        assert_true(TRANSLATIONS["en"]["status_task_running"] == "Task Running...", "EN: Task Running...")
+        assert_true(TRANSLATIONS["es"]["status_task_running"] == "Ejecutando Tarea...", "ES: Ejecutando Tarea...")
+    except Exception as e:
+        assert_true(False, f"Erro no Language Manager: {e}")
+
+    # ---------------------------------------------------------
+    # TESTE 2: AUTH MANAGER & SESSÕES
+    # ---------------------------------------------------------
+    print("\n--- TESTE 2: AUTH MANAGER & TOKENS ---")
+    token = None
+    try:
+        from auth import auth_manager
+        pin = auth_manager.generate_pin(notify=False)
+        assert_true(len(pin) == 4 and pin.isdigit(), f"PIN gerado é válido de 4 dígitos: {pin}")
+        assert_true(auth_manager.verify("0000" if pin != "0000" else "1111") is None, "PIN incorreto rejeitado corretamente")
+        auth_res = auth_manager.verify(pin)
+        assert_true(auth_res is not None and "token" in auth_res, "PIN correto gera token de sessão válido")
+        token = auth_res["token"]
+        assert_true(auth_manager.is_valid_token(token), "Token gerado é válido e verificado com sucesso")
+        assert_true(not auth_manager.is_valid_token("token_invalido_teste"), "Token falso rejeitado com sucesso")
+    except Exception as e:
+        assert_true(False, f"Erro no Auth Manager: {e}")
+
+    # ---------------------------------------------------------
+    # TESTE 3: MONITOR & LÓGICA DE ATIVIDADE / BACKGROUND
+    # ---------------------------------------------------------
+    print("\n--- TESTE 3: MONITOR, BACKGROUND TASK & STRICT DONE ---")
+    try:
+        from monitor import AntigravityMonitor
+        mon = AntigravityMonitor()
+        
+        # Teste de detecção de conversa ativa
+        active_cid = mon.find_active_conversation()
+        assert_true(bool(active_cid), f"Conversa ativa detectada no Antigravity: {active_cid}")
+
+        # Teste de is_project_active
+        is_active = mon.is_project_active(active_cid)
+        print(f"     -> is_project_active('{active_cid}'): {is_active}")
+        assert_true(isinstance(is_active, bool), "is_project_active retorna booleano consistente")
+
+        # Teste 3.1: _extract_status_from_step com Background Task e Task Running
+        step_bg1 = {
+            "source": "MODEL",
+            "type": "GENERIC",
+            "status": "RUNNING",
+            "tool_calls": [{"name": "manage_task"}]
+        }
+        assert_true(mon._extract_status_from_step(step_bg1) == "TASK_RUNNING", "tool_call 'manage_task' -> TASK_RUNNING")
+
+        step_bg2 = {
+            "source": "MODEL",
+            "type": "GENERIC",
+            "status": "RUNNING",
+            "tool_calls": [{"name": "schedule"}]
+        }
+        assert_true(mon._extract_status_from_step(step_bg2) == "TASK_RUNNING", "tool_call 'schedule' -> TASK_RUNNING")
+
+        step_bg3 = {
+            "source": "MODEL",
+            "type": "GENERIC",
+            "status": "RUNNING",
+            "tool_calls": [{"name": "invoke_subagent"}]
+        }
+        assert_true(mon._extract_status_from_step(step_bg3) == "TASK_RUNNING", "tool_call 'invoke_subagent' -> TASK_RUNNING")
+
+        step_bg4 = {
+            "source": "MODEL",
+            "type": "BACKGROUND_TASK",
+            "status": "RUNNING",
+            "content": "Executing background task..."
+        }
+        assert_true(mon._extract_status_from_step(step_bg4) == "TASK_RUNNING", "type 'BACKGROUND_TASK' -> TASK_RUNNING")
+
+        step_bg5 = {
+            "source": "MODEL",
+            "type": "GENERIC",
+            "status": "TASK RUNNING",
+            "content": "task running"
+        }
+        assert_true(mon._extract_status_from_step(step_bg5) == "TASK_RUNNING", "status 'TASK RUNNING' -> TASK_RUNNING")
+
+        # Teste 3.2: Thought / Thinking
+        step_thought1 = {
+            "source": "USER_EXPLICIT",
+            "type": "USER_INPUT",
+            "content": "Olá"
+        }
+        assert_true(mon._extract_status_from_step(step_thought1) == "THOUGHT", "USER_EXPLICIT -> THOUGHT")
+
+        step_thought2 = {
+            "source": "MODEL",
+            "type": "GENERIC",
+            "thinking": "Raciocinando sobre o plano..."
+        }
+        assert_true(mon._extract_status_from_step(step_thought2) == "THOUGHT", "step com thinking -> THOUGHT")
+
+        # Teste 3.3: Working
+        step_work = {
+            "source": "MODEL",
+            "type": "GENERIC",
+            "status": "RUNNING",
+            "tool_calls": [{"name": "read_file"}]
+        }
+        assert_true(mon._extract_status_from_step(step_work) == "WORKING", "tool_call comum -> WORKING")
+
+        # Teste 3.4: Regra estrita de Done
+        # Se is_project_active for forçado a True, planner response DEVE retornar TASK_RUNNING
+        original_is_active_method = mon.is_project_active
+        try:
+            mon.is_project_active = lambda cid=None: True
+            step_final = {
+                "source": "MODEL",
+                "type": "PLANNER_RESPONSE",
+                "status": "DONE",
+                "content": "Tarefa concluída!",
+                "tool_calls": []
+            }
+            assert_true(mon._extract_status_from_step(step_final) == "TASK_RUNNING", "Se projeto ativo/tarefas em execução -> PLANNER_RESPONSE permanece TASK_RUNNING")
+
+            mon.is_project_active = lambda cid=None: False
+            assert_true(mon._extract_status_from_step(step_final) == "DONE", "Se projeto 100% ocioso -> PLANNER_RESPONSE torna-se DONE")
+        finally:
+            mon.is_project_active = original_is_active_method
+
+    except Exception as e:
+        assert_true(False, f"Erro no Monitor: {e}")
+
+    # ---------------------------------------------------------
+    # TESTE 4: LISTA DE CHATS & HISTÓRICO DE MENSAGENS
+    # ---------------------------------------------------------
+    print("\n--- TESTE 4: LISTA DE CHATS & HISTÓRICO REMOTO ---")
+    try:
+        convs = mon.get_conversations_list()
+        assert_true(isinstance(convs, list) and len(convs) > 0, f"Lista de conversas retornou {len(convs)} conversas")
+        if convs:
+            first = convs[0]
+            assert_true("conversation_id" in first, "Item possui 'conversation_id'")
+            assert_true("title" in first, "Item possui 'title'")
+            assert_true("project" in first, "Item possui 'project'")
+            assert_true("is_processing" in first, "Item possui 'is_processing'")
+            assert_true(isinstance(first["is_processing"], bool), "'is_processing' é booleano estrito")
+            print(f"     -> Exemplo de chat: ID={first['conversation_id'][:10]}... | Título={first['title'][:30]} | Proc={first['is_processing']}")
+
+            # Teste de puxar histórico sem alterar o PC
+            hist = mon.get_conversation_messages(first["conversation_id"], limit=10)
+            assert_true(isinstance(hist, dict) and "messages" in hist, "get_conversation_messages retornou estrutura válida")
+            print(f"     -> Mensagens recuperadas: {len(hist.get('messages', []))}")
+    except Exception as e:
+        assert_true(False, f"Erro ao listar chats ou mensagens: {e}")
+
+    # ---------------------------------------------------------
+    # TESTE 5: FASTAPI TESTCLIENT & ENDPOINTS
+    # ---------------------------------------------------------
+    print("\n--- TESTE 5: FASTAPI SERVER ENDPOINTS ---")
+    try:
+        from fastapi.testclient import TestClient
+        from server import app
+        client = TestClient(app)
+
+        # /api/ping
+        r_ping = client.get("/api/ping")
+        assert_true(r_ping.status_code == 200 and r_ping.json().get("status") == "ok", "GET /api/ping -> 200 OK")
+
+        # /api/status (sem auth -> 401, com auth -> 200)
+        r_status_unauth = client.get("/api/status")
+        assert_true(r_status_unauth.status_code == 401, "GET /api/status sem token -> 401 Unauthorized")
+        r_status_auth = client.get(f"/api/status?token={token}")
+        assert_true(r_status_auth.status_code == 200 and "status" in r_status_auth.json(), "GET /api/status com token -> 200 OK")
+
+        # /api/conversations (com auth)
+        r_convs_unauth = client.get("/api/conversations")
+        assert_true(r_convs_unauth.status_code == 401, "GET /api/conversations sem token -> 401 Unauthorized")
+
+        r_convs_auth = client.get(f"/api/conversations?token={token}")
+        assert_true(r_convs_auth.status_code == 200 and "conversations" in r_convs_auth.json(), "GET /api/conversations com token -> 200 OK")
+
+        # /api/messages (com auth)
+        r_msg_auth = client.get(f"/api/messages?token={token}&limit=5")
+        assert_true(r_msg_auth.status_code == 200 and "messages" in r_msg_auth.json(), "GET /api/messages com token -> 200 OK")
+
+        # /api/quota (com auth)
+        r_quota = client.get(f"/api/quota?token={token}")
+        assert_true(r_quota.status_code == 200 and "groups" in r_quota.json(), "GET /api/quota com token -> 200 OK")
+
+        # / (index.html delivery)
+        r_root = client.get("/")
+        assert_true(r_root.status_code == 200 and "Antigravity Mobile" in r_root.text, "GET / -> 200 OK com index.html")
+        assert_true("no-cache" in r_root.headers.get("Cache-Control", ""), "Header Cache-Control: no-cache presente")
+
+    except Exception as e:
+        assert_true(False, f"Erro nos endpoints FastAPI: {e}")
+
+    # ---------------------------------------------------------
+    # TESTE 6: CLIENT-SIDE JS STATUS PARSER SIMULATION
+    # ---------------------------------------------------------
+    print("\n--- TESTE 6: CLIENT-SIDE JS LOGIC (updateStatus) ---")
+    try:
+        def simulate_update_status(raw_status: str, lang_dict: dict):
+            raw = (raw_status or "CONNECTED").upper().strip()
+            state = "connected"
+            label = lang_dict.get("status_connected", "Conectado")
+
+            if "CONNECTING" in raw or "CONECTANDO" in raw:
+                state = "connecting"
+                label = lang_dict.get("status_connecting", "Conectando...")
+            elif "BACKGROUND" in raw or ("TASK" in raw and ("RUN" in raw or "EXEC" in raw)) or "TAREFA" in raw:
+                state = "task-running"
+                label = lang_dict.get("status_task_running", "Executando Tarefa...")
+            elif "THOUGHT" in raw or "PENSANDO" in raw or "THINK" in raw:
+                state = "thought"
+                label = lang_dict.get("status_thought", "Pensando...")
+            elif "WORK" in raw or "TRABALH" in raw or "PROCESS" in raw or "RUNNING" in raw:
+                state = "working"
+                label = lang_dict.get("status_working", "Trabalhando...")
+            elif "DISCONNECT" in raw or "DESCONECT" in raw:
+                state = "disconnected"
+                label = lang_dict.get("status_disconnected", "Desconectado")
+            elif "DONE" in raw or "CONCLU" in raw or "COMPLET" in raw:
+                state = "done"
+                label = lang_dict.get("status_done", "Concluído")
+            return state, label
+
+        t_pt = TRANSLATIONS["pt"]
+        s, l = simulate_update_status("BACKGROUND TASK", t_pt)
+        assert_true(s == "task-running" and l == "Executando Tarefa...", "JS Parser: 'BACKGROUND TASK' -> state: task-running, label: Executando Tarefa...")
+
+        s, l = simulate_update_status("TASK RUNNING", t_pt)
+        assert_true(s == "task-running" and l == "Executando Tarefa...", "JS Parser: 'TASK RUNNING' -> state: task-running, label: Executando Tarefa...")
+
+        s, l = simulate_update_status("THOUGHT", t_pt)
+        assert_true(s == "thought" and l == "Pensando...", "JS Parser: 'THOUGHT' -> state: thought, label: Pensando...")
+
+        s, l = simulate_update_status("THINKING", t_pt)
+        assert_true(s == "thought" and l == "Pensando...", "JS Parser: 'THINKING' -> state: thought, label: Pensando...")
+
+        s, l = simulate_update_status("WORKING", t_pt)
+        assert_true(s == "working" and l == "Trabalhando...", "JS Parser: 'WORKING' -> state: working, label: Trabalhando...")
+
+        s, l = simulate_update_status("DONE", t_pt)
+        assert_true(s == "done" and l == "Concluído", "JS Parser: 'DONE' -> state: done, label: Concluído")
+
+    except Exception as e:
+        assert_true(False, f"Erro no JS Parser Simulation: {e}")
+
+    # ---------------------------------------------------------
+    # TESTE 7: GITHUB RELEASE ASSETS & APK LINKS
+    # ---------------------------------------------------------
+    print("\n--- TESTE 7: GITHUB RELEASE ASSETS (v2.4.3 • Build 2424) ---")
+    try:
+        headers = {"User-Agent": "AntigravityTest"}
+        gh_pat = os.environ.get("GITHUB_TOKEN")
+        if gh_pat:
+            headers["Authorization"] = f"Bearer {gh_pat}"
+            
+        req = urllib.request.Request(
+            "https://api.github.com/repos/lumiag5/antigravitymb/releases/tags/v2.4.3",
+            headers=headers
+        )
+        res = urllib.request.urlopen(req, timeout=10)
+        rel_data = json.loads(res.read())
+        assert_true(rel_data.get("tag_name") == "v2.4.3", "Release no GitHub corresponde à tag v2.4.3")
+        
+        assets = {a["name"]: a for a in rel_data.get("assets", [])}
+        assert_true("app-release.apk" in assets, "Arquivo 'app-release.apk' presente na release")
+        assert_true("app-debug.apk" in assets, "Arquivo 'app-debug.apk' presente na release")
+        
+        if "app-release.apk" in assets:
+            sz_rel = assets["app-release.apk"]["size"]
+            assert_true(sz_rel > 4 * 1024 * 1024, f"app-release.apk tamanho íntegro: {sz_rel / (1024*1024):.2f} MB")
+            
+        if "app-debug.apk" in assets:
+            sz_deb = assets["app-debug.apk"]["size"]
+            assert_true(sz_deb > 5 * 1024 * 1024, f"app-debug.apk tamanho íntegro: {sz_deb / (1024*1024):.2f} MB")
+
+    except Exception as e:
+        assert_true(False, f"Erro ao verificar GitHub Release: {e}")
+
+    # ---------------------------------------------------------
+    # SUMÁRIO
+    # ---------------------------------------------------------
+    print("\n" + "=" * 60)
+    print(f"RESULTADO FINAL DOS TESTES: {passed} PASSOU | {failed} FALHOU")
+    print("=" * 60)
+
+    if failed == 0:
+        print(">>> TODOS OS TESTES PASSARAM COM SUCESSO! 100% OPERACIONAL! <<<")
+        return 0
+    else:
+        print(f">>> ATENÇÃO: {failed} TESTE(S) FALHARAM! <<<")
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(run_tests())

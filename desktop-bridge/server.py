@@ -198,7 +198,7 @@ def get_status(token: Optional[str] = None):
         raise HTTPException(status_code=401, detail="PIN de acesso inválido ou expirado")
     current_status = monitor.current_turn_status or "CONNECTED"
     upper_st = current_status.upper().strip()
-    if "TASK" in upper_st and ("RUN" in upper_st or "EXEC" in upper_st):
+    if "BACKGROUND" in upper_st or ("TASK" in upper_st and ("RUN" in upper_st or "EXEC" in upper_st)):
         current_status = "TASK_RUNNING"
     elif upper_st in ["THOUGHT", "THINKING", "PENSANDO"]:
         current_status = "THOUGHT"
