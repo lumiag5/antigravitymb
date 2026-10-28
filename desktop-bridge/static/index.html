@@ -285,22 +285,45 @@
             background: #10b981 !important;
             box-shadow: 0 0 10px #10b981 !important;
         }
-        /* Âmbar quando PROCESSANDO / PROCESSING / PROCESANDO */
+        /* Âmbar quando TRABALHANDO / PROCESSANDO / WORKING */
+        .status-pill.state-working,
         .status-pill.state-processing,
+        .status-pill.WORKING,
+        .status-pill.TRABALHANDO,
         .status-pill.PROCESSING,
         .status-pill.PROCESSANDO,
         .status-pill.PROCESANDO {
             background: rgba(245, 158, 11, 0.15) !important;
-            border-color: rgba(245, 158, 11, 0.4) !important;
+            border-color: rgba(245, 158, 11, 0.45) !important;
             color: #fbbf24 !important;
         }
+        .status-pill.state-working .status-dot,
         .status-pill.state-processing .status-dot,
+        .status-pill.WORKING .status-dot,
+        .status-pill.TRABALHANDO .status-dot,
         .status-pill.PROCESSING .status-dot,
         .status-pill.PROCESSANDO .status-dot,
         .status-pill.PROCESANDO .status-dot {
             background: #f59e0b !important;
             box-shadow: 0 0 8px #f59e0b !important;
             animation: pulse-dot 1s infinite alternate;
+        }
+        /* Roxo quando PENSANDO / THOUGHT / THINKING */
+        .status-pill.state-thought,
+        .status-pill.THOUGHT,
+        .status-pill.PENSANDO,
+        .status-pill.THINKING {
+            background: rgba(139, 92, 246, 0.16) !important;
+            border-color: rgba(139, 92, 246, 0.45) !important;
+            color: #c084fc !important;
+        }
+        .status-pill.state-thought .status-dot,
+        .status-pill.THOUGHT .status-dot,
+        .status-pill.PENSANDO .status-dot,
+        .status-pill.THINKING .status-dot {
+            background: #a855f7 !important;
+            box-shadow: 0 0 9px #a855f7 !important;
+            animation: pulse-dot 0.8s infinite alternate;
         }
         /* Vermelho quando DESCONECTADO / DISCONNECTED */
         .status-pill.state-disconnected,
@@ -380,6 +403,9 @@
             flex: 1;
             padding: 16px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            overscroll-behavior-y: contain;
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -601,10 +627,27 @@
             align-items: center;
             gap: 10px;
         }
+        .footer-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .footer-actions {
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+        .btn-chats {
+            background: rgba(59, 130, 246, 0.16) !important;
+            border: 1px solid rgba(59, 130, 246, 0.45) !important;
+            color: #93c5fd !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+        .btn-chats:hover, .btn-chats:active {
+            background: rgba(59, 130, 246, 0.3) !important;
+            border-color: #3b82f6 !important;
+            color: #ffffff !important;
         }
         .latency-badge {
             display: inline-flex;
@@ -960,8 +1003,8 @@
         }
         .btn-tutorial-close:hover { background: #1d4ed8; }
 
-        /* MODAIS DE MENU E HISTÓRICO (LOG) */
-        .menu-modal, .log-modal {
+        /* MODAIS DE MENU, HISTÓRICO (LOG) E CHATS */
+        .menu-modal, .log-modal, .chats-modal {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.78);
@@ -976,16 +1019,16 @@
             pointer-events: none;
             transition: opacity 0.22s ease;
         }
-        .menu-modal.active, .log-modal.active {
+        .menu-modal.active, .log-modal.active, .chats-modal.active {
             opacity: 1;
             pointer-events: auto;
         }
-        .menu-card, .log-card {
+        .menu-card, .log-card, .chats-card {
             background: var(--bg-surface);
             border: 1px solid var(--border-subtle);
             border-radius: 16px;
             padding: 20px;
-            max-width: 400px;
+            max-width: 440px;
             width: 100%;
             max-height: 85vh;
             overflow-y: auto;
@@ -996,20 +1039,153 @@
             box-sizing: border-box;
         }
         body.theme-oled .menu-card,
-        body.theme-oled .log-card {
+        body.theme-oled .log-card,
+        body.theme-oled .chats-card {
             background: #000000;
             border-color: #222533;
         }
-        .menu-header, .log-header {
+        .menu-header, .log-header, .chats-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid var(--border-subtle);
             padding-bottom: 10px;
         }
-        .menu-header h2, .log-header h2 {
+        .menu-header h2, .log-header h2, .chats-header h2 {
             font-size: 14px;
             font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Estilos do Modal de Chats */
+        .chats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            max-height: 58vh;
+            padding-right: 2px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .chat-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .chat-row:hover, .chat-row:active {
+            background: rgba(59, 130, 246, 0.12);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        .chat-row.active-pc {
+            border-color: rgba(16, 185, 129, 0.45);
+            background: rgba(16, 185, 129, 0.07);
+        }
+        .chat-row.current-viewing {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 1px var(--accent-blue);
+        }
+        .chat-status-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+        .chat-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .chat-dot.dot-green {
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.85);
+            animation: pulse-dot-green 1.4s infinite alternate;
+        }
+        .chat-dot.dot-orange {
+            background: #f97316;
+            box-shadow: 0 0 10px rgba(249, 115, 22, 0.95);
+            animation: pulse-dot-orange 0.85s infinite alternate;
+        }
+        @keyframes pulse-dot-green {
+            from { opacity: 0.35; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1.12); }
+        }
+        @keyframes pulse-dot-orange {
+            from { opacity: 0.4; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1.22); }
+        }
+        .chat-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+            min-width: 0;
+        }
+        .chat-title-line {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-meta-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-tag-pc {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+        .chat-banner-custom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 11.5px;
+            color: #93c5fd;
+        }
+        .btn-live-pc {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 9px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .btn-live-pc:hover { background: #1d4ed8; }
             color: #ffffff;
             margin: 0;
             display: flex;
@@ -1410,6 +1586,27 @@
         </div>
     </div>
 
+    <!-- MODAL DE ESCOLHA DE CHATS (MULTI-CONVERSAS) -->
+    <div id="chats-modal" class="chats-modal" onclick="if(event.target===this) ChatsManager.close()">
+        <div class="chats-card">
+            <div class="chats-header">
+                <h2 id="chats-modal-title">💬 Conversas & Projetos</h2>
+                <button type="button" class="modal-close-btn" onclick="ChatsManager.close()">✕</button>
+            </div>
+
+            <div id="chats-custom-banner" class="chat-banner-custom" style="display: none;">
+                <span id="chats-viewing-text">👁️ Lendo conversa paralela</span>
+                <button type="button" class="btn-live-pc" onclick="ChatsManager.resumePcLive()" id="chats-live-btn-text">
+                    Voltar ao PC ao Vivo
+                </button>
+            </div>
+
+            <div id="chats-list" class="chats-list">
+                <div style="text-align: center; color: var(--text-muted); padding: 20px;">Carregando chats...</div>
+            </div>
+        </div>
+    </div>
+
     <div id="flash-overlay"></div>
     <div id="toast-notification"></div>
 
@@ -1432,7 +1629,7 @@
                 <span class="status-dot"></span>
                 <span id="status-text">CONECTANDO...</span>
             </div>
-            <span class="app-version">v2.4.0 • Dev LumiaG5</span>
+            <span class="app-version">v2.4.3 • Dev LumiaG5</span>
         </div>
     </header>
 
@@ -1479,6 +1676,11 @@
                 <span id="latency-dot" class="latency-dot"></span>
                 <span id="latency-val">-- ms</span>
             </div>
+        </div>
+        <div class="footer-center">
+            <button id="btn-chats-toggle" type="button" class="btn-pill btn-chats" onclick="ChatsManager.open()" title="Explorar Chats do PC">
+                💬 <span id="btn-chats-text">Chats</span>
+            </button>
         </div>
         <div class="footer-actions">
             <button id="btn-oled-toggle" type="button" class="btn-pill" onclick="ThemeManager.toggle()" title="Alternar Modo OLED True Black">
@@ -1661,6 +1863,19 @@
             
             const elBtnCloseLog = document.getElementById("btn-close-log-text");
             if (elBtnCloseLog && t.menu_close) elBtnCloseLog.innerText = t.menu_close;
+
+            // Chats Modal i18n
+            const elBtnChatsText = document.getElementById("btn-chats-text");
+            if (elBtnChatsText && t.btn_chats) elBtnChatsText.innerText = t.btn_chats.replace("💬 ", "");
+
+            const elChatsModalTitle = document.getElementById("chats-modal-title");
+            if (elChatsModalTitle && t.chats_modal_title) elChatsModalTitle.innerText = `💬 ${t.chats_modal_title}`;
+
+            const elChatsViewingText = document.getElementById("chats-viewing-text");
+            if (elChatsViewingText && t.chats_viewing_custom) elChatsViewingText.innerText = `👁️ ${t.chats_viewing_custom}`;
+
+            const elChatsLiveBtnText = document.getElementById("chats-live-btn-text");
+            if (elChatsLiveBtnText && t.chats_live_pc_btn) elChatsLiveBtnText.innerText = t.chats_live_pc_btn;
 
             NotificationManager.updateBtnState();
 
@@ -2205,6 +2420,145 @@
             }
         };
 
+        // GERENCIADOR DO MODAL DE CHATS E HISTÓRICO PARALELO (INSPEÇÃO INDEPENDENTE)
+        const ChatsManager = {
+            modal: null,
+            listEl: null,
+            viewingConversationId: null, // null = seguindo PC em tempo real
+            activePcConversationId: null,
+
+            init() {
+                this.modal = document.getElementById("chats-modal");
+                this.listEl = document.getElementById("chats-list");
+            },
+
+            open() {
+                if (!this.modal) this.init();
+                if (this.modal) this.modal.classList.add("active");
+                this.loadConversations();
+            },
+
+            close() {
+                if (!this.modal) this.init();
+                if (this.modal) this.modal.classList.remove("active");
+            },
+
+            async loadConversations() {
+                if (!this.listEl) this.init();
+                if (!this.listEl) return;
+                this.listEl.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">Carregando chats...</div>`;
+                try {
+                    const res = await fetch(`/api/conversations?token=${encodeURIComponent(authToken)}`);
+                    if (!res.ok) throw new Error("Erro na requisição");
+                    const data = await res.json();
+                    this.activePcConversationId = data.active_pc_conversation_id;
+                    this.renderList(data.conversations || []);
+                } catch(e) {
+                    this.listEl.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--status-red); font-size: 13px;">Erro ao carregar conversas do PC.</div>`;
+                }
+            },
+
+            renderList(convs) {
+                if (!this.listEl) return;
+                if (!convs.length) {
+                    this.listEl.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">Nenhuma conversa recente encontrada no Antigravity.</div>`;
+                    return;
+                }
+
+                const banner = document.getElementById("chats-custom-banner");
+                if (banner) {
+                    if (this.viewingConversationId && this.viewingConversationId !== this.activePcConversationId) {
+                        banner.style.display = "flex";
+                    } else {
+                        banner.style.display = "none";
+                    }
+                }
+
+                this.listEl.innerHTML = "";
+                convs.forEach(c => {
+                    const row = document.createElement("div");
+                    const isViewing = this.viewingConversationId ? (this.viewingConversationId === c.conversation_id) : c.is_active_on_pc;
+                    row.className = `chat-row ${c.is_active_on_pc ? "active-pc" : ""} ${isViewing ? "current-viewing" : ""}`;
+
+                    // Dot pulsante na frente: verde se ocioso, laranja se processando (SEM TEXTO OU STATUS NA FRENTE)
+                    const dotClass = c.is_processing ? "dot-orange" : "dot-green";
+                    const dotHtml = `<span class="chat-status-indicator"><span class="chat-dot ${dotClass}"></span></span>`;
+
+                    const tagPc = c.is_active_on_pc ? `<span class="chat-tag-pc">🖥️ PC</span>` : "";
+
+                    row.innerHTML = `
+                        ${dotHtml}
+                        <div class="chat-info">
+                            <div class="chat-title-line">${this.escapeHtml(c.title || "Conversa sem título")}</div>
+                            <div class="chat-meta-line">
+                                <span>📁 ${this.escapeHtml(c.project || "Antigravity")}</span>
+                                <span>• ${this.escapeHtml(c.last_modified || "")}</span>
+                                ${tagPc}
+                            </div>
+                        </div>
+                    `;
+
+                    row.onclick = () => {
+                        this.selectConversation(c.conversation_id, c.title, c.project);
+                    };
+
+                    this.listEl.appendChild(row);
+                });
+            },
+
+            async selectConversation(cid, title, project) {
+                this.close();
+                this.viewingConversationId = cid;
+
+                showToastNotification(`Carregando conversa: ${title || "Projeto"}...`);
+
+                try {
+                    const res = await fetch(`/api/messages?conversation_id=${encodeURIComponent(cid)}&limit=60&token=${encodeURIComponent(authToken)}`);
+                    if (!res.ok) throw new Error("Erro ao carregar mensagens");
+                    const data = await res.json();
+
+                    chatFeed.innerHTML = "";
+                    if (data.messages && data.messages.length > 0) {
+                        data.messages.forEach(appendMessage);
+                    } else {
+                        chatFeed.innerHTML = `<div class="empty-state"><div class="empty-title">Conversa Vazia</div><div class="empty-sub">Nenhuma mensagem registrada nesta conversa.</div></div>`;
+                    }
+
+                    if (data.active_project || project) {
+                        projectName.innerText = data.active_project || project;
+                        projectBadge.style.display = "inline-flex";
+                    }
+
+                    if (data.active_model && modelBadge) {
+                        modelBadge.innerText = data.active_model;
+                    }
+
+                    if (data.status) {
+                        updateStatus(data.status);
+                    }
+
+                    ScrollManager.scrollToBottom(false);
+                    setTimeout(() => ScrollManager.scrollToBottom(true), 150);
+                } catch(e) {
+                    showToastNotification("Falha ao abrir histórico da conversa.");
+                }
+            },
+
+            resumePcLive() {
+                this.viewingConversationId = null;
+                this.close();
+                fetchInitialData();
+                showToastNotification("Sincronizado com o chat ativo do PC!");
+            },
+
+            escapeHtml(str) {
+                if (!str) return "";
+                const div = document.createElement("div");
+                div.textContent = str;
+                return div.innerHTML;
+            }
+        };
+
         // GERENCIADOR DE ÁUDIO, TOQUES E VOLUME (WEB AUDIO API)
         const SoundManager = {
             currentTone: localStorage.getItem("antigravity_tone") || "modern",
@@ -2502,29 +2856,51 @@
             return `<p>${html}</p>`;
         }
 
+        let statusDoneTimer = null;
+        let currentRawStatus = "CONNECTED";
+
         function updateStatus(status) {
-            let raw = (status || "CONECTADO").toUpperCase().trim();
+            let raw = (status || "CONNECTED").toUpperCase().trim();
             const t = currentI18n || {};
             let state = "connected";
-            let label = t.status_connected || "CONECTADO";
+            let label = t.status_connected || "Conectado";
+
+            // Se havia um timer de 1 minuto para "Concluído" e o status mudou para outra atividade, cancela o timer
+            if (statusDoneTimer && !raw.includes("DONE") && !raw.includes("CONCLU")) {
+                clearTimeout(statusDoneTimer);
+                statusDoneTimer = null;
+            }
 
             if (raw.includes("CONNECTING") || raw.includes("CONECTANDO")) {
                 state = "connecting";
-                label = t.status_connecting || "CONECTANDO...";
-            } else if (raw.includes("PROCESS") || raw.includes("RUNNING") || raw.includes("PROCES")) {
-                state = "processing";
-                label = t.status_processing || "PROCESSANDO";
+                label = t.status_connecting || "Conectando...";
+            } else if (raw.includes("THOUGHT") || raw.includes("PENSANDO") || raw.includes("THINK")) {
+                state = "thought";
+                label = t.status_thought || "Pensando...";
+            } else if (raw.includes("WORK") || raw.includes("TRABALH") || raw.includes("PROCESS") || raw.includes("RUNNING")) {
+                state = "working";
+                label = t.status_working || "Trabalhando...";
             } else if (raw.includes("DISCONNECT") || raw.includes("DESCONECT")) {
                 state = "disconnected";
-                label = t.status_disconnected || "DESCONECTADO";
+                label = t.status_disconnected || "Desconectado";
             } else if (raw.includes("DONE") || raw.includes("CONCLU") || raw.includes("COMPLET")) {
                 state = "done";
-                label = t.status_done || "CONCLUÍDO";
+                label = t.status_done || "Concluído";
+
+                // Deixa "Concluído" pelo tempo de 1 min (60.000ms) ou até iniciar uma nova atividade
+                if (statusDoneTimer) clearTimeout(statusDoneTimer);
+                statusDoneTimer = setTimeout(() => {
+                    statusDoneTimer = null;
+                    if (currentRawStatus === "DONE" || currentRawStatus === "CONCLUÍDO") {
+                        updateStatus("CONNECTED");
+                    }
+                }, 60000);
             } else {
                 state = "connected";
-                label = t.status_connected || "CONECTADO";
+                label = t.status_connected || "Conectado";
             }
 
+            currentRawStatus = raw;
             const cleanClass = label.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
             statusPill.className = `status-pill state-${state} ${cleanClass}`;
             statusText.innerText = label;
@@ -2658,29 +3034,34 @@
                 }
             } else if (evt.event === "conversation_switched") {
                 if (evt.data) {
+                    if (evt.data.conversation_id) ChatsManager.activePcConversationId = evt.data.conversation_id;
                     if (evt.data.quota) updateQuota(evt.data.quota);
-                    if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
-                    if (evt.data.active_project) updateProjectName(evt.data.active_project, evt.data.conversation_title);
-                    if (evt.data.status) updateStatus(evt.data.status);
-                    chatFeed.innerHTML = "";
-                    const msgs = evt.data.messages || [];
-                    if (msgs.length === 0) {
-                        const t = currentI18n || {};
-                        const emptyDiv = document.createElement("div");
-                        emptyDiv.id = "empty-state";
-                        emptyDiv.className = "empty-state";
-                        const subPrefix = evt.data.conversation_title ? `[${evt.data.conversation_title}] — ` : "";
-                        emptyDiv.innerHTML = `
-                            <div class="empty-icon">📡</div>
-                            <div class="empty-title">${t.empty_title || "Aguardando edições no PC"}</div>
-                            <div class="empty-sub">${subPrefix}${t.empty_sub || "As conclusões das tarefas aparecerão aqui automaticamente."}</div>
-                        `;
-                        chatFeed.appendChild(emptyDiv);
-                    } else {
-                        msgs.forEach(appendMessage);
+
+                    // Se o usuário estiver inspecionando uma conversa específica selecionada, mantém sua visualização intacta
+                    if (!ChatsManager.viewingConversationId) {
+                        if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
+                        if (evt.data.active_project) updateProjectName(evt.data.active_project, evt.data.conversation_title);
+                        if (evt.data.status) updateStatus(evt.data.status);
+                        chatFeed.innerHTML = "";
+                        const msgs = evt.data.messages || [];
+                        if (msgs.length === 0) {
+                            const t = currentI18n || {};
+                            const emptyDiv = document.createElement("div");
+                            emptyDiv.id = "empty-state";
+                            emptyDiv.className = "empty-state";
+                            const subPrefix = evt.data.conversation_title ? `[${evt.data.conversation_title}] — ` : "";
+                            emptyDiv.innerHTML = `
+                                <div class="empty-icon">📡</div>
+                                <div class="empty-title">${t.empty_title || "Aguardando edições no PC"}</div>
+                                <div class="empty-sub">${subPrefix}${t.empty_sub || "As conclusões das tarefas aparecerão aqui automaticamente."}</div>
+                            `;
+                            chatFeed.appendChild(emptyDiv);
+                        } else {
+                            msgs.forEach(appendMessage);
+                        }
+                        ScrollManager.scrollToBottom(false);
+                        setTimeout(() => ScrollManager.scrollToBottom(true), 150);
                     }
-                    ScrollManager.scrollToBottom(false);
-                    setTimeout(() => ScrollManager.scrollToBottom(true), 150);
                 }
             } else if (evt.event === "task_completed") {
                 triggerSensoryAlert();
@@ -2694,14 +3075,9 @@
                     model: (modelBadge ? modelBadge.innerText : "AI"),
                     summary: (evt.data && evt.data.summary) || "Uma tarefa foi concluída com sucesso no PC!"
                 });
-                updateStatus("CONCLUÍDO");
+                updateStatus("DONE");
                 if (evt.data && evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
                 if (evt.data && evt.data.quota) updateQuota(evt.data.quota);
-                setTimeout(() => {
-                    if (statusText.innerText === "CONCLUÍDO") {
-                        updateStatus("CONECTADO");
-                    }
-                }, 5000);
             } else if (evt.event === "model_changed") {
                 if (evt.data) {
                     if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
@@ -2710,19 +3086,18 @@
             } else if (evt.event === "conclusion_message" || evt.event === "user_message") {
                 if (evt.data) {
                     if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
-                    appendMessage(evt.data);
-                    updateStatus(evt.event === "conclusion_message" ? "CONCLUÍDO" : "PROCESSANDO");
-                    ScrollManager.onNewMessage();
-                    if (evt.event === "conclusion_message") {
-                        setTimeout(() => {
-                            if (statusText.innerText === "CONCLUÍDO") {
-                                updateStatus("CONECTADO");
-                            }
-                        }, 5000);
+                    
+                    // Se o usuário está lendo uma conversa paralela selecionada, não polui a visualização com mensagens de outro chat
+                    const isViewingCustom = ChatsManager.viewingConversationId && evt.data.conversation_id && (evt.data.conversation_id !== ChatsManager.viewingConversationId);
+                    if (!isViewingCustom) {
+                        appendMessage(evt.data);
+                        ScrollManager.onNewMessage();
                     }
+
+                    updateStatus(evt.event === "conclusion_message" ? "DONE" : "WORKING");
                 }
             } else if (evt.event === "status_change") {
-                updateStatus(evt.data && evt.data.status ? evt.data.status : "PROCESSANDO");
+                updateStatus(evt.data && evt.data.status ? evt.data.status : "WORKING");
                 if (evt.data && evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
             } else if (evt.event === "quota_update") {
                 updateQuota(evt.data);

@@ -60,11 +60,21 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "msg_user": "Você",
         "msg_assistant": "Antigravity (Conclusão)",
         
-        "status_connected": "CONECTADO",
-        "status_processing": "PROCESSANDO",
-        "status_done": "CONCLUÍDO",
+        "status_connected": "Conectado",
+        "status_processing": "Trabalhando...",
+        "status_working": "Trabalhando...",
+        "status_thought": "Pensando...",
+        "status_done": "Concluído",
         "status_disconnected": "DESCONECTADO",
         "status_connecting": "CONECTANDO...",
+
+        # Botão e Modal de Chats
+        "btn_chats": "Chats",
+        "chats_modal_title": "Conversas no PC",
+        "chats_current_pc": "No PC",
+        "chats_live_pc_btn": "⚡ Voltar ao Chat Ativo do PC",
+        "chats_viewing_custom": "Visualizando conversa selecionada",
+        "chats_no_active": "Nenhuma conversa encontrada",
         
         # Tutorial de Conexão Rápido
         "tutorial_btn": "❓ Como Conectar ao Celular",
@@ -173,11 +183,21 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "msg_user": "You",
         "msg_assistant": "Antigravity (Conclusion)",
         
-        "status_connected": "CONNECTED",
-        "status_processing": "PROCESSING",
-        "status_done": "DONE",
+        "status_connected": "Connected",
+        "status_processing": "Working...",
+        "status_working": "Working...",
+        "status_thought": "Thinking...",
+        "status_done": "Completed",
         "status_disconnected": "DISCONNECTED",
         "status_connecting": "CONNECTING...",
+
+        # Chats Button and Modal
+        "btn_chats": "Chats",
+        "chats_modal_title": "Chats on PC",
+        "chats_current_pc": "On PC",
+        "chats_live_pc_btn": "⚡ View Live PC Chat",
+        "chats_viewing_custom": "Viewing selected conversation",
+        "chats_no_active": "No conversations found",
         
         # Quick Connection Tutorial
         "tutorial_btn": "❓ How to Connect",
@@ -286,11 +306,21 @@ TRANSLATIONS: Dict[str, Dict[str, Any]] = {
         "msg_user": "Tú",
         "msg_assistant": "Antigravity (Conclusión)",
         
-        "status_connected": "CONECTADO",
-        "status_processing": "PROCESANDO",
-        "status_done": "COMPLETADO",
+        "status_connected": "Conectado",
+        "status_processing": "Trabajando...",
+        "status_working": "Trabajando...",
+        "status_thought": "Pensando...",
+        "status_done": "Completado",
         "status_disconnected": "DESCONECTADO",
         "status_connecting": "CONECTANDO...",
+
+        # Botón y Modal de Chats
+        "btn_chats": "Chats",
+        "chats_modal_title": "Conversaciones en PC",
+        "chats_current_pc": "En PC",
+        "chats_live_pc_btn": "⚡ Ver Conversación Activa de PC",
+        "chats_viewing_custom": "Viendo conversación seleccionada",
+        "chats_no_active": "No se encontraron conversaciones",
         
         # Tutorial de Conexión Rápido
         "tutorial_btn": "❓ Cómo Conectar al Móvil",

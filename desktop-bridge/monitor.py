@@ -334,16 +334,17 @@ class AntigravityMonitor:
                                 src = last_step.get("source", "")
                                 stype = last_step.get("type", "")
                                 if st == "RUNNING" or tc or src == "USER_EXPLICIT" or stype == "USER_INPUT":
-                                    self.current_turn_status = "PROCESSANDO"
+                                    is_thinking = bool(last_step.get("thinking")) or "thinking" in last_step.get("truncated_fields", [])
+                                    self.current_turn_status = "THOUGHT" if (is_thinking and not tc) else "WORKING"
                                 else:
-                                    self.current_turn_status = "CONECTADO"
+                                    self.current_turn_status = "IDLE"
             except Exception:
                 self.last_step_index = -1
-                self.current_turn_status = status or "CONECTADO"
+                self.current_turn_status = status or "IDLE"
         else:
             self.file_offset = 0
             self.last_step_index = -1
-            self.current_turn_status = status or "CONECTADO"
+            self.current_turn_status = status or "IDLE"
 
         t = language_manager.get_dict()
         msg = t.get("terminal_monitoring_conv", "Monitorando conversa: {conv_id} ({model}) - Offset inicial: {offset}").format(
@@ -656,6 +657,168 @@ class AntigravityMonitor:
 
         return messages[-limit:]
 
+    def get_conversations_list(self) -> List[Dict[str, Any]]:
+        """Retorna a lista de conversas recentes do Antigravity agregadas do SQLite e diretórios brain/."""
+        conversations: List[Dict[str, Any]] = []
+        seen_cids = set()
+
+        summaries_db = config.ANTIGRAVITY_DIR / "conversation_summaries.db"
+        if summaries_db.exists():
+            try:
+                conn = sqlite3.connect(f"file:{summaries_db}?mode=ro", uri=True, timeout=0.8)
+                cursor = conn.cursor()
+                rows = cursor.execute("""
+                    SELECT conversation_id, title, workspace_uris, last_modified_time, status, not_fully_idle
+                    FROM conversation_summaries
+                    ORDER BY last_modified_time DESC
+                    LIMIT 35
+                """).fetchall()
+                conn.close()
+
+                for r in rows:
+                    cid, title, ws_uris, lmt, st, not_idle = r
+                    if not cid or cid in seen_cids:
+                        continue
+                    seen_cids.add(cid)
+
+                    proj = "Antigravity"
+                    try:
+                        uris = json.loads(ws_uris)
+                        if uris:
+                            raw_path = urllib.parse.unquote(uris[0].replace("file:///", ""))
+                            proj = Path(raw_path).name or raw_path
+                    except Exception:
+                        pass
+
+                    # Detecta se está processando/trabalhando
+                    is_proc = False
+                    if st == "CASCADE_RUN_STATUS_RUNNING" or not_idle == 1:
+                        is_proc = True
+                    elif cid in self.background_working_conversations:
+                        is_proc = True
+                    elif cid == self.current_conversation_id and self.current_turn_status in ["WORKING", "THOUGHT", "RUNNING", "PROCESSANDO", "TRABALHANDO", "PENSANDO"]:
+                        is_proc = True
+                    else:
+                        is_proc = self._is_conversation_working(cid)
+
+                    clean_time = ""
+                    if lmt:
+                        try:
+                            parts = str(lmt).split(" ")
+                            if len(parts) > 1:
+                                time_part = parts[1].split(".")[0][:5]
+                                date_parts = parts[0].split("-")
+                                clean_time = f"{date_parts[2]}/{date_parts[1]} {time_part}"
+                        except Exception:
+                            clean_time = str(lmt)[:16]
+
+                    conversations.append({
+                        "conversation_id": cid,
+                        "title": title or "Conversa sem título",
+                        "project": proj,
+                        "last_modified": clean_time or str(lmt)[:16],
+                        "is_active_on_pc": (cid == self.current_conversation_id),
+                        "is_processing": is_proc
+                    })
+            except Exception as e:
+                print(f"[Monitor] Erro ao listar conversas: {e}")
+
+        return conversations
+
+    def get_conversation_messages(self, conversation_id: str, limit: int = 40) -> Dict[str, Any]:
+        """Puxa o histórico completo de mensagens de qualquer conversa sem alterar o estado do PC."""
+        tpath = config.BRAIN_DIR / conversation_id / ".system_generated" / "logs" / "transcript.jsonl"
+        if not tpath.exists():
+            return {
+                "conversation_id": conversation_id,
+                "title": "Conversa não encontrada",
+                "project": "Antigravity",
+                "active_model": self.active_model,
+                "is_active_on_pc": (conversation_id == self.current_conversation_id),
+                "status": "IDLE",
+                "messages": []
+            }
+
+        title = "Conversa"
+        project = "Antigravity"
+        summaries_db = config.ANTIGRAVITY_DIR / "conversation_summaries.db"
+        if summaries_db.exists():
+            try:
+                conn = sqlite3.connect(f"file:{summaries_db}?mode=ro", uri=True, timeout=0.5)
+                c = conn.cursor()
+                row = c.execute("SELECT title, workspace_uris FROM conversation_summaries WHERE conversation_id = ?", (conversation_id,)).fetchone()
+                conn.close()
+                if row:
+                    title = row[0] or title
+                    try:
+                        uris = json.loads(row[1])
+                        if uris:
+                            raw_path = urllib.parse.unquote(uris[0].replace("file:///", ""))
+                            project = Path(raw_path).name or raw_path
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
+        messages: List[Dict[str, Any]] = []
+        try:
+            size = os.path.getsize(tpath)
+            read_bytes = min(size, 262144)
+            with open(tpath, "r", encoding="utf-8", errors="ignore") as f:
+                if size > read_bytes:
+                    f.seek(size - read_bytes)
+                lines = f.readlines()
+            if size > read_bytes and len(lines) > 1:
+                lines = lines[1:]
+
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    step = json.loads(line)
+                    fmt = self._format_step_message(step)
+                    if fmt:
+                        messages.append(fmt)
+                except Exception:
+                    continue
+
+            if len(messages) < limit and size > read_bytes:
+                read_bytes_large = min(size, 1048576)
+                with open(tpath, "r", encoding="utf-8", errors="ignore") as f:
+                    f.seek(size - read_bytes_large)
+                    lines = f.readlines()
+                if len(lines) > 1:
+                    lines = lines[1:]
+                messages = []
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        step = json.loads(line)
+                        parsed = self._format_step_message(step)
+                        if parsed:
+                            messages.append(parsed)
+                    except Exception:
+                        continue
+        except Exception as e:
+            print(f"[Monitor] Erro ao ler transcript de {conversation_id}: {e}")
+
+        model = self.detect_model_name(conversation_id) or self.active_model
+        is_working = self._is_conversation_working(conversation_id)
+        conv_status = "WORKING" if is_working else "IDLE"
+
+        return {
+            "conversation_id": conversation_id,
+            "title": title,
+            "project": project,
+            "active_model": model,
+            "is_active_on_pc": (conversation_id == self.current_conversation_id),
+            "status": conv_status,
+            "messages": messages[-limit:]
+        }
+
     def _format_step_message(self, step: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Converte um step do transcript em mensagem amigável para o app mobile.
         FILTRAGEM ESTRITA: Exibe SOMENTE a mensagem do usuário e a CONCLUSÃO FINAL da tarefa.
@@ -900,19 +1063,35 @@ class AntigravityMonitor:
 
         # 1. Usuário fez uma solicitação no PC
         if source == "USER_EXPLICIT" or step_type == "USER_INPUT":
-            self.current_turn_status = "PROCESSANDO"
-            if self.on_event and formatted:
+            self.current_turn_status = "WORKING"
+            if self.on_event:
+                if formatted:
+                    await self.on_event({
+                        "event": "user_message",
+                        "data": formatted
+                    })
                 await self.on_event({
-                    "event": "user_message",
-                    "data": formatted
+                    "event": "status_change",
+                    "data": {
+                        "status": "WORKING",
+                        "active_model": self.active_model
+                    }
                 })
         elif status == "RUNNING" or tool_calls:
-            self.current_turn_status = "PROCESSANDO"
+            # Detecta se é THOUGHT (pensando) ou WORKING (trabalhando)
+            is_thinking = bool(step.get("thinking")) or "thinking" in step.get("truncated_fields", [])
+            has_tools = bool(tool_calls)
+            
+            if is_thinking and not has_tools:
+                self.current_turn_status = "THOUGHT"
+            else:
+                self.current_turn_status = "WORKING"
+
             if self.on_event:
                 await self.on_event({
                     "event": "status_change",
                     "data": {
-                        "status": "PROCESSANDO",
+                        "status": self.current_turn_status,
                         "active_model": self.active_model
                     }
                 })
@@ -926,7 +1105,7 @@ class AntigravityMonitor:
 
             if is_final_response and self.last_notified_step != step_index:
                 self.last_notified_step = step_index
-                self.current_turn_status = "CONCLUÍDO"
+                self.current_turn_status = "DONE"
                 
                 # Recalcula cota oficial ao concluir
                 self.calculate_quota()

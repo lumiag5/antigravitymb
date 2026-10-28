@@ -10,6 +10,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [2.4.3] - 2026-10-27 (Build 2421)
+
+### 🐛 Fixed
+* **Native APK Chat Scrolling**: Resolved an issue where users were unable to scroll up to view earlier messages on Android. Removed `SwipeRefreshLayout` from the native Android layout (`activity_main.xml`), allowing `WebView` to handle touch drags directly without gesture interception.
+* **Touch Directives in Web Feed**: Added `-webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior-y: contain;` for smooth, uninterrupted vertical scrolling on mobile browsers.
+
+### 🚀 Added
+* **Central "Chats" Button in Footer**:
+  * Positioned in the bottom center of the screen (between Menu/Latency and OLED buttons).
+  * Opens a responsive modal listing all recent Antigravity PC conversations and projects (available on both APK and Web/IP versions).
+* **Strict Pulsing Dot Status (No Preceding Text)**:
+  * When a conversation is processing/working: displays **ONLY a pulsing orange dot (`🟠`)**, with no status text in front.
+  * When a conversation is idle: displays **ONLY a pulsing green dot (`🟢`)**, with no status text in front.
+* **Independent Remote Chat Inspection**:
+  * Selecting any conversation loads its complete message history on mobile without clicking or altering the active conversation on the PC.
+  * "Return to Live PC" banner button to quickly switch back to real-time sync with the host machine.
+* **"Working..." and "Thinking..." Dynamic Statuses**:
+  * "Processing" renamed to **"Working..."** (*Trabalhando...*).
+  * Added **"Thinking..."** (*Pensando...*) status during model thought phases.
+  * When a task finishes, status displays **"Completed"** (*Concluído*) for **1 minute** before returning to "Connected" (or until a new activity starts).
+  * Full localization across English, Portuguese, and Spanish.
+
+---
+
 ## [2.4.2] - 2026-10-25 (Build 2420)
 
 ### Added / Session Management & Camera QR Scanner

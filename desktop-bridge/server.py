@@ -158,10 +158,14 @@ async def websocket_endpoint(websocket: WebSocket, token: Optional[str] = Query(
     try:
         lang_dict = language_manager.get_dict()
         current_status = monitor.current_turn_status
-        if current_status in ["IDLE", "DONE", "CONNECTED", "CONECTADO"]:
-            current_status = lang_dict.get("status_connected", "CONECTADO")
-        elif current_status in ["RUNNING", "PROCESSANDO"]:
-            current_status = lang_dict.get("status_processing", "PROCESSANDO")
+        if current_status in ["IDLE", "CONNECTED", "CONECTADO"]:
+            current_status = "CONNECTED"
+        elif current_status in ["WORKING", "RUNNING", "PROCESSANDO", "TRABALHANDO"]:
+            current_status = "WORKING"
+        elif current_status in ["THOUGHT", "PENSANDO"]:
+            current_status = "THOUGHT"
+        elif current_status in ["DONE", "CONCLUÍDO"]:
+            current_status = "DONE"
 
         await websocket.send_json({
             "event": "init",
@@ -192,10 +196,15 @@ def get_status(token: Optional[str] = None):
     if config.REQUIRE_AUTH and not auth_manager.is_valid_token(token):
         raise HTTPException(status_code=401, detail="PIN de acesso inválido ou expirado")
     current_status = monitor.current_turn_status
-    if current_status in ["IDLE", "DONE", "CONNECTED"]:
-        current_status = "CONECTADO"
-    elif current_status == "RUNNING":
-        current_status = "PROCESSANDO"
+    if current_status in ["IDLE", "CONNECTED", "CONECTADO"]:
+        current_status = "CONNECTED"
+    elif current_status in ["WORKING", "RUNNING", "PROCESSANDO", "TRABALHANDO"]:
+        current_status = "WORKING"
+    elif current_status in ["THOUGHT", "PENSANDO"]:
+        current_status = "THOUGHT"
+    elif current_status in ["DONE", "CONCLUÍDO"]:
+        current_status = "DONE"
+
     return {
         "conversation_id": monitor.current_conversation_id,
         "status": current_status,
@@ -206,15 +215,29 @@ def get_status(token: Optional[str] = None):
         "clients_connected": len(manager.active_connections)
     }
 
-@app.get("/api/messages")
-def get_messages(limit: int = 30, token: Optional[str] = None):
+@app.get("/api/conversations")
+def get_conversations(token: Optional[str] = None):
     if config.REQUIRE_AUTH and not auth_manager.is_valid_token(token):
         raise HTTPException(status_code=401, detail="PIN de acesso inválido ou expirado")
+    return {
+        "conversations": monitor.get_conversations_list(),
+        "active_pc_conversation_id": monitor.current_conversation_id
+    }
+
+@app.get("/api/messages")
+def get_messages(conversation_id: Optional[str] = None, limit: int = 50, token: Optional[str] = None):
+    if config.REQUIRE_AUTH and not auth_manager.is_valid_token(token):
+        raise HTTPException(status_code=401, detail="PIN de acesso inválido ou expirado")
+
+    if conversation_id and conversation_id != monitor.current_conversation_id:
+        return monitor.get_conversation_messages(conversation_id, limit)
+
     return {
         "conversation_id": monitor.current_conversation_id,
         "active_model": monitor.active_model,
         "active_project": monitor.active_project,
         "conversation_title": monitor.current_conversation_title,
+        "is_active_on_pc": True,
         "status": monitor.current_turn_status,
         "messages": monitor.get_recent_messages(limit)
     }

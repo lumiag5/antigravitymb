@@ -103,6 +103,9 @@ class MainActivity : AppCompatActivity() {
 
         binding.webView.setBackgroundColor(Color.BLACK)
 
+        binding.webView.isVerticalScrollBarEnabled = true
+        binding.webView.overScrollMode = View.OVER_SCROLL_IF_CONTENT_SCROLLS
+
         // Interface Javascript para comunicação bidirecional com a web
         binding.webView.addJavascriptInterface(AndroidBridge(), "AndroidBridge")
 
@@ -113,7 +116,6 @@ class MainActivity : AppCompatActivity() {
                     binding.progressBar.progress = newProgress
                 } else {
                     binding.progressBar.visibility = View.GONE
-                    binding.swipeRefresh.isRefreshing = false
                 }
             }
 
@@ -131,12 +133,11 @@ class MainActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 binding.progressBar.visibility = View.GONE
-                binding.swipeRefresh.isRefreshing = false
 
                 if (!hasError) {
                     binding.errorView.visibility = View.GONE
                     binding.connectView.visibility = View.GONE
-                    binding.swipeRefresh.visibility = View.VISIBLE
+                    binding.webView.visibility = View.VISIBLE
 
                     val loadedUrl = currentAttemptUrl.ifBlank { url ?: "" }
                     if (loadedUrl.isNotBlank()) {
@@ -201,12 +202,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.swipeRefresh.setColorSchemeColors(Color.parseColor("#3B82F6"))
-        binding.swipeRefresh.setProgressBackgroundColorSchemeColor(Color.parseColor("#161720"))
-        binding.swipeRefresh.setOnRefreshListener {
-            binding.webView.reload()
-        }
-
         binding.btnRetry.setOnClickListener {
             binding.errorView.visibility = View.GONE
             val target = currentAttemptUrl.ifBlank { prefs.getString(KEY_SERVER_URL, null) }
@@ -331,7 +326,7 @@ class MainActivity : AppCompatActivity() {
     private fun showConnectScreen() {
         val saved = prefs.getString(KEY_SERVER_URL, null)
 
-        binding.swipeRefresh.visibility = View.GONE
+        binding.webView.visibility = View.GONE
         binding.errorView.visibility = View.GONE
         binding.connectView.visibility = View.VISIBLE
 
@@ -350,8 +345,7 @@ class MainActivity : AppCompatActivity() {
         hasError = true
         runOnUiThread {
             binding.progressBar.visibility = View.GONE
-            binding.swipeRefresh.isRefreshing = false
-            binding.swipeRefresh.visibility = View.GONE
+            binding.webView.visibility = View.GONE
             binding.connectView.visibility = View.GONE
             binding.errorView.visibility = View.VISIBLE
 
@@ -424,7 +418,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.connectView.visibility = View.GONE
         binding.errorView.visibility = View.GONE
-        binding.swipeRefresh.visibility = View.VISIBLE
+        binding.webView.visibility = View.VISIBLE
         binding.progressBar.visibility = View.VISIBLE
 
         binding.webView.loadUrl(cleanUrl)

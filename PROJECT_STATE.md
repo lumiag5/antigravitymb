@@ -10,7 +10,19 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
 3. **Métricas Oficiais de Quota**: Exibição em tempo real da porcentagem de uso diário (5h) e semanal do modelo de IA via RPC interna com adaptação dinâmica entre grupos de modelos.
 4. **Conectividade Flexível**: Suporte à rede local (Wi-Fi) e acesso remoto global via túnel HTTPS seguro (Cloudflare) sem configuração de portas.
 
-## FUNCIONALIDADES IMPLEMENTADAS (v2.4.2 • Build 2420)
+## FUNCIONALIDADES IMPLEMENTADAS (v2.4.3 • Build 2421)
+- **Correção de Rolamento Vertical do Chat no APK**: Remoção do `SwipeRefreshLayout` em `activity_main.xml` e no `MainActivity.kt`, restaurando 100% a rolagem nativa de mensagens anteriores no APK Android, igual à versão por IP.
+- **Navegação Multi-Conversas com Botão "Chats"**:
+  - Botão `💬 Chats` no centro inferior do rodapé (entre Menu/Latência e o botão OLED).
+  - Modal com listagem de conversas e projetos sincronizados do Antigravity PC com leitura de transcripts em background.
+  - Indicadores pulsantes estritos na frente de cada conversa: **somente dot laranja (`🟠`)** se o Antigravity estiver processando algo, ou **somente dot verde (`🟢`)** se estiver ocioso, sem textos frontais.
+  - Carregamento de histórico completo com liberdade remota pelo smartphone sem alterar nem clicar na conversa aberta no PC.
+- **Novos Status de Tarefa e Temporizador de Conclusão**:
+  - Renomeação de "Processando" para **"Trabalhando..."** (*Working*).
+  - Adição do status **"Pensando..."** (*Thought*).
+  - O status **"Concluído"** (*Done*) permanece ativo por **1 minuto** (ou até iniciar nova atividade) antes de transicionar para "Conectado".
+  - Paridade total e traduções em PT-BR, EN e ES para ambas as versões (APK e IP/Web).
+
 - **Desktop Bridge Daemon (PC)** (`antrigavitymb/desktop-bridge/`):
   - **QR Code no Terminal**: Renderização de QR Code em ASCII compacto diretamente no console do PC para conexão instantânea pela câmera do celular.
   - **Detecção Dinâmica de Modelos de IA**: Detecção em tempo real de comutação entre modelos Gemini, Claude Sonnet e GPT durante a própria conversa via decodificação de tags Protobuf específicas (campo 28 `\xe2\x01` para Claude/GPT e campo 19 `\x9a\x01` para Gemini).

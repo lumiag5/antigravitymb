@@ -10,6 +10,30 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
+## [2.4.3] - 2026-10-27 (Build 2421)
+
+### 🐛 Corrigido
+* **Rolamento Vertical de Mensagens no APK**: Resolvido o problema em que o usuário não conseguia rolar o chat para cima no APK para ver o histórico anterior. O `SwipeRefreshLayout` foi removido do layout nativo Android para que o `WebView` receba todos os toques sem captura indevida de gestos, garantindo paridade total com a versão web por IP.
+* **Diretivas Touch no Feed Web**: Adicionados `-webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior-y: contain;` para suavidade de rolagem em navegadores mobile.
+
+### 🚀 Adicionado
+* **Botão "Chats" Central no Rodapé**:
+  * Localizado no centro inferior da tela (entre o menu/latência à esquerda e o botão OLED à direita).
+  * Abre modal de seleção de conversas e projetos sincronizados do Antigravity PC em ambas as versões (APK e IP/Web).
+* **Indicadores Pulsantes Estritos por Conversa**:
+  * Se o Antigravity estiver processando algo naquela conversa: exibe **apenas um ponto pulsante laranja (`🟠`)**, sem nenhum texto ou mensagem na frente.
+  * Se estiver ocioso/não processando: exibe **apenas um ponto pulsante verde (`🟢`)**, sem nenhum texto ou mensagem na frente.
+* **Leitura Remota Totalmente Independente**:
+  * Ao selecionar qualquer chat/projeto na lista pelo celular, o app busca e renderiza o histórico completo diretamente do transcript sem alterar a janela ou conversa aberta no PC e sem simular cliques remotos de mouse.
+  * Banner com botão "Voltar ao PC ao Vivo" para alternar rapidamente de volta à sincronização em tempo real.
+* **Status "Trabalhando..." e "Pensando..." com Temporizador de 1 Minuto**:
+  * Status "Processando" renomeado para **"Trabalhando..."** (*Working*).
+  * Adicionado status **"Pensando..."** (*Thought*).
+  * Ao concluir tarefas, o status **"Concluído"** é ativado e permanece exibido por **1 minuto** (ou até que uma nova atividade comece), retornando para "Conectado" após o término do tempo.
+  * Traduções completas em Português, Inglês e Espanhol.
+
+---
+
 ## [2.4.2] - 2026-10-25 (Build 2420)
 
 ### Adicionado / Melhorias de Sessão e Câmera

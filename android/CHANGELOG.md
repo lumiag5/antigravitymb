@@ -6,6 +6,31 @@ O formato segue o padrão [Keep a Changelog](https://keepachangelog.com/pt-BR/1.
 
 ---
 
+## [2.4.3] - 2026-10-27 (Build 2421)
+
+### 🐛 Correções de Rolamento & Gestos
+* **Correção Definitiva do Scroll do Chat no APK**:
+  * Remoção completa do wrapper `SwipeRefreshLayout` no layout nativo (`activity_main.xml`) e de seus ouvintes no `MainActivity.kt`.
+  * Como a página web possui altura fixa (100vh) com rolagem interna em `#chat-feed`, o `SwipeRefreshLayout` interceptava indevidamente todos os gestos de arrasto para baixo (`canScrollVertically(-1) == false`), travando o rolamento e impedindo o usuário de ver mensagens anteriores no APK.
+  * O `WebView` agora opera diretamente dentro do `FrameLayout` com `isVerticalScrollBarEnabled = true` e `OVER_SCROLL_IF_CONTENT_SCROLLS`, restaurando rolagem nativa 100% fluida para todo o histórico de mensagens anteriores.
+
+### 💬 Navegação de Chats & Novos Status
+* **Botão "Chats" Central no Rodapé**:
+  * Novo botão `💬 Chats` posicionado no centro inferior da tela (entre Menu/Latência e o botão OLED).
+  * Abertura instantânea de modal responsivo listando todas as conversas e projetos recentes do PC.
+* **Indicadores Pulsantes Exclusivos (Sem Texto Frontal)**:
+  * Conversas ativas/processando: exibem estritamente um ponto pulsante laranja (`🟠`).
+  * Conversas ociosas: exibem estritamente um ponto pulsante verde (`🟢`).
+  * Conforme especificação, sem nenhuma mensagem ou texto posicionado na frente do ponto indicador.
+* **Inspeção de Histórico Remota e Independente**:
+  * Ao tocar em qualquer projeto/chat, o app puxa todo o histórico de conversas do PC sem simular cliques de mouse ou trocar a conversa ativa na tela do computador.
+* **Novos Status Dinâmicos**:
+  * "Processando" renomeado para "Trabalhando...".
+  * Adicionado status "Pensando..." durante a fase de raciocínio.
+  * Status "Concluído" permanece exibido por 1 minuto ao finalizar uma tarefa antes de retornar para "Conectado".
+
+---
+
 ## [2.4.2] - 2026-10-25 (Build 2420)
 
 ### 🚀 Novos Recursos & Segurança de Sessão

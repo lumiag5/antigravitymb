@@ -10,6 +10,30 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
+## [2.4.3] - 2026-10-27 (Build 2421)
+
+### 🐛 Corregido
+* **Desplazamiento Vertical del Chat en el APK**: Corregido el problema donde no era posible desplazarse hacia arriba para ver mensajes anteriores. Se eliminó `SwipeRefreshLayout` del diseño nativo (`activity_main.xml`), permitiendo que `WebView` maneje los eventos táctiles directamente sin intercepción.
+* **Directivas Táctiles en el Feed Web**: Añadidos `-webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior-y: contain;` para suavidad táctil total en navegadores móviles.
+
+### 🚀 Añadido
+* **Botón Central "Chats" en el Pie de Página**:
+  * Ubicado en el centro inferior de la pantalla (entre Menú/Latencia y el botón OLED).
+  * Abre un modal con todas las conversaciones y proyectos sincronizados de Antigravity PC (tanto en APK como en Web/IP).
+* **Indicadores Pulsantes Estrictos (Sin Texto al Frente)**:
+  * Si la conversación está procesando: muestra **solamente un punto pulsante naranja (`🟠`)**, sin texto ni mensaje al frente.
+  * Si la conversación está ociosa: muestra **solamente un punto pulsante verde (`🟢`)**, sin texto ni mensaje al frente.
+* **Inspección Remota Totalmente Independiente**:
+  * Al seleccionar cualquier chat en el móvil, carga todo el historial completo de mensajes sin modificar la ventana ni la conversación activa en la PC.
+  * Botón "Volver a la PC en Vivo" para retomar la sincronización en tiempo real con un toque.
+* **Nuevos Estados "Trabajando..." y "Pensando..." con Temporizador de 1 Minuto**:
+  * "Procesando" renombrado a **"Trabajando..."** (*Working*).
+  * Añadido estado **"Pensando..."** (*Thought*).
+  * Al finalizar tareas, el estado muestra **"Completado"** (*Done*) durante **1 minuto** antes de regresar a "Conectado" (o hasta que comience una nueva actividad).
+  * Traducciones completas en español, portugués e inglés.
+
+---
+
 ## [2.4.2] - 2026-10-25 (Build 2420)
 
 ### Añadido / Gestión de Sesión y Escáner de Cámara QR
