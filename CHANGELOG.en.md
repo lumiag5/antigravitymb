@@ -10,6 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ---
 
+## [2.4.4] - 2026-10-28 (Build 2426)
+
+### Added
+* **Immersive fullscreen mode**: Hides the top system status bar and notifications on Android APK (with display notch support), plus fullscreen mode for browser/IP via tap or settings menu toggle.
+* **Real-time battery indicator**: Centered in the footer (between latency and chats) displaying battery percentage and charging status with zero extra text clutter.
+* **Harmonized footer layout**: Symmetrical, balanced bottom bar aligning all buttons and status badges in a single row with rounded pill styling and OLED theme support.
+
+---
+
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
 ### Fixed

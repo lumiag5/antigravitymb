@@ -10,6 +10,15 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
+## [2.4.4] - 2026-10-28 (Build 2426)
+
+### Añadido
+* **Pantalla completa inmersiva**: Ocultación de la barra de estado superior en el APK de Android (con soporte para muescas de cámara *notch*), y modo pantalla completa en el navegador/IP mediante toque o desde el menú de ajustes.
+* **Nivel de batería en tiempo real**: Indicador centrado en el pie de página (entre latencia y chats) mostrando el porcentaje de batería y estado de carga, sin textos innecesarios.
+* **Diseño armonizado del pie de página**: Alineación simétrica y uniforme de todos los botones e indicadores en una sola fila, con esquinas redondeadas y soporte para el tema OLED.
+
+---
+
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
 ### Corregido

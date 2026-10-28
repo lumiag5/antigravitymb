@@ -10,6 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ---
 
+## [2.4.4] - 2026-10-28 (Build 2426)
+
+### Added
+* **Immersive fullscreen**: Hides top system status bars and notifications via `WindowInsetsControllerCompat`, with display notch support (*short edges cutout mode*) and dynamic safe area spacing.
+* **Real-time battery monitor**: Reads battery level and charging state via system `BroadcastReceiver`, reflected directly in the footer with zero text clutter.
+* **Footer alignment**: Standardized buttons and indicators with uniform 28px height and rounded pill styling.
+
+---
+
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
 ### Fixed

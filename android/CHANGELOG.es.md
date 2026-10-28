@@ -10,6 +10,15 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
+## [2.4.4] - 2026-10-28 (Build 2426)
+
+### Añadido
+* **Pantalla completa inmersiva**: Ocultación de la barra de estado superior mediante `WindowInsetsControllerCompat`, con soporte para muescas de cámara (*short edges cutout mode*) y margen de seguridad dinámico.
+* **Monitor de batería en tiempo real**: Lectura en tiempo real del nivel y estado de carga mediante `BroadcastReceiver` del sistema, visible en el pie de página sin textos innecesarios.
+* **Alineación del pie de página**: Botones e indicadores estandarizados con altura uniforme de 28px y esquinas redondeadas.
+
+---
+
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
 ### Corregido

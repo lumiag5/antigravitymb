@@ -10,6 +10,15 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
+## [2.4.4] - 2026-10-28 (Build 2426)
+
+### Adicionado
+* **Tela cheia imersiva**: Ocultação da barra de status e notificações do topo do celular via `WindowInsetsControllerCompat`, com suporte a entalhes de câmera (*short edges cutout mode*) e área de respiro dinâmica.
+* **Monitor de bateria em tempo real**: Leitura em tempo real do nível de carga e status de carregamento via `BroadcastReceiver` do sistema, refletida no rodapé do app sem textos redundantes.
+* **Alinhamento do rodapé**: Botões e indicadores padronizados com altura uniforme de 28px e cantos arredondados.
+
+---
+
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
 ### Corrigido

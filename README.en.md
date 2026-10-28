@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v2.4.3-blue?style=flat-square" alt="Version v2.4.3">
+  <img src="https://img.shields.io/badge/version-v2.4.4-blue?style=flat-square" alt="Version v2.4.4">
   <img src="https://img.shields.io/badge/platform-Windows_%7C_Android-success?style=flat-square" alt="Platforms">
   <img src="https://img.shields.io/badge/android-7.0%2B_%28API_24%2B%29-green?style=flat-square" alt="Android 7+">
   <img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" alt="MIT License">
@@ -28,8 +28,10 @@ Mobile app and web dashboard for monitoring **Antigravity IDE** tasks in real ti
 * **Completion alerts**: Plays an audio chime (4 selectable sounds with volume control), flashes the screen green twice, and vibrates when a task finishes.
 * **Quota tracking**: Reads 5-hour and weekly quotas directly from the Antigravity service (Gemini, Claude, GPT).
 * **Ping indicator**: Real-time WebSocket latency badge.
+* **Real-time battery level**: Current battery percentage displayed in the center of the footer next to latency, keeping the UI clean.
 
 ### Native Android App (APK)
+* **Immersive fullscreen**: Hides top system status bars on APK and supports fullscreen mode in browsers/IP for full visual focus.
 * **OLED True Black**: Deep `#000000` background for battery efficiency.
 * **QR Code pairing**: One-tap sign in via camera scanner reading the PC console QR code.
 * **Session resume**: Reconnect to active sessions without retyping the PIN.

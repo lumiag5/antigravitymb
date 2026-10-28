@@ -10,6 +10,15 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
+## [2.4.4] - 2026-10-28 (Build 2426)
+
+### Adicionado
+* **Tela cheia imersiva**: Ocultação da barra de status do celular no APK (com suporte a entalhes de câmera *notch*), e modo tela cheia no navegador/IP ativado por toque ou pelo menu de configurações.
+* **Nível de bateria em tempo real**: Porcentagem atual da bateria exibida no centro do rodapé (entre latência e chats), sem poluição visual nem textos adicionais.
+* **Harmonização do rodapé**: Alinhamento simétrico e padronização visual de todos os botões e indicadores em linha única, com cantos arredondados e suporte ao tema OLED.
+
+---
+
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
 ### Corrigido

@@ -10,7 +10,15 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
 3. **Métricas Oficiais de Quota**: Exibição em tempo real da porcentagem de uso diário (5h) e semanal do modelo de IA via RPC interna com adaptação dinâmica entre grupos de modelos.
 4. **Conectividade Flexível**: Suporte à rede local (Wi-Fi) e acesso remoto global via túnel HTTPS seguro (Cloudflare) sem configuração de portas.
 
-## FUNCIONALIDADES IMPLEMENTADAS (v2.4.3 • Build 2425)
+## FUNCIONALIDADES IMPLEMENTADAS (v2.4.4 • Build 2426)
+- **Tela Cheia Imersiva (Ocultação da HUD do Celular)**:
+  - No APK Android: modo imersivo sticky (`WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE`) ocultando a barra de status do topo, com suporte a entalhes de câmera (*short edges cutout*) e área de respiro dinâmica (`safe-area-inset-top`).
+  - No Navegador / IP: PWA configurado com `display: fullscreen` em `manifest.json` e suporte à Fullscreen API via toque inicial ou seletor no menu de configurações.
+- **Monitor de Bateria em Tempo Real**:
+  - Indicador centralizado no rodapé (entre latência e Chats) exibindo estritamente a porcentagem atual da bateria e status de carregamento, sem rótulos de texto.
+  - Leitura nativa via `ACTION_BATTERY_CHANGED` no APK e `navigator.getBattery` na versão web.
+- **Harmonização do Rodapé**:
+  - Alinhamento dos 5 elementos (`Menu`, `Latência`, `Bateria`, `Chats`, `OLED`) em linha única, com altura padronizada em `28px` e estilo *pill* arredondado.
 - **Sincronização Instantânea em Tempo Real (Thinking / Pensando...)**:
   - Leitura direta dos passos de execução no banco SQLite da conversa ativa (`conversations/<conv_id>.db`). Assim que o usuário envia uma solicitação e o Antigravity PC entra no modo "Thinking...", o app mobile comuta **instantaneamente** para **"Pensando..."** com dot roxo pulsante (`#a855f7`), sem aguardar flush de logs no disco.
 - **Correção da Transição para "Concluído" (*Done*)**:
@@ -84,6 +92,11 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
   - `TUTORIAL.txt` (Guia passo a passo de conexão em pt, en, es).
 
 ## ÚLTIMA ALTERAÇÃO
+- **Tela Cheia Imersiva, Monitor de Bateria e Harmonização do Rodapé (v2.4.4 • Build 2426)**:
+  - Ocultação da barra de status no APK e suporte a tela cheia no navegador.
+  - Indicador de porcentagem de bateria em tempo real centralizado no rodapé.
+  - Alinhamento simétrico e padronização visual dos componentes inferiores.
+
 - **Gerenciamento de Sessão com Logout ao Fechar, Leitura de QR Code via Câmera e Layout Minimalista (v2.4.2 • Build 2420)**:
   - O app agora sempre inicia na tela de sessão ao ser aberto, deslogando a visualização direta por segurança.
   - Adicionada opção **"Voltar à Sessão"**: se o servidor no PC continuar aberto, reconecta imediatamente sem pedir novo PIN.
@@ -94,4 +107,4 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
   - Removidos todos os atalhos rápidos antigos de emulador/rede, deixando a tela minimalista e focada em OLED Black.
 
 ## ESTADO ATUAL
-- Versão v2.4.2 (Build 2420) com controle avançado de ciclo de vida de sessão, scanner nativo de QR Code e compilação automatizada no GitHub Actions.
+- Versão v2.4.4 (Build 2426) com tela cheia imersiva, monitor de bateria em tempo real e rodapé harmonizado.

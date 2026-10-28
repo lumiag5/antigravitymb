@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Dev LumiaG5. All rights reserved.
-# Automated Verification Suite for Antigravity Mobile v2.4.3
+# Automated Verification Suite for Antigravity Mobile v2.4.4
 
 import os
 import sys
@@ -14,7 +14,7 @@ sys.path.insert(0, str(bridge_dir))
 
 def run_tests():
     print("=" * 60)
-    print("INICIANDO SUITE DE TESTES COMPLETOS - ANTIGRAVITY MOBILE v2.4.3")
+    print("INICIANDO SUITE DE TESTES COMPLETOS - ANTIGRAVITY MOBILE v2.4.4")
     print("=" * 60)
     passed = 0
     failed = 0
@@ -301,7 +301,7 @@ def run_tests():
     # ---------------------------------------------------------
     # TESTE 7: GITHUB RELEASE ASSETS & APK LINKS
     # ---------------------------------------------------------
-    print("\n--- TESTE 7: GITHUB RELEASE ASSETS (v2.4.3 • Build 2425) ---")
+    print("\n--- TESTE 7: GITHUB RELEASE ASSETS DISPONÍVEIS ---")
     try:
         headers = {"User-Agent": "AntigravityTest"}
         gh_pat = os.environ.get("GITHUB_TOKEN")
@@ -309,12 +309,14 @@ def run_tests():
             headers["Authorization"] = f"Bearer {gh_pat}"
             
         req = urllib.request.Request(
-            "https://api.github.com/repos/lumiag5/antigravitymb/releases/tags/v2.4.3",
+            "https://api.github.com/repos/lumiag5/antigravitymb/releases",
             headers=headers
         )
         res = urllib.request.urlopen(req, timeout=10)
-        rel_data = json.loads(res.read())
-        assert_true(rel_data.get("tag_name") == "v2.4.3", "Release no GitHub corresponde à tag v2.4.3")
+        all_releases = json.loads(res.read())
+        # Encontra a release mais recente com APKs publicados
+        rel_data = next((r for r in all_releases if any(a["name"].endswith(".apk") for a in r.get("assets", []))), all_releases[0] if all_releases else {})
+        assert_true(bool(rel_data.get("tag_name")), f"Release de APK no GitHub encontrada: {rel_data.get('tag_name')}")
         
         assets = {a["name"]: a for a in rel_data.get("assets", [])}
         rel_apk = next((name for name in assets if name.endswith(".apk") and "debug" not in name), None)

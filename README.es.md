@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/versión-v2.4.3-blue?style=flat-square" alt="Versión v2.4.3">
+  <img src="https://img.shields.io/badge/versión-v2.4.4-blue?style=flat-square" alt="Versión v2.4.4">
   <img src="https://img.shields.io/badge/plataforma-Windows_%7C_Android-success?style=flat-square" alt="Plataformas">
   <img src="https://img.shields.io/badge/android-7.0%2B_%28API_24%2B%29-green?style=flat-square" alt="Android 7+">
   <img src="https://img.shields.io/badge/licencia-MIT-yellow?style=flat-square" alt="Licencia MIT">
@@ -28,8 +28,10 @@ Aplicación móvil y panel web para monitorear las tareas de **Antigravity IDE**
 * **Alertas de finalización**: Emite un tono sonoro (4 opciones con volumen ajustable), parpadea la pantalla dos veces en verde y vibra al terminar la tarea.
 * **Monitoreo de cuotas**: Consulta el consumo de cuota de 5 horas y semanal de Antigravity (Gemini, Claude, GPT).
 * **Medidor de ping**: Indicador de latencia WebSocket en tiempo real.
+* **Batería en tiempo real**: Porcentaje actual de batería ubicado en el centro del pie de página, junto a la latencia, sin textos innecesarios.
 
 ### App Android Nativa (APK)
+* **Pantalla completa inmersiva**: Oculta la barra de estado superior en el APK y ofrece soporte de pantalla completa en el navegador/IP para mayor enfoque.
 * **Modo OLED Black**: Fondo `#000000` para ahorrar batería.
 * **Acceso por código QR**: Emparejamiento con la cámara leyendo el código QR de la terminal.
 * **Reanudación de sesión**: Opción de volver a la sesión activa sin volver a ingresar el PIN.
