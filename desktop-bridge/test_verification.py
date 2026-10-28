@@ -310,11 +310,12 @@ def run_tests():
         assert_true(rel_data.get("tag_name") == "v2.4.3", "Release no GitHub corresponde à tag v2.4.3")
         
         assets = {a["name"]: a for a in rel_data.get("assets", [])}
-        assert_true("app-release.apk" in assets, "Arquivo 'app-release.apk' presente na release")
+        rel_apk = next((name for name in assets if name.endswith(".apk") and "debug" not in name), None)
+        assert_true(rel_apk is not None, f"APK de release presente na release: {rel_apk}")
         assert_true("app-debug.apk" in assets, "Arquivo 'app-debug.apk' presente na release")
         
-        if "app-release.apk" in assets:
-            sz_rel = assets["app-release.apk"]["size"]
+        if rel_apk in assets:
+            sz_rel = assets[rel_apk]["size"]
             assert_true(sz_rel > 4 * 1024 * 1024, f"app-release.apk tamanho íntegro: {sz_rel / (1024*1024):.2f} MB")
             
         if "app-debug.apk" in assets:

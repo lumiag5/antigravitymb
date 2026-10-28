@@ -4,34 +4,76 @@
   <a href="https://github.com/lumiag5/antigravitymb/blob/main/CHANGELOG.md">Português</a> &bull; <b>English</b> &bull; <a href="https://github.com/lumiag5/antigravitymb/blob/main/CHANGELOG.es.md">Español</a>
 </p>
 
-All notable changes to **Antigravity Mobile** will be documented in this file.
+All notable changes to **Antigravity Mobile** are documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
 ## [2.4.3] - 2026-10-28 (Build 2425)
 
-### 🐛 Fixed
-* **Native APK Chat Scrolling**: Resolved an issue where users were unable to scroll up to view earlier messages on Android. Removed `SwipeRefreshLayout` from the native Android layout (`activity_main.xml`), allowing `WebView` to handle touch drags directly without gesture interception, ensuring full parity with the web version.
-* **Global Removal of "✕" Close Crosses**: Removed the "✕" button from all modals (Tutorial, Menu, Log, and Chats). All modal windows now auto-close by clicking outside (backdrop click) or via a bottom "Close" button.
+### Fixed
+* **APK Scrolling**: Removed `SwipeRefreshLayout` from the Android app, allowing free scrolling through chat history without gesture locks.
+* **Removal of "✕" Buttons**: Modals now close by tapping outside or via the "Close" button in the footer.
 
-### 🚀 Added
-* **Central "Chats" Button in Footer**:
-  * Located in the bottom center of the screen (between Menu/Latency to the left and the OLED button to the right).
-  * Opens a modal to select conversations and projects synchronized from Antigravity PC in both versions (APK and IP/Web).
-* **Strict Pulsing Dot Status by Conversation**:
-  * If Antigravity is processing something in that conversation: displays **only a pulsing orange dot (`🟠`)**, with no text or message in front.
-  * If idle/not processing: displays **only a pulsing green dot (`🟢`)**, with no text or message in front.
-* **Fully Independent Remote Reading**:
-  * Selecting any chat/project in the list loads and renders the full transcript history directly without changing the active conversation or window on the PC and without simulating mouse clicks.
-  * Banner with "Return to Live PC" button to quickly switch back to real-time synchronization.
-* **Statuses "Working...", "Thinking...", and "Task Running..."**:
-  * Status "Processing" renamed to **"Working..."** (*Trabalhando...*).
-  * Status **"Thinking..."** (*Thought* / *Thinking*).
-  * New status **"Task Running..."** (*Executando Tarefa...*) with cyan pulsing indicator (`#0ea5e9`).
-  * Upon task completion, status **"Completed"** (*Concluído*) activates and remains displayed for **1 minute** (or until a new activity starts), reverting to "Connected" after the countdown ends.
-* **Version Badge Differentiation (APK vs IP)**:
-  * The header now differentiates between the installed APK version on device (`vX.X.X (APK) • Dev LumiaG5`) and the companion IP version (`v2.4.3 (IP) • Dev LumiaG5`), eliminating cache confusion.
-* **Android In-App Auto-Update Feature in Menu (Exclusive to Android)**:
-  * Dedicated section in `⚙️ Menu` of the APK to check and download new versions in 1 tap directly from GitHub Releases, opening the native system installer via `FileProvider`.
+### Added
+* **"Chats" Button**: Modal to switch between conversations and synced projects from PC, with status indicators (`🟠` working / `🟢` idle).
+* **Remote Conversation Reading**: View full conversation history on mobile without changing the active screen on PC.
+* **Live Statuses**: Added *Thinking...*, *Working...*, *Task Running...* (with cyan dot), and *Done* (displayed for 1 minute upon completion).
+* **Version Identification**: The header now shows whether the running version is native `(APK)` or browser `(IP)`.
+* **In-App APK Updater**: Option in the menu to check and install new versions directly from GitHub Releases.
+
+---
+
+## [2.4.2] - 2026-10-25 (Build 2420)
+
+### Added
+* **QR Code Sign-in**: Native camera scanner (ZXing) in the APK to scan the PC terminal QR code with embedded PIN.
+* **Session Resume**: "Return to Session" button to reconnect to the active server without retyping the PIN.
+* **"New Session" and "Sign Out"**: Shortcuts to switch servers or disconnect via the menu.
+* **Initial Session Screen**: App opens to the connection screen when launched to keep the active feed secure.
+* **Clean Interface**: Removed legacy shortcut buttons in favor of the OLED True Black theme `#000000`.
+
+---
+
+## [2.4.1] - 2026-10-25 (Build 2419)
+
+### Fixed
+* **Protocol Handling (HTTP/HTTPS)**: Uses `http://` for local IPs and `https://` only for tunnels and public domains, preventing TLS handshake errors.
+* **Automatic Default Port**: Automatically appends `:8765` if an IP is entered without a port.
+* **WebView Error Handling**: Clearer connection diagnostics and compatibility with Android 7 through 9.
+
+### Added
+* **Connection Shortcuts**: Quick buttons for emulator (`10.0.2.2`), local Wi-Fi, and Cloudflare, plus a button to paste from clipboard.
+
+---
+
+## [2.4.0] - 2026-10-25 (Build 2418)
+
+### Added
+* **Terminal QR Code**: ASCII QR code in the console for quick camera pairing.
+* **Settings Menu**: Consolidated preferences for alerts, audio, network, and history into a single footer menu.
+* **Audio Customization**: 4 alert sound options and volume slider with local persistence.
+* **Ping Metric**: Visual WebSocket latency indicator next to the menu.
+* **Task History**: Modal logging recent completed tasks (project, model, and timestamp).
+
+---
+
+## [2.3.6] - 2026-10-25 (Build 2417)
+
+### Added
+* **Real-time Model Detection**: Automatic detection of AI model switches (Gemini, Claude, GPT) via Protobuf decoding.
+* **Dynamic Quota Switching**: Quota bars adapt dynamically between Gemini and Claude/GPT based on the active model.
+* **Read-only SQLite Mode**: Uses `mode=ro` to prevent database locks while the IDE writes data.
+
+---
+
+## [2.3.5] - 2026-10-25 (Build 2416)
+
+### Initial Release
+* **Chat Monitoring**: Real-time feed showing user prompts and final assistant responses.
+* **Rendering**: Markdown support, syntax-highlighted code blocks, and OLED dark theme.
+* **Alerts**: Notifications upon task completion with sound, dual screen flash, and vibration.
+* **Quotas**: Tracks 5-hour and weekly quotas from the Antigravity API.
+* **Secure Connection**: 4-digit PIN pairing (24h session) and Cloudflare tunnel support for remote access.
+* **Languages**: Full support for Portuguese, English, and Spanish.
