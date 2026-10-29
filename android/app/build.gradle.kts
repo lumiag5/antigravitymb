@@ -11,8 +11,8 @@ android {
         applicationId = "com.lumiag5.antigravitymobile"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2426
-        versionName = "2.4.4"
+        versionCode = 2500
+        versionName = "2.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -10,6 +10,27 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
+## [2.5.0] - 2026-10-29 (Build 2500)
+
+### Añadido
+* **Envío remoto de prompts**: Envía instrucciones directamente desde el móvil a Antigravity en la PC (`POST /api/prompt`) con selección de modelo de IA (Gemini 3.8 Flash, Pro, Claude 3.7 Sonnet, GPT-4o, etc.).
+* **Atajos rápidos (Snippets)**: Botones interactivos para rellenar el prompt con un toque (🔄 *Continúa*, 🧪 *Ejecuta las pruebas*, 📋 *Resume el progreso*, 🐞 *Verifica errores*).
+* **Historial y contador**: Acceso a prompts anteriores con la tecla flecha arriba y contador de caracteres/palabras en tiempo real.
+* **Navegación inteligente con botón volver**: Cierra modales jerárquicamente o regresa al chat principal. Pulsar dos veces salir en el inicio cierra la app limpiamente sin abrir la pantalla de sesión por error.
+* **Selección y copia nativa de texto**: Se eliminó el interceptor de pulsación prolongada. Mantener presionado el texto activa el menú nativo de Android para seleccionar y copiar.
+* **Ahorro de batería y rendimiento**:
+  - Ciclo de vida nativo con `onPause`/`onResume` en WebView para detener renderizados de GPU con la pantalla apagada.
+  - Pausa de animaciones CSS y temporizadores de red via Page Visibility API (`body.app-paused`).
+  - Reconexión WebSocket con retroceso exponencial para no agotar la batería si la PC está apagada.
+  - Perfil automático para batería baja (<= 20% sin cargador) desactivando sombras y reduciendo pings.
+  - Carga inicial paralelizada con `Promise.allSettled`.
+* **Acciones en respuestas**: Botón de copia con confirmación visual (📋 ➔ ✅) y botón para compartir (📤 via Web Share API) directamente a WhatsApp, Telegram o Notas.
+* **Indicador animado de pensamiento**: Puntos animados que indican cuando la IA está pensando o procesando tareas.
+* **Fijar favoritos**: Botón de estrella (⭐) para mantener conversaciones prioritarias arriba con guardado local.
+* **Búsqueda rápida de chats**: Filtro instantáneo por título o proyecto en los modales de Chats y Prompt.
+
+---
+
 ## [2.4.4] - 2026-10-28 (Build 2426)
 
 ### Añadido

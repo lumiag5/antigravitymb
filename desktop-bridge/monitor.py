@@ -793,16 +793,11 @@ class AntigravityMonitor:
                     except Exception:
                         pass
 
-                    # Detecta se está processando/trabalhando
+                    # Detecta se está processando/trabalhando em tempo real
                     is_proc = False
-                    if st == "CASCADE_RUN_STATUS_RUNNING" or not_idle == 1:
-                        is_proc = True
+                    if cid == self.current_conversation_id:
+                        is_proc = (self.current_turn_status not in ["IDLE", "DONE", "CONNECTED"])
                     elif cid in self.background_working_conversations:
-                        is_proc = True
-                    elif cid == self.current_conversation_id and self.current_turn_status in [
-                        "WORKING", "THOUGHT", "THINKING", "RUNNING", "TASK_RUNNING", "TASK RUNNING",
-                        "BACKGROUND_TASK", "BACKGROUND", "PROCESSANDO", "TRABALHANDO", "PENSANDO", "EXECUTANDO TAREFA"
-                    ]:
                         is_proc = True
                     else:
                         is_proc = self._is_conversation_working(cid) or self.is_project_active(cid)
@@ -999,6 +994,7 @@ class AntigravityMonitor:
                 return None
             return {
                 "id": f"{self.current_conversation_id}_{step_index}",
+                "conversation_id": self.current_conversation_id,
                 "step_index": step_index,
                 "role": "user",
                 "status": "DONE",
@@ -1017,6 +1013,7 @@ class AntigravityMonitor:
         if is_final_conclusion:
             return {
                 "id": f"{self.current_conversation_id}_{step_index}",
+                "conversation_id": self.current_conversation_id,
                 "step_index": step_index,
                 "role": "assistant",
                 "status": status,
@@ -1218,6 +1215,12 @@ class AntigravityMonitor:
                             if recent_msgs and recent_msgs[-1].get("role") == "assistant":
                                 c = recent_msgs[-1].get("content", "")
                                 summary = c[:180] + "..." if len(c) > 180 else c
+                                if self.last_notified_step != recent_msgs[-1].get("step_index"):
+                                    self.last_notified_step = recent_msgs[-1].get("step_index")
+                                    await self.on_event({
+                                        "event": "conclusion_message",
+                                        "data": recent_msgs[-1]
+                                    })
                             
                             await self.on_event({
                                 "event": "task_completed",

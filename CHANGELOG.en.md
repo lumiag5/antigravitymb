@@ -10,6 +10,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ---
 
+## [2.5.0] - 2026-10-29 (Build 2500)
+
+### Added
+* **Remote prompt dispatch**: Send prompts directly from your phone to Antigravity on PC (`POST /api/prompt`) with AI model selection (Gemini 3.8 Flash, Pro, Claude 3.7 Sonnet, GPT-4o, etc.).
+* **Quick prompt snippets**: One-tap shortcut chips (🔄 *Continue*, 🧪 *Run tests*, 📋 *Summarize progress*, 🐞 *Check errors*).
+* **Prompt history & counter**: Recent prompts recall with arrow-up key navigation and live character/word count.
+* **Smart back navigation**: Pressing back hierarchically closes open modals (History, Prompt, Chats, Menu, Log, Tutorial) or returns to the active PC chat. On the home screen, double-tap cleanly exits without opening the session screen.
+* **Native text selection & copy**: Removed the long-press interceptor that triggered the reconnect screen. Holding down on message text now invokes Android's native text selection toolbar.
+* **Battery & performance optimizations**:
+  - Native lifecycle hooks with `onPause`/`onResume` on WebView to halt GPU repaints when the screen turns off or the app is minimized.
+  - Pauses CSS animations and network ping timers via Page Visibility API (`body.app-paused`).
+  - WebSocket reconnection with exponential backoff to avoid draining battery when the PC server is offline.
+  - Automatic low battery profile (<= 20% unplugged) disabling heavy box-shadows and reducing ping frequency.
+  - Parallelized initial data loading with `Promise.allSettled`.
+* **Response quick actions**: One-tap copy button with visual feedback (📋 ➔ ✅) and native share button (📤 via Web Share API) to send responses to WhatsApp, Telegram, or Notes.
+* **Dynamic thinking indicator**: Bouncing dots animation indicating when the AI is reasoning or working.
+* **Favorite chats**: Star button (⭐) to pin important conversations to the top with persistent local storage.
+* **Fast chat search**: Instant search filter by title or project in Chats and Prompt modals.
+
+---
+
 ## [2.4.4] - 2026-10-28 (Build 2426)
 
 ### Added

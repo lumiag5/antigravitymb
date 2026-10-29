@@ -7,7 +7,7 @@ import asyncio
 import logging
 from pathlib import Path
 from typing import List, Set, Optional
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query, HTTPException, Request
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from monitor import AntigravityMonitor
@@ -220,7 +220,10 @@ def get_status(token: Optional[str] = None):
     }
 
 @app.get("/api/conversations")
-def get_conversations(token: Optional[str] = None):
+def get_conversations(response: Response, token: Optional[str] = None):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
     if config.REQUIRE_AUTH and not auth_manager.is_valid_token(token):
         raise HTTPException(status_code=401, detail="PIN de acesso inválido ou expirado")
     try:
@@ -255,6 +258,51 @@ def get_messages(conversation_id: Optional[str] = None, limit: int = 50, token: 
         "is_active_on_pc": True,
         "status": monitor.current_turn_status,
         "messages": monitor.get_recent_messages(limit)
+    }
+
+@app.post("/api/prompt")
+async def send_prompt(request: Request, token: Optional[str] = None):
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    auth_token = token or body.get("token")
+    if config.REQUIRE_AUTH and not auth_manager.is_valid_token(auth_token):
+        raise HTTPException(status_code=401, detail="PIN de acesso inválido ou expirado")
+
+    conversation_id = str(body.get("conversation_id", "")).strip()
+    prompt_text = str(body.get("prompt", "")).strip()
+    model = str(body.get("model", "")).strip() or None
+
+    if not conversation_id or not prompt_text:
+        raise HTTPException(status_code=400, detail="conversation_id e prompt são obrigatórios")
+
+    # Entrega ao Language Server do Antigravity via RPC oficial
+    from antigravity_api import antigravity_api
+    success = antigravity_api.send_user_message(conversation_id, prompt_text, model=model)
+    if not success:
+        raise HTTPException(status_code=500, detail="Falha ao entregar prompt ao Language Server do Antigravity.")
+
+    # Sincroniza o monitor imediatamente com a conversa onde o prompt foi enviado
+    if conversation_id != monitor.current_conversation_id:
+        await monitor.switch_conversation(conversation_id, notify=True, status="THOUGHT")
+    else:
+        monitor.current_turn_status = "THOUGHT"
+        if monitor.on_event:
+            await monitor.on_event({
+                "event": "status_change",
+                "data": {
+                    "status": "THOUGHT",
+                    "active_model": monitor.active_model
+                }
+            })
+
+    return {
+        "status": "success",
+        "conversation_id": conversation_id,
+        "model": model,
+        "message": "Prompt enviado com sucesso ao Antigravity PC!"
     }
 
 @app.get("/api/quota")

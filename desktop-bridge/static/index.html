@@ -373,10 +373,10 @@
         /* Seção de Cotas */
         .quota-panel {
             background: var(--bg-surface);
-            padding: 10px 16px;
+            padding: 6px 10px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 8px;
             border-bottom: 1px solid var(--border-subtle);
             flex-shrink: 0;
         }
@@ -428,29 +428,30 @@
         /* Feed do Chat */
         #chat-feed {
             flex: 1;
-            padding: 16px;
+            padding: 5px 6px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             touch-action: pan-y;
             overscroll-behavior-y: contain;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 8px;
             scroll-behavior: smooth;
         }
 
         .msg-container {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            max-width: 94%;
+            gap: 3px;
+            max-width: 98%;
         }
         .msg-user {
             align-self: flex-end;
+            max-width: 96%;
         }
         .msg-assistant {
             align-self: flex-start;
-            max-width: 98%;
+            max-width: 100%;
         }
 
         .msg-header {
@@ -465,10 +466,44 @@
 
         .bubble {
             border-radius: 10px;
-            padding: 12px 14px;
-            line-height: 1.55;
+            padding: 8px 11px;
+            line-height: 1.5;
             font-size: 13.5px;
             word-break: break-word;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+            touch-action: auto !important;
+        }
+        .bubble, .bubble * {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+            touch-action: auto !important;
+        }
+
+        /* Economia de energia: pausa animações quando em segundo plano ou tela desligada */
+        body.app-paused *,
+        body.app-paused *::before,
+        body.app-paused *::after {
+            animation-play-state: paused !important;
+        }
+
+        /* Perfil de Economia para Bateria Fraca (<= 20% e descarregando) */
+        body.battery-saver .chat-dot {
+            animation: none !important;
+        }
+        body.battery-saver * {
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        /* Desabilita seleção acidental nos elementos de interface e botões */
+        header, footer, .quota-panel, .msg-header, button, select, input, .chat-row, .modal-header, .brand-area, .chat-status-indicator {
+            -webkit-user-select: none !important;
+            user-select: none !important;
         }
         .bubble-user {
             background: #1e3568;
@@ -675,6 +710,268 @@
             font-weight: 600 !important;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
         }
+                .btn-prompt {
+            background: rgba(168, 85, 247, 0.16) !important;
+            border: 1px solid rgba(168, 85, 247, 0.45) !important;
+            color: #d8b4fe !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+        .btn-prompt:hover, .btn-prompt:active {
+            background: rgba(168, 85, 247, 0.3) !important;
+            border-color: #a855f7 !important;
+            color: #ffffff !important;
+        }
+        body.theme-oled .btn-prompt {
+            background: #080808 !important;
+            border-color: #2e1065 !important;
+            color: #c084fc !important;
+        }
+        .prompt-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .prompt-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .prompt-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 22px;
+            max-width: 580px;
+            width: 95vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            animation: modal-pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        body.theme-oled .prompt-card {
+            background: #000000;
+            border-color: #222533;
+        }
+        .prompt-header {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-bottom: 8px;
+        }
+        .prompt-header h2 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+        }
+        .prompt-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+        .prompt-step-badge {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #c084fc;
+            background: rgba(168, 85, 247, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 4px;
+            padding: 2px 7px;
+        }
+        .btn-prompt-back {
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-prompt-back:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+        .prompt-target-bar {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 9px 12px;
+            margin: 6px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        body.theme-oled .prompt-target-bar {
+            background: #080808;
+            border-color: #222222;
+        }
+        .prompt-target-left {
+            flex: 1.1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .prompt-target-divider {
+            width: 1px;
+            align-self: stretch;
+            min-height: 38px;
+            background: var(--border-subtle);
+            flex-shrink: 0;
+        }
+        body.theme-oled .prompt-target-divider {
+            background: #262936;
+        }
+        .prompt-target-right {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .prompt-model-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #a855f7;
+            display: block;
+        }
+        .prompt-model-select {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            color: #f1f5f9;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 8px;
+            outline: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.15s ease;
+        }
+        .prompt-model-select:focus {
+            border-color: #a855f7;
+        }
+        body.theme-oled .prompt-model-select {
+            background: #000000;
+            border-color: #262936;
+        }
+        .prompt-model-select option {
+            background: #0f172a;
+            color: #f1f5f9;
+        }
+        body.theme-oled .prompt-model-select option {
+            background: #050505;
+            color: #f1f5f9;
+        }
+        @media (max-width: 380px) {
+            .prompt-target-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .prompt-target-divider {
+                width: 100%;
+                height: 1px;
+                min-height: 1px;
+            }
+        }
+        .prompt-target-project {
+            font-size: 11px;
+            font-weight: 600;
+            color: #38bdf8;
+        }
+        .prompt-target-title {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #f1f5f9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .prompt-input-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 6px;
+        }
+        .prompt-textarea {
+            width: 100%;
+            box-sizing: border-box;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 13px;
+            line-height: 1.45;
+            color: #f8fafc;
+            resize: vertical;
+            min-height: 150px;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .prompt-textarea:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+        }
+        body.theme-oled .prompt-textarea {
+            background: #050505;
+            border-color: #222222;
+        }
+        body.theme-oled .prompt-textarea:focus {
+            border-color: #a855f7;
+        }
+        .prompt-compose-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .btn-send-prompt {
+            flex: 1;
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 11px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+            transition: transform 0.1s ease, filter 0.15s ease, opacity 0.15s ease;
+        }
+        .btn-send-prompt:active {
+            transform: scale(0.98);
+        }
+        .btn-send-prompt:hover {
+            filter: brightness(1.1);
+        }
+        .btn-send-prompt:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            filter: grayscale(0.5);
+        }
+
         .btn-chats:hover, .btn-chats:active {
             background: rgba(59, 130, 246, 0.3) !important;
             border-color: #3b82f6 !important;
@@ -1106,6 +1403,360 @@
             flex-direction: column;
             gap: 14px;
             box-sizing: border-box;
+        }
+        .menu-card {
+            padding: 13px 15px;
+            gap: 9px;
+            max-height: 88vh;
+        }
+        .menu-card .menu-section {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .menu-card .menu-row {
+            padding: 6px 10px;
+            gap: 8px;
+            min-height: 34px;
+        }
+        .menu-card .menu-header {
+            padding-bottom: 7px;
+        }
+        .menu-card .menu-section-title {
+            font-size: 10px;
+            margin-bottom: 1px;
+        }
+        .menu-card .btn-menu-action {
+            padding: 7px 10px;
+            font-size: 11.5px;
+        }
+        .menu-card .btn-tutorial-close {
+            margin-top: 3px;
+            padding: 7px 12px;
+        }
+        .menu-checkbox {
+            accent-color: #10b981;
+            transform: scale(1.15);
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            margin: 0;
+        }
+
+        /* Barra de Busca de Chats */
+        .chats-search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 0 10px;
+            margin-bottom: 8px;
+            transition: all 0.15s ease;
+        }
+        .chats-search-box:focus-within {
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.07);
+        }
+        body.theme-oled .chats-search-box {
+            background: #080808;
+            border-color: #1a1a1a;
+        }
+        .chats-search-icon {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-right: 6px;
+            user-select: none;
+        }
+        .chats-search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 12.5px;
+            padding: 7px 0;
+            font-family: inherit;
+        }
+        .chats-search-input::placeholder {
+            color: var(--text-muted);
+        }
+        .chats-search-clear {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            line-height: 1;
+        }
+        .chats-search-clear:hover {
+            color: #ffffff;
+        }
+
+        /* Botão Copiar Resposta */
+        .btn-copy-msg {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            line-height: 1;
+        }
+        .btn-copy-msg:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .btn-copy-msg.copied {
+            color: #10b981;
+        }
+
+        /* Indicador de Pensamento (Typing / Thinking Indicator) */
+        #typing-indicator {
+            align-self: flex-start;
+            max-width: 90%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-size: 12px;
+            animation: fadeInIndicator 0.25s ease;
+        }
+        body.theme-oled #typing-indicator {
+            background: #050608;
+            border-color: #14161f;
+        }
+        .typing-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .typing-dot {
+            width: 5px;
+            height: 5px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: bounce-dot 1.2s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce-dot {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-4px); opacity: 1; background: #3b82f6; }
+        }
+        @keyframes fadeInIndicator {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Favoritos nos Chats */
+        .chat-star-btn {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 15px;
+            cursor: pointer;
+            padding: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: all 0.15s ease;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        .chat-star-btn:hover {
+            transform: scale(1.18);
+        }
+        .chat-star-btn.is-fav {
+            color: #eab308;
+            text-shadow: 0 0 8px rgba(234, 179, 8, 0.45);
+        }
+        .chat-row.is-fav-row {
+            border-color: rgba(234, 179, 8, 0.25);
+            background: rgba(234, 179, 8, 0.03);
+        }
+
+        /* Barra de Atalhos Rápidos de Prompt */
+        .quick-snippets-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 2px;
+            scrollbar-width: none;
+        }
+        .quick-snippets-bar::-webkit-scrollbar {
+            display: none;
+        }
+        .snippets-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .snippet-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            border-radius: 20px;
+            padding: 3px 9px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .snippet-chip:hover, .snippet-chip:active {
+            background: rgba(168, 85, 247, 0.18);
+            border-color: rgba(168, 85, 247, 0.4);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+        body.theme-oled .snippet-chip {
+            background: #080808;
+            border-color: #1e2029;
+        }
+
+        /* Botão Compartilhar Resposta */
+        .btn-share-msg {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            line-height: 1;
+        }
+        .btn-share-msg:hover, .btn-share-msg:active {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Histórico de Prompts e Contador */
+        .btn-prompt-history {
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            color: #c084fc;
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+            font-family: inherit;
+        }
+        .btn-prompt-history:hover, .btn-prompt-history:active {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: #a855f7;
+            color: #ffffff;
+        }
+        .prompt-history-panel {
+            background: rgba(18, 19, 26, 0.95);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            max-height: 140px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        body.theme-oled .prompt-history-panel {
+            background: #050505;
+            border-color: #3b0764;
+        }
+        .prompt-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 4px;
+        }
+        .btn-history-clear {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 10.5px;
+            cursor: pointer;
+            padding: 1px 4px;
+        }
+        .prompt-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .prompt-history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 5px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11.5px;
+            color: #e2e8f0;
+            transition: background 0.15s ease;
+        }
+        .prompt-history-item:hover {
+            background: rgba(168, 85, 247, 0.15);
+            color: #ffffff;
+        }
+        .prompt-history-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+        .prompt-history-meta {
+            font-size: 10px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .prompt-textarea-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 4px;
+            margin-bottom: 8px;
+            padding: 0 2px;
+        }
+        .prompt-char-count {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            user-select: none;
+            transition: color 0.15s ease;
         }
         body.theme-oled .menu-card,
         body.theme-oled .log-card,
@@ -1563,7 +2214,7 @@
                         <span>⚡</span>
                         <span id="menu-alert-label">Som & Flash de Tela</span>
                     </label>
-                    <input type="checkbox" id="alert-enabled" checked style="accent-color: #10b981; transform: scale(1.15); cursor: pointer;" onchange="SoundManager.savePreferences()">
+                    <input type="checkbox" id="alert-enabled" class="menu-checkbox" checked onchange="SoundManager.savePreferences()">
                 </div>
             </div>
 
@@ -1610,7 +2261,25 @@
                         <span>📶</span>
                         <span id="menu-latency-label">Exibir Latência em Tempo Real</span>
                     </label>
-                    <input type="checkbox" id="latency-toggle" checked style="accent-color: #3b82f6; transform: scale(1.15); cursor: pointer;" onchange="LatencyManager.toggleVisibility(this.checked)">
+                    <input type="checkbox" id="latency-toggle" class="menu-checkbox" checked onchange="LatencyManager.toggleVisibility(this.checked)">
+                </div>
+
+                <div class="menu-row">
+                    <label for="battery-toggle">
+                        <span>🔋</span>
+                        <span id="menu-battery-label">Exibir Nível de Bateria</span>
+                    </label>
+                    <input type="checkbox" id="battery-toggle" class="menu-checkbox" checked onchange="BatteryManager.toggleVisibility(this.checked)">
+                </div>
+
+                <div class="menu-row" id="row-oled-toggle" style="display: flex;">
+                    <label for="btn-oled-toggle">
+                        <span>🌓</span>
+                        <span id="menu-oled-label">Tema OLED True Black</span>
+                    </label>
+                    <button id="btn-oled-toggle" type="button" class="btn-pill" onclick="ThemeManager.toggle()">
+                        <span id="btn-oled-icon">🌓</span> <span id="btn-oled-text">Alternar</span>
+                    </button>
                 </div>
 
                 <div class="menu-row" id="row-fullscreen-toggle" style="display: flex;">
@@ -1633,7 +2302,7 @@
                     <span class="menu-section-title" id="menu-update-section-title">📱 Aplicativo Android</span>
                     <div class="menu-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 12px; font-weight: 500;">Versão Instalada:</span>
+                            <span id="menu-apk-installed-label" style="font-size: 12px; font-weight: 500;">Versão Instalada:</span>
                             <span id="menu-apk-version-label" style="font-size: 12px; font-weight: 700; color: #38bdf8;">--</span>
                         </div>
                         <button type="button" class="btn-menu-action" id="btn-check-update" onclick="ApkUpdateManager.checkAndUpdate(false)" style="border-color: rgba(59, 130, 246, 0.4); color: #93c5fd;">
@@ -1644,7 +2313,7 @@
                     </div>
                 </div>
 
-                <button type="button" class="btn-menu-action" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.35); margin-top: 10px;" onclick="disconnectSession()">
+                <button type="button" class="btn-menu-action" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.35); margin-top: 6px;" onclick="disconnectSession()">
                     <span>🚪</span>
                     <span id="menu-btn-logout-text">Sair / Desconectar da Sessão</span>
                 </button>
@@ -1678,6 +2347,105 @@
         </div>
     </div>
 
+    <!-- MODAL DE PROMPT REMOTO (ENVIAR PROMPT AO PC) -->
+    <div id="prompt-modal" class="prompt-modal" onclick="if(event.target===this) PromptManager.close()">
+        <div class="prompt-card">
+            <!-- Etapa 1: Escolher Chat/Projeto -->
+            <div id="prompt-step-select" class="prompt-step">
+                <div class="prompt-header">
+                    <h2 id="prompt-modal-title">✍️ Enviar Prompt ao PC</h2>
+                    <p class="prompt-subtitle" id="prompt-subtitle-select">1º Passo: Escolha o chat ou projeto de destino</p>
+                </div>
+
+                <div class="chats-search-box" style="margin-top: 8px;">
+                    <span class="chats-search-icon">🔍</span>
+                    <input type="text" id="prompt-search-input" class="chats-search-input" placeholder="Buscar chat ou projeto..." oninput="PromptManager.onSearch(this.value)">
+                    <button type="button" id="prompt-search-clear" class="chats-search-clear" onclick="PromptManager.clearSearch()" style="display: none;">✕</button>
+                </div>
+
+                <div id="prompt-chats-list" class="chats-list" style="max-height: 52vh; overflow-y: auto;">
+                    <div style="text-align: center; color: var(--text-muted); padding: 20px;">Carregando chats...</div>
+                </div>
+
+                <button type="button" class="btn-tutorial-close" onclick="PromptManager.close()" id="prompt-close-btn" style="margin-top: 12px; width: 100%;">
+                    Fechar
+                </button>
+            </div>
+
+            <!-- Etapa 2: Escrever Prompt e Enviar -->
+            <div id="prompt-step-compose" class="prompt-step" style="display: none;">
+                <div class="prompt-header">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <button type="button" class="btn-prompt-back" onclick="PromptManager.backToSelect()" id="prompt-back-btn">
+                            ← Voltar
+                        </button>
+                        <span class="prompt-step-badge" id="prompt-step2-badge">2º Passo</span>
+                    </div>
+                    <div class="prompt-target-bar" id="prompt-target-info">
+                        <div class="prompt-target-left">
+                            <span class="prompt-target-project" id="prompt-target-project">📁 Projeto</span>
+                            <span class="prompt-target-title" id="prompt-target-title">Conversa</span>
+                        </div>
+                        <div class="prompt-target-divider" aria-hidden="true"></div>
+                        <div class="prompt-target-right">
+                            <label for="prompt-model-select" class="prompt-model-label" id="prompt-model-label">🤖 Modelo IA:</label>
+                            <select id="prompt-model-select" class="prompt-model-select">
+                                <option value="Gemini 3.8 Flash High">Gemini 3.8 Flash High</option>
+                                <option value="Gemini 3.8 Flash Low">Gemini 3.8 Flash Low</option>
+                                <option value="Gemini 3.8 Pro">Gemini 3.8 Pro</option>
+                                <option value="Claude 3.7 Sonnet">Claude 3.7 Sonnet</option>
+                                <option value="Claude 3.5 Sonnet">Claude 3.5 Sonnet</option>
+                                <option value="Claude Sonnet 4.6 (Thinking)">Claude Sonnet 4.6 (Thinking)</option>
+                                <option value="Claude Opus 4.6 (Thinking)">Claude Opus 4.6 (Thinking)</option>
+                                <option value="GPT-4o">GPT-4o</option>
+                                <option value="GPT-OSS 120B (Medium)">GPT-OSS 120B (Medium)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prompt-compose-body">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label for="prompt-textarea" class="prompt-input-label" id="prompt-input-label" style="margin-bottom: 0;">Escreva sua solicitação para a IA:</label>
+                        <button type="button" id="btn-prompt-history" class="btn-prompt-history" onclick="PromptHistoryManager.toggle()" title="Ver histórico de prompts enviados">
+                            ⏱️ <span id="prompt-history-btn-text">Histórico</span>
+                        </button>
+                    </div>
+
+                    <div id="prompt-history-panel" class="prompt-history-panel" style="display: none;">
+                        <div class="prompt-history-header">
+                            <span id="prompt-history-title-text" style="font-weight: 600; font-size: 11px; color: var(--text-muted);">⏱️ Prompts Recentes</span>
+                            <button type="button" class="btn-history-clear" onclick="PromptHistoryManager.clear()" id="prompt-history-clear-btn">Limpar</button>
+                        </div>
+                        <div id="prompt-history-list" class="prompt-history-list"></div>
+                    </div>
+
+                    <!-- Atalhos Rápidos de Prompt -->
+                    <div class="quick-snippets-bar" id="quick-snippets-bar">
+                        <span class="snippets-label" id="snippets-label">⚡ Atalhos:</span>
+                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('continue')">🔄 <span class="snippet-text" data-snippet="continue">Continue</span></button>
+                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('run_tests')">🧪 <span class="snippet-text" data-snippet="run_tests">Rode os testes</span></button>
+                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('summarize')">📋 <span class="snippet-text" data-snippet="summarize">Resuma o progresso</span></button>
+                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('check_errors')">🐞 <span class="snippet-text" data-snippet="check_errors">Verifique erros</span></button>
+                    </div>
+
+                    <textarea id="prompt-textarea" class="prompt-textarea" rows="5" placeholder="Digite aqui o que você deseja que o Antigravity faça..."></textarea>
+                    
+                    <div class="prompt-textarea-footer">
+                        <div id="prompt-char-count" class="prompt-char-count">0 caracteres • 0 palavras</div>
+                    </div>
+
+                    <div class="prompt-compose-actions">
+                        <button type="button" id="btn-send-prompt" class="btn-send-prompt" onclick="PromptManager.submitPrompt()">
+                            <span id="btn-send-prompt-icon">🚀</span>
+                            <span id="btn-send-prompt-text">Enviar para o PC</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DE ESCOLHA DE CHATS (MULTI-CONVERSAS) -->
     <div id="chats-modal" class="chats-modal" onclick="if(event.target===this) ChatsManager.close()">
         <div class="chats-card">
@@ -1690,6 +2458,12 @@
                 <button type="button" class="btn-live-pc" onclick="ChatsManager.resumePcLive()" id="chats-live-btn-text">
                     Voltar ao PC ao Vivo
                 </button>
+            </div>
+
+            <div class="chats-search-box" style="margin-top: 6px;">
+                <span class="chats-search-icon">🔍</span>
+                <input type="text" id="chats-search-input" class="chats-search-input" placeholder="Buscar chat ou projeto..." oninput="ChatsManager.onSearch(this.value)">
+                <button type="button" id="chats-search-clear" class="chats-search-clear" onclick="ChatsManager.clearSearch()" style="display: none;">✕</button>
             </div>
 
             <div id="chats-list" class="chats-list">
@@ -1724,7 +2498,7 @@
                 <span class="status-dot"></span>
                 <span id="status-text">CONECTANDO...</span>
             </div>
-            <span class="app-version" id="app-version-badge">v2.4.4 (IP) • Dev LumiaG5</span>
+            <span class="app-version" id="app-version-badge">v2.5.0 (IP) • Dev LumiaG5</span>
         </div>
     </header>
 
@@ -1777,8 +2551,8 @@
         <button id="btn-chats-toggle" type="button" class="btn-pill btn-chats footer-item" onclick="ChatsManager.open()" title="Explorar Chats do PC">
             💬 <span id="btn-chats-text">Chats</span>
         </button>
-        <button id="btn-oled-toggle" type="button" class="btn-pill footer-item" onclick="ThemeManager.toggle()" title="Alternar Modo OLED True Black">
-            🌓 <span id="btn-oled-text">OLED</span>
+        <button id="btn-prompt-toggle" type="button" class="btn-pill btn-prompt footer-item" onclick="PromptManager.open()" title="Enviar Prompt ao PC">
+            ✍️ <span id="btn-prompt-text">Prompt</span>
         </button>
     </footer>
 
@@ -1956,6 +2730,55 @@
             const elMenuCloseBtn = document.getElementById("menu-close-btn");
             if (elMenuCloseBtn && t.menu_close) elMenuCloseBtn.innerText = t.menu_close;
 
+            const elMenuSecAlerts = document.getElementById("menu-sec-alerts");
+            if (elMenuSecAlerts && t.menu_sec_alerts) elMenuSecAlerts.innerText = t.menu_sec_alerts;
+
+            const elMenuSecSound = document.getElementById("menu-sec-sound");
+            if (elMenuSecSound && t.menu_sec_sound) elMenuSecSound.innerText = t.menu_sec_sound;
+
+            const elMenuSecSystem = document.getElementById("menu-sec-system");
+            if (elMenuSecSystem && t.menu_sec_system) elMenuSecSystem.innerText = t.menu_sec_system;
+
+            const elMenuBtnLogoutText = document.getElementById("menu-btn-logout-text");
+            if (elMenuBtnLogoutText && t.menu_btn_logout) elMenuBtnLogoutText.innerText = t.menu_btn_logout;
+
+            const elMenuApkInstalled = document.getElementById("menu-apk-installed-label");
+            if (elMenuApkInstalled && t.menu_apk_installed_label) elMenuApkInstalled.innerText = t.menu_apk_installed_label;
+
+            const elChatsSearch = document.getElementById("chats-search-input");
+            if (elChatsSearch && t.search_chats_placeholder) elChatsSearch.placeholder = t.search_chats_placeholder;
+
+            const elPromptSearch = document.getElementById("prompt-search-input");
+            if (elPromptSearch && t.search_chats_placeholder) elPromptSearch.placeholder = t.search_chats_placeholder;
+
+            const elPromptHistBtn = document.getElementById("prompt-history-btn-text");
+            if (elPromptHistBtn && t.prompt_history_btn) elPromptHistBtn.innerText = t.prompt_history_btn;
+
+            const elPromptHistTitle = document.getElementById("prompt-history-title-text");
+            if (elPromptHistTitle && t.prompt_history_title) elPromptHistTitle.innerText = `⏱️ ${t.prompt_history_title}`;
+
+            const elPromptHistClear = document.getElementById("prompt-history-clear-btn");
+            if (elPromptHistClear && t.prompt_history_clear) elPromptHistClear.innerText = t.prompt_history_clear;
+
+            const elSnippetsLabel = document.getElementById("snippets-label");
+            if (elSnippetsLabel && t.quick_prompts_title) elSnippetsLabel.innerText = `⚡ ${t.quick_prompts_title}`;
+
+            const elSnipContinue = document.querySelector('[data-snippet="continue"]');
+            if (elSnipContinue && t.snippet_continue) elSnipContinue.innerText = t.snippet_continue;
+
+            const elSnipTests = document.querySelector('[data-snippet="run_tests"]');
+            if (elSnipTests && t.snippet_run_tests) elSnipTests.innerText = t.snippet_run_tests;
+
+            const elSnipSumm = document.querySelector('[data-snippet="summarize"]');
+            if (elSnipSumm && t.snippet_summarize) elSnipSumm.innerText = t.snippet_summarize;
+
+            const elSnipErr = document.querySelector('[data-snippet="check_errors"]');
+            if (elSnipErr && t.snippet_check_errors) elSnipErr.innerText = t.snippet_check_errors;
+
+            if (PromptManager && typeof PromptManager.updateCounter === "function") {
+                PromptManager.updateCounter();
+            }
+
             const elLogTitleText = document.getElementById("log-title-text");
             if (elLogTitleText && t.log_title) elLogTitleText.innerText = `📜 ${t.log_title}`;
 
@@ -1966,6 +2789,39 @@
             if (elBtnCloseLog && t.menu_close) elBtnCloseLog.innerText = t.menu_close;
 
             // Chats Modal i18n
+            const elPromptBtnText = document.getElementById("btn-prompt-text");
+            if (elPromptBtnText && t.btn_prompt) elPromptBtnText.innerText = t.btn_prompt;
+
+            const elPromptModalTitle = document.getElementById("prompt-modal-title");
+            if (elPromptModalTitle && t.prompt_modal_title) elPromptModalTitle.innerText = t.prompt_modal_title;
+
+            const elPromptSubSelect = document.getElementById("prompt-subtitle-select");
+            if (elPromptSubSelect && t.prompt_step1_subtitle) elPromptSubSelect.innerText = t.prompt_step1_subtitle;
+
+            const elPromptStep2Badge = document.getElementById("prompt-step2-badge");
+            if (elPromptStep2Badge && t.prompt_step2_badge) elPromptStep2Badge.innerText = t.prompt_step2_badge;
+
+            const elPromptBackBtn = document.getElementById("prompt-back-btn");
+            if (elPromptBackBtn && t.prompt_back_btn) elPromptBackBtn.innerText = t.prompt_back_btn;
+
+            const elPromptInputLabel = document.getElementById("prompt-input-label");
+            if (elPromptInputLabel && t.prompt_input_label) elPromptInputLabel.innerText = t.prompt_input_label;
+
+            const elPromptTextarea = document.getElementById("prompt-textarea");
+            if (elPromptTextarea && t.prompt_placeholder) elPromptTextarea.placeholder = t.prompt_placeholder;
+
+            const elBtnSendPromptText = document.getElementById("btn-send-prompt-text");
+            if (elBtnSendPromptText && t.btn_send_prompt) elBtnSendPromptText.innerText = t.btn_send_prompt;
+
+            const elMenuOledLabel = document.getElementById("menu-oled-label");
+            if (elMenuOledLabel && t.menu_oled_label) elMenuOledLabel.innerText = t.menu_oled_label;
+
+            const elMenuBatteryLabel = document.getElementById("menu-battery-label");
+            if (elMenuBatteryLabel && t.menu_battery_label) elMenuBatteryLabel.innerText = t.menu_battery_label;
+
+            const elPromptModelLabel = document.getElementById("prompt-model-label");
+            if (elPromptModelLabel && t.prompt_model_label) elPromptModelLabel.innerText = `🤖 ${t.prompt_model_label}`;
+
             const elBtnChatsText = document.getElementById("btn-chats-text");
             if (elBtnChatsText && t.btn_chats) elBtnChatsText.innerText = t.btn_chats.replace("💬 ", "");
 
@@ -2213,6 +3069,8 @@
             badgeEl: null,
             valEl: null,
             iconEl: null,
+            toggleEl: null,
+            visible: true,
             currentLevel: null,
             isCharging: false,
 
@@ -2220,6 +3078,13 @@
                 this.badgeEl = document.getElementById("battery-badge");
                 this.valEl = document.getElementById("battery-val");
                 this.iconEl = document.getElementById("battery-icon");
+                this.toggleEl = document.getElementById("battery-toggle");
+
+                const saved = localStorage.getItem("antigravity_show_battery");
+                this.visible = saved === null ? true : saved === "true";
+                if (this.toggleEl) this.toggleEl.checked = this.visible;
+                this.applyVisibility();
+
                 if (!this.badgeEl || !this.valEl) return;
 
                 // 1. AndroidBridge nativo (APK)
@@ -2257,11 +3122,28 @@
                         });
                     }).catch(err => {
                         if (!window.AndroidBridge && this.currentLevel === null) {
-                            this.badgeEl.style.display = "none";
+                            if (this.badgeEl) this.badgeEl.style.display = "none";
                         }
                     });
                 } else if (!window.AndroidBridge && this.currentLevel === null) {
+                    if (this.badgeEl) this.badgeEl.style.display = "none";
+                }
+            },
+
+            toggleVisibility(show) {
+                this.visible = !!show;
+                localStorage.setItem("antigravity_show_battery", this.visible ? "true" : "false");
+                this.applyVisibility();
+            },
+
+            applyVisibility() {
+                if (!this.badgeEl) return;
+                if (!this.visible) {
                     this.badgeEl.style.display = "none";
+                } else {
+                    if (this.currentLevel !== null) {
+                        this.badgeEl.style.display = "inline-flex";
+                    }
                 }
             },
 
@@ -2270,7 +3152,7 @@
                 this.currentLevel = level;
                 this.isCharging = charging;
 
-                if (this.badgeEl) this.badgeEl.style.display = "inline-flex";
+                if (this.badgeEl && this.visible) this.badgeEl.style.display = "inline-flex";
                 if (this.valEl) this.valEl.innerText = `${level}%`;
 
                 if (this.iconEl) {
@@ -2289,6 +3171,25 @@
                         this.badgeEl.classList.add("battery-good");
                     }
                 }
+
+                // Perfil dinâmico de economia de bateria
+                if (level <= 20 && !charging) {
+                    document.body.classList.add("battery-saver");
+                } else {
+                    document.body.classList.remove("battery-saver");
+                }
+            },
+
+            syncNow() {
+                if (window.AndroidBridge && typeof window.AndroidBridge.getBatteryLevel === "function") {
+                    try {
+                        const l = window.AndroidBridge.getBatteryLevel();
+                        const c = typeof window.AndroidBridge.isBatteryCharging === "function" 
+                            ? window.AndroidBridge.isBatteryCharging() 
+                            : false;
+                        if (l >= 0) this.update(l, c);
+                    } catch (_) {}
+                }
             }
         };
 
@@ -2300,7 +3201,8 @@
             init() {
                 try {
                     const saved = localStorage.getItem(this.KEY);
-                    if (saved === "1") {
+                    // Padrão OLED True Black (#000000) ativado por padrão para economia extrema de bateria
+                    if (saved === "1" || saved === null) {
                         this.setOled(true, false);
                     }
                 } catch(e) {}
@@ -2604,8 +3506,8 @@
                     return;
                 }
             } catch(e) {}
-            el.innerText = `v2.4.4 (IP) • Dev LumiaG5`;
-            el.title = `Antigravity Mobile Web Companion (IP v2.4.4)`;
+            el.innerText = `v2.5.0 (IP) • Dev LumiaG5`;
+            el.title = `Antigravity Mobile Web Companion (IP v2.5.0)`;
         }
 
         // GERENCIADOR DE ATUALIZAÇÃO AUTOMÁTICA DO APK ANDROID
@@ -2784,11 +3686,553 @@
         };
 
         // GERENCIADOR DO MODAL DE CHATS E HISTÓRICO PARALELO (INSPEÇÃO INDEPENDENTE)
+        // FEEDBACK HÁPTICO / VIBRAÇÃO TÁTIL
+        function triggerHaptic(pattern = 30) {
+            if (typeof navigator !== "undefined" && navigator.vibrate) {
+                try {
+                    navigator.vibrate(pattern);
+                } catch(e) {}
+            }
+        }
+
+        // GERENCIADOR DE CONVERSAS FAVORITAS
+        const FavoritesManager = {
+            KEY: "antigravity_favorite_chats",
+
+            getAll() {
+                try {
+                    const raw = localStorage.getItem(this.KEY);
+                    return raw ? JSON.parse(raw) : [];
+                } catch(e) {
+                    return [];
+                }
+            },
+
+            isFavorite(cid) {
+                if (!cid) return false;
+                return this.getAll().includes(cid);
+            },
+
+            toggle(cid, e) {
+                triggerHaptic(35);
+                if (e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+                if (!cid) return;
+                let favs = this.getAll();
+                const wasFav = favs.includes(cid);
+                if (wasFav) {
+                    favs = favs.filter(id => id !== cid);
+                } else {
+                    favs.unshift(cid);
+                }
+                try {
+                    localStorage.setItem(this.KEY, JSON.stringify(favs));
+                } catch(e) {}
+
+                // Re-renderiza listas mantendo filtros ativos
+                if (ChatsManager && ChatsManager.modal && ChatsManager.modal.classList.contains("active")) {
+                    ChatsManager.renderList(ChatsManager.getFilteredList());
+                }
+                if (PromptManager && PromptManager.modal && PromptManager.modal.classList.contains("active")) {
+                    PromptManager.renderList(PromptManager.getFilteredList());
+                }
+            },
+
+            sortWithFavorites(convs) {
+                if (!convs || !convs.length) return [];
+                const favs = this.getAll();
+                return [...convs].sort((a, b) => {
+                    const aFav = favs.includes(a.conversation_id) ? 1 : 0;
+                    const bFav = favs.includes(b.conversation_id) ? 1 : 0;
+                    return bFav - aFav; // Favoritas sempre no topo
+                });
+            }
+        };
+
+        // GERENCIADOR DE INDICADOR DE PENSAMENTO (TYPING / THINKING INDICATOR)
+        const TypingIndicatorManager = {
+            show() {
+                if (document.getElementById("typing-indicator")) return;
+                const t = currentI18n || {};
+                const div = document.createElement("div");
+                div.id = "typing-indicator";
+                div.innerHTML = `
+                    <span class="typing-dots">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </span>
+                    <span id="typing-indicator-text" style="font-size: 11.5px; font-weight: 500;">${t.thinking_indicator || "Antigravity está pensando..."}</span>
+                `;
+                chatFeed.appendChild(div);
+                ScrollManager.scrollToBottom(true);
+            },
+
+            hide() {
+                const el = document.getElementById("typing-indicator");
+                if (el) el.remove();
+            }
+        };
+
+        // FUNÇÃO DE CÓPIA RÁPIDA DE RESPOSTAS
+        async function copyMessageText(btn) {
+            triggerHaptic(30);
+            const container = btn.closest(".msg-container");
+            if (!container) return;
+            const textToCopy = container.getAttribute("data-raw-content") || container.querySelector(".bubble").innerText;
+            const t = currentI18n || {};
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(textToCopy);
+                } else {
+                    const ta = document.createElement("textarea");
+                    ta.value = textToCopy;
+                    ta.style.position = "fixed";
+                    ta.style.opacity = "0";
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(ta);
+                }
+                const icon = btn.querySelector(".copy-icon");
+                if (icon) icon.innerText = "✅";
+                btn.classList.add("copied");
+                showToastNotification(t.response_copied || "Resposta copiada para a área de transferência!");
+                setTimeout(() => {
+                    if (icon) icon.innerText = "📋";
+                    btn.classList.remove("copied");
+                }, 1800);
+            } catch(e) {
+                showToastNotification(t.copy_failed || "Falha ao copiar resposta.");
+            }
+        }
+
+        // COMPARTILHAR RESPOSTA DA IA VIA WEB SHARE API
+        async function shareMessageText(btn) {
+            triggerHaptic(30);
+            const container = btn.closest(".msg-container");
+            if (!container) return;
+            const textToShare = container.getAttribute("data-raw-content") || container.querySelector(".bubble").innerText;
+            const t = currentI18n || {};
+            const title = t.share_chat_title || "Antigravity Mobile • Resposta da IA";
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: title,
+                        text: textToShare
+                    });
+                    showToastNotification(t.share_success || "Compartilhado com sucesso!");
+                } catch (err) {
+                    if (err.name !== "AbortError") {
+                        copyMessageText(btn);
+                    }
+                }
+            } else {
+                copyMessageText(btn);
+            }
+        }
+
+        // GERENCIADOR DE HISTÓRICO DE PROMPTS
+        const PromptHistoryManager = {
+            KEY: "antigravity_prompt_history",
+            panelEl: null,
+            listEl: null,
+
+            init() {
+                this.panelEl = document.getElementById("prompt-history-panel");
+                this.listEl = document.getElementById("prompt-history-list");
+            },
+
+            getAll() {
+                try {
+                    const raw = localStorage.getItem(this.KEY);
+                    return raw ? JSON.parse(raw) : [];
+                } catch(e) {
+                    return [];
+                }
+            },
+
+            add(promptText, title, project) {
+                if (!promptText || !promptText.trim()) return;
+                const clean = promptText.trim();
+                const items = this.getAll().filter(item => item.text !== clean);
+                items.unshift({
+                    text: clean,
+                    title: title || "Conversa",
+                    project: project || "Antigravity",
+                    timestamp: Date.now()
+                });
+                try {
+                    localStorage.setItem(this.KEY, JSON.stringify(items.slice(0, 20)));
+                } catch(e) {}
+            },
+
+            clear() {
+                try {
+                    localStorage.removeItem(this.KEY);
+                } catch(e) {}
+                this.render();
+                showToastNotification((currentI18n && currentI18n.prompt_history_empty) || "Histórico de prompts limpo.");
+            },
+
+            toggle() {
+                if (!this.panelEl) this.init();
+                if (!this.panelEl) return;
+                const isHidden = this.panelEl.style.display === "none";
+                this.panelEl.style.display = isHidden ? "flex" : "none";
+                if (isHidden) {
+                    this.render();
+                }
+            },
+
+            render() {
+                if (!this.listEl) this.init();
+                if (!this.listEl) return;
+                const items = this.getAll();
+                const t = currentI18n || {};
+
+                if (!items.length) {
+                    this.listEl.innerHTML = `<div style="text-align: center; font-size: 11px; color: var(--text-muted); padding: 8px;">${t.prompt_history_empty || "Nenhum prompt anterior registrado."}</div>`;
+                    return;
+                }
+
+                this.listEl.innerHTML = "";
+                items.forEach((item) => {
+                    const row = document.createElement("div");
+                    row.className = "prompt-history-item";
+                    row.title = "Clique para preencher este prompt";
+
+                    const txtSpan = document.createElement("span");
+                    txtSpan.className = "prompt-history-text";
+                    txtSpan.innerText = item.text;
+
+                    const metaSpan = document.createElement("span");
+                    metaSpan.className = "prompt-history-meta";
+                    metaSpan.innerText = item.project || "PC";
+
+                    row.appendChild(txtSpan);
+                    row.appendChild(metaSpan);
+
+                    row.onclick = () => {
+                        this.use(item.text);
+                    };
+
+                    this.listEl.appendChild(row);
+                });
+            },
+
+            use(promptText) {
+                if (PromptManager && typeof PromptManager.setPromptText === "function") {
+                    PromptManager.setPromptText(promptText);
+                }
+                if (this.panelEl) this.panelEl.style.display = "none";
+            }
+        };
+
+        // GERENCIADOR DE PROMPT REMOTO (ENVIO DIRETO AO ANTIGRAVITY PC)
+        const PromptManager = {
+            modal: null,
+            stepSelect: null,
+            stepCompose: null,
+            chatsListEl: null,
+            selectedConv: null,
+            rawConversations: [],
+            searchTerm: "",
+
+            init() {
+                this.modal = document.getElementById("prompt-modal");
+                this.stepSelect = document.getElementById("prompt-step-select");
+                this.stepCompose = document.getElementById("prompt-step-compose");
+                this.chatsListEl = document.getElementById("prompt-chats-list");
+
+                const textarea = document.getElementById("prompt-textarea");
+                if (textarea) {
+                    textarea.addEventListener("input", () => this.updateCounter());
+                    textarea.addEventListener("keydown", (e) => {
+                        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                            e.preventDefault();
+                            this.submitPrompt();
+                        } else if (e.key === "ArrowUp" && !textarea.value.trim()) {
+                            const hist = PromptHistoryManager.getAll();
+                            if (hist && hist.length > 0) {
+                                e.preventDefault();
+                                this.setPromptText(hist[0].text);
+                            }
+                        }
+                    });
+                }
+            },
+
+            insertSnippet(key) {
+                triggerHaptic(25);
+                const t = currentI18n || {};
+                const dict = {
+                    continue: t.snippet_continue || "Continue",
+                    run_tests: t.snippet_run_tests || "Rode os testes",
+                    summarize: t.snippet_summarize || "Resuma o progresso",
+                    check_errors: t.snippet_check_errors || "Verifique erros"
+                };
+                const snippet = dict[key] || key;
+                const textarea = document.getElementById("prompt-textarea");
+                if (!textarea) return;
+                const current = textarea.value.trim();
+                if (current) {
+                    textarea.value = current + " " + snippet;
+                } else {
+                    textarea.value = snippet;
+                }
+                textarea.focus();
+                this.updateCounter();
+            },
+
+            setPromptText(val) {
+                const textarea = document.getElementById("prompt-textarea");
+                if (textarea) {
+                    textarea.value = val;
+                    this.updateCounter();
+                    textarea.focus();
+                }
+            },
+
+            updateCounter() {
+                const textarea = document.getElementById("prompt-textarea");
+                const counterEl = document.getElementById("prompt-char-count");
+                if (!counterEl) return;
+                const txt = textarea ? textarea.value : "";
+                const chars = txt.length;
+                const words = txt.trim() ? txt.trim().split(/\s+/).length : 0;
+                const t = currentI18n || {};
+                const pattern = t.prompt_char_counter || "{chars} caracteres • {words} palavras";
+                counterEl.innerText = pattern.replace("{chars}", chars).replace("{words}", words);
+                counterEl.style.color = chars > 0 ? "#cbd5e1" : "var(--text-muted)";
+            },
+
+            onSearch(val) {
+                this.searchTerm = (val || "").trim().toLowerCase();
+                const clearBtn = document.getElementById("prompt-search-clear");
+                if (clearBtn) clearBtn.style.display = this.searchTerm ? "inline-block" : "none";
+                this.renderList(this.getFilteredList());
+            },
+
+            clearSearch() {
+                const inp = document.getElementById("prompt-search-input");
+                if (inp) inp.value = "";
+                this.onSearch("");
+            },
+
+            getFilteredList() {
+                if (!this.searchTerm) return this.rawConversations;
+                return this.rawConversations.filter(c => 
+                    (c.title || "").toLowerCase().includes(this.searchTerm) || 
+                    (c.project || "").toLowerCase().includes(this.searchTerm)
+                );
+            },
+
+            open() {
+                if (!this.modal) this.init();
+                this.backToSelect();
+                if (this.modal) this.modal.classList.add("active");
+                this.loadConversations();
+                if (ChatsManager && typeof ChatsManager.startLiveSync === "function") {
+                    ChatsManager.startLiveSync();
+                }
+            },
+
+            close() {
+                if (!this.modal) this.init();
+                if (this.modal) this.modal.classList.remove("active");
+                if (ChatsManager && typeof ChatsManager.stopLiveSync === "function") {
+                    ChatsManager.stopLiveSync();
+                }
+            },
+
+            backToSelect() {
+                if (this.stepSelect) this.stepSelect.style.display = "block";
+                if (this.stepCompose) this.stepCompose.style.display = "none";
+                this.selectedConv = null;
+            },
+
+            async loadConversations() {
+                if (!this.chatsListEl) this.init();
+                if (!this.chatsListEl) return;
+                const t = currentI18n || {};
+                this.chatsListEl.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">Carregando chats...</div>`;
+                try {
+                    const token = authToken || localStorage.getItem("antigravity_auth_token") || "";
+                    const res = await fetch(`/api/conversations?token=${encodeURIComponent(token)}&_t=${Date.now()}`);
+                    if (!res.ok) throw new Error("Erro ao carregar");
+                    const data = await res.json();
+                    this.rawConversations = data.conversations || [];
+                    this.renderList(this.getFilteredList());
+                } catch(e) {
+                    this.chatsListEl.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--status-red); font-size: 13px;">${t.chats_error || "Erro ao carregar conversas do PC."}</div>`;
+                }
+            },
+
+            renderList(convs) {
+                if (!this.chatsListEl) return;
+                const t = currentI18n || {};
+                if (!convs.length) {
+                    const emptyMsg = this.searchTerm ? (t.search_no_results || "Nenhuma conversa encontrada") : "Nenhuma conversa recente encontrada no Antigravity.";
+                    this.chatsListEl.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">${emptyMsg}</div>`;
+                    return;
+                }
+                this.chatsListEl.innerHTML = "";
+                const sortedConvs = FavoritesManager.sortWithFavorites(convs);
+                sortedConvs.forEach(c => {
+                    const row = document.createElement("div");
+                    const isFav = FavoritesManager.isFavorite(c.conversation_id);
+                    row.className = `chat-row ${c.is_active_on_pc ? "active-pc" : ""} ${isFav ? "is-fav-row" : ""}`;
+                    const dotClass = c.is_processing ? "dot-orange" : "dot-green";
+                    const dotHtml = `<span class="chat-status-indicator"><span class="chat-dot ${dotClass}" data-dot-cid="${c.conversation_id}"></span></span>`;
+                    const tagPc = c.is_active_on_pc ? `<span class="chat-tag-pc">🖥️ PC</span>` : "";
+                    const favBtn = `<button type="button" class="chat-star-btn ${isFav ? "is-fav" : ""}" onclick="FavoritesManager.toggle('${c.conversation_id}', event)" title="${isFav ? (t.unfavorite_chat_title || "Remover dos favoritos") : (t.favorite_chat_title || "Favoritar conversa")}">${isFav ? "⭐" : "☆"}</button>`;
+
+                    row.innerHTML = `
+                        ${dotHtml}
+                        <div class="chat-info">
+                            <div class="chat-title-line">${ChatsManager.escapeHtml(c.title || "Conversa sem título")}</div>
+                            <div class="chat-meta-line">
+                                <span>📁 ${ChatsManager.escapeHtml(c.project || "Antigravity")}</span>
+                                <span>• ${ChatsManager.escapeHtml(c.last_modified || "")}</span>
+                                ${tagPc}
+                            </div>
+                        </div>
+                        ${favBtn}
+                    `;
+                    row.onclick = () => {
+                        this.chooseConversation(c.conversation_id, c.title, c.project);
+                    };
+                    this.chatsListEl.appendChild(row);
+                });
+            },
+
+            chooseConversation(cid, title, project) {
+                this.selectedConv = { id: cid, title, project };
+                if (this.stepSelect) this.stepSelect.style.display = "none";
+                if (this.stepCompose) this.stepCompose.style.display = "block";
+
+                const projEl = document.getElementById("prompt-target-project");
+                const titleEl = document.getElementById("prompt-target-title");
+                if (projEl) projEl.innerText = `📁 ${project || "Antigravity"}`;
+                if (titleEl) titleEl.innerText = title || "Conversa";
+
+                // Sincroniza modelo ativo atual se disponível
+                const modelSelect = document.getElementById("prompt-model-select");
+                if (modelSelect && window.lastStatusData && window.lastStatusData.active_model) {
+                    const active = window.lastStatusData.active_model.trim().toLowerCase();
+                    for (let i = 0; i < modelSelect.options.length; i++) {
+                        const optVal = modelSelect.options[i].value.toLowerCase();
+                        if (optVal === active || optVal.includes(active) || active.includes(optVal)) {
+                            modelSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                const histPanel = document.getElementById("prompt-history-panel");
+                if (histPanel) histPanel.style.display = "none";
+
+                const textarea = document.getElementById("prompt-textarea");
+                if (textarea) {
+                    textarea.value = "";
+                    this.updateCounter();
+                    setTimeout(() => textarea.focus(), 100);
+                }
+            },
+
+            async submitPrompt() {
+                if (!this.selectedConv) return;
+                const textarea = document.getElementById("prompt-textarea");
+                const btn = document.getElementById("btn-send-prompt");
+                const btnText = document.getElementById("btn-send-prompt-text");
+                const t = currentI18n || {};
+
+                const promptText = (textarea ? textarea.value : "").trim();
+                if (!promptText) {
+                    showToastNotification(t.prompt_empty_warn || "Por favor, digite um prompt para enviar.");
+                    if (textarea) textarea.focus();
+                    return;
+                }
+
+                const modelSelect = document.getElementById("prompt-model-select");
+                const selectedModel = modelSelect ? modelSelect.value : "";
+
+                triggerHaptic(40);
+                if (btn) btn.disabled = true;
+                if (btnText) btnText.innerText = t.prompt_sending || "Enviando...";
+
+                try {
+                    const token = authToken || localStorage.getItem("antigravity_auth_token") || "";
+                    const res = await fetch(`/api/prompt?token=${encodeURIComponent(token)}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            conversation_id: this.selectedConv.id,
+                            prompt: promptText,
+                            model: selectedModel
+                        })
+                    });
+
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.detail || "Erro no servidor");
+                    }
+
+                    // Sucesso!
+                    PromptHistoryManager.add(promptText, this.selectedConv.title, this.selectedConv.project);
+                    triggerHaptic([30, 50, 30]);
+                    showToastNotification(t.prompt_sent_success || "Prompt enviado com sucesso ao PC!");
+                    const target = this.selectedConv;
+                    this.close();
+
+                    // Imediatamente abre a conversa no início do app para acompanhar conclusões
+                    if (ChatsManager && typeof ChatsManager.selectConversation === "function") {
+                        ChatsManager.viewingConversationId = null; // Segue o PC ao vivo
+                        ChatsManager.selectConversation(target.id, target.title, target.project);
+                    }
+                } catch(e) {
+                    console.error("[PromptManager] Erro:", e);
+                    showToastNotification(t.prompt_error || `Erro ao enviar prompt: ${e.message}`);
+                } finally {
+                    if (btn) btn.disabled = false;
+                    if (btnText) btnText.innerText = t.btn_send_prompt || "Enviar para o PC";
+                }
+            }
+        };
+
         const ChatsManager = {
             modal: null,
             listEl: null,
             viewingConversationId: null, // null = seguindo PC em tempo real
             activePcConversationId: null,
+            pollTimer: null,
+            rawConversations: [],
+            searchTerm: "",
+
+            onSearch(val) {
+                this.searchTerm = (val || "").trim().toLowerCase();
+                const clearBtn = document.getElementById("chats-search-clear");
+                if (clearBtn) clearBtn.style.display = this.searchTerm ? "inline-block" : "none";
+                this.renderList(this.getFilteredList());
+            },
+
+            clearSearch() {
+                const inp = document.getElementById("chats-search-input");
+                if (inp) inp.value = "";
+                this.onSearch("");
+            },
+
+            getFilteredList() {
+                if (!this.searchTerm) return this.rawConversations;
+                return this.rawConversations.filter(c => 
+                    (c.title || "").toLowerCase().includes(this.searchTerm) || 
+                    (c.project || "").toLowerCase().includes(this.searchTerm)
+                );
+            },
 
             init() {
                 this.modal = document.getElementById("chats-modal");
@@ -2799,11 +4243,58 @@
                 if (!this.modal) this.init();
                 if (this.modal) this.modal.classList.add("active");
                 this.loadConversations();
+                this.startLiveSync();
             },
 
             close() {
                 if (!this.modal) this.init();
                 if (this.modal) this.modal.classList.remove("active");
+                this.stopLiveSync();
+            },
+
+            startLiveSync() {
+                this.stopLiveSync();
+                this.pollTimer = setInterval(() => this.silentSync(), 2000);
+            },
+
+            stopLiveSync() {
+                if (this.pollTimer) {
+                    clearInterval(this.pollTimer);
+                    this.pollTimer = null;
+                }
+            },
+
+            async silentSync() {
+                const isChatsActive = this.modal && this.modal.classList.contains("active");
+                const isPromptActive = PromptManager && PromptManager.modal && PromptManager.modal.classList.contains("active");
+                if (!isChatsActive && !isPromptActive) {
+                    this.stopLiveSync();
+                    return;
+                }
+                try {
+                    const token = authToken || localStorage.getItem("antigravity_auth_token") || "";
+                    const res = await fetch(`/api/conversations?token=${encodeURIComponent(token)}&_t=${Date.now()}`);
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    this.activePcConversationId = data.active_pc_conversation_id;
+                    this.rawConversations = data.conversations || [];
+                    this.updateDots(this.rawConversations);
+                } catch(e) {}
+            },
+
+            updateDots(convs) {
+                if (!convs || !convs.length) return;
+                convs.forEach(c => {
+                    this.updateConversationStatus(c.conversation_id, c.is_processing);
+                });
+            },
+
+            updateConversationStatus(cid, isProcessing) {
+                if (!cid) return;
+                const dotClass = isProcessing ? "dot-orange" : "dot-green";
+                document.querySelectorAll(`.chat-dot[data-dot-cid="${cid}"]`).forEach(dot => {
+                    dot.className = `chat-dot ${dotClass}`;
+                });
             },
 
             async loadConversations() {
@@ -2813,14 +4304,15 @@
                 this.listEl.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">Carregando chats...</div>`;
                 try {
                     const token = authToken || localStorage.getItem("antigravity_auth_token") || "";
-                    const res = await fetch(`/api/conversations?token=${encodeURIComponent(token)}`);
+                    const res = await fetch(`/api/conversations?token=${encodeURIComponent(token)}&_t=${Date.now()}`);
                     if (!res.ok) {
                         const err = await res.json().catch(() => ({}));
                         throw new Error(err.detail || `HTTP ${res.status}`);
                     }
                     const data = await res.json();
                     this.activePcConversationId = data.active_pc_conversation_id;
-                    this.renderList(data.conversations || []);
+                    this.rawConversations = data.conversations || [];
+                    this.renderList(this.getFilteredList());
                 } catch(e) {
                     console.error("[ChatsManager] Erro:", e);
                     this.listEl.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--status-red); font-size: 13px;">${t.chats_error || "Erro ao carregar conversas do PC."}</div>`;
@@ -2829,8 +4321,10 @@
 
             renderList(convs) {
                 if (!this.listEl) return;
+                const t = currentI18n || {};
                 if (!convs.length) {
-                    this.listEl.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">Nenhuma conversa recente encontrada no Antigravity.</div>`;
+                    const emptyMsg = this.searchTerm ? (t.search_no_results || "Nenhuma conversa encontrada") : "Nenhuma conversa recente encontrada no Antigravity.";
+                    this.listEl.innerHTML = `<div style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">${emptyMsg}</div>`;
                     return;
                 }
 
@@ -2851,7 +4345,7 @@
 
                     // Dot pulsante na frente: verde se ocioso, laranja se processando (SEM TEXTO OU STATUS NA FRENTE)
                     const dotClass = c.is_processing ? "dot-orange" : "dot-green";
-                    const dotHtml = `<span class="chat-status-indicator"><span class="chat-dot ${dotClass}"></span></span>`;
+                    const dotHtml = `<span class="chat-status-indicator"><span class="chat-dot ${dotClass}" data-dot-cid="${c.conversation_id}"></span></span>`;
 
                     const tagPc = c.is_active_on_pc ? `<span class="chat-tag-pc">🖥️ PC</span>` : "";
 
@@ -3117,14 +4611,23 @@
                 this.applyVisibility();
 
                 if (this.pingTimer) clearInterval(this.pingTimer);
-                this.pingTimer = setInterval(() => this.ping(), 3500);
+                this.pingTimer = setInterval(() => this.ping(), this.getInterval());
                 setTimeout(() => this.ping(), 800);
+            },
+
+            getInterval() {
+                if (document.body.classList.contains("battery-saver")) return 10000;
+                return this.visible ? 3500 : 15000;
             },
 
             toggleVisibility(show) {
                 this.visible = !!show;
                 localStorage.setItem("antigravity_show_latency", this.visible);
                 this.applyVisibility();
+                if (this.pingTimer) {
+                    clearInterval(this.pingTimer);
+                    this.pingTimer = setInterval(() => this.ping(), this.getInterval());
+                }
             },
 
             applyVisibility() {
@@ -3177,13 +4680,20 @@
 
         function triggerFlash() {
             if (SoundManager.alertEnabledEl && !SoundManager.alertEnabledEl.checked) return;
-            flashOverlay.classList.remove("flash-active");
-            void flashOverlay.offsetWidth; // Força reflow do DOM para reiniciar animação
-            flashOverlay.classList.add("flash-active");
+            const el = document.getElementById("flash-overlay") || flashOverlay;
+            if (!el) return;
+            el.classList.remove("flash-active");
+            void el.offsetWidth; // Força reflow do DOM para reiniciar animação
+            el.classList.add("flash-active");
         }
 
         // ALERTA DUPLO SENSORIAL: PISCA 2X COM INTERVALO EXATO DE 1 SEGUNDO (COM SOM E VIBRAÇÃO)
+        let lastSensoryAlertTime = 0;
         function triggerSensoryAlert() {
+            const now = Date.now();
+            if (now - lastSensoryAlertTime < 1800) return; // Evita disparos duplicados em rajada
+            lastSensoryAlertTime = now;
+
             if (SoundManager.alertEnabledEl && !SoundManager.alertEnabledEl.checked) return;
             // 1º Pulso Sensorial
             SoundManager.play();
@@ -3242,19 +4752,25 @@
             if (raw.includes("CONNECTING") || raw.includes("CONECTANDO")) {
                 state = "connecting";
                 label = t.status_connecting || "Conectando...";
+                TypingIndicatorManager.hide();
             } else if (raw.includes("BACKGROUND") || (raw.includes("TASK") && (raw.includes("RUN") || raw.includes("EXEC"))) || raw.includes("TAREFA")) {
                 state = "task-running";
                 label = t.status_task_running || "Executando Tarefa...";
+                TypingIndicatorManager.show();
             } else if (raw.includes("THOUGHT") || raw.includes("PENSANDO") || raw.includes("THINK")) {
                 state = "thought";
                 label = t.status_thought || "Pensando...";
+                TypingIndicatorManager.show();
             } else if (raw.includes("WORK") || raw.includes("TRABALH") || raw.includes("PROCESS") || raw.includes("RUNNING")) {
                 state = "working";
                 label = t.status_working || "Trabalhando...";
+                TypingIndicatorManager.show();
             } else if (raw.includes("DISCONNECT") || raw.includes("DESCONECT")) {
                 state = "disconnected";
                 label = t.status_disconnected || "Desconectado";
+                TypingIndicatorManager.hide();
             } else if (raw.includes("DONE") || raw.includes("CONCLU") || raw.includes("COMPLET")) {
+                TypingIndicatorManager.hide();
                 state = "done";
                 label = t.status_done || "Concluído";
 
@@ -3307,24 +4823,46 @@
             const currentEmpty = document.getElementById("empty-state");
             if (currentEmpty) currentEmpty.style.display = "none";
 
+            // Deduplicação inteligente para evitar mensagens duplicadas
+            if (m.id && document.getElementById(`msg-${m.id}`)) {
+                return;
+            }
+
             const isUser = m.role === "user";
             const container = document.createElement("div");
+            if (m.id) container.id = `msg-${m.id}`;
             container.className = `msg-container ${isUser ? "msg-user" : "msg-assistant"}`;
 
             const timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
             const t = currentI18n || {};
             const senderName = isUser ? (t.msg_user || "Você") : (t.msg_assistant || "Antigravity (Conclusão)");
             
+            const copyBtnHtml = !isUser ? `
+                <button type="button" class="btn-copy-msg" onclick="copyMessageText(this)" title="${t.copy_response || "Copiar resposta"}">
+                    <span class="copy-icon">📋</span>
+                </button>
+                <button type="button" class="btn-share-msg" onclick="shareMessageText(this)" title="${t.share_response || "Compartilhar resposta"}">
+                    <span>📤</span>
+                </button>
+            ` : "";
+
             container.innerHTML = `
                 <div class="msg-header">
                     <span>${senderName}</span>
-                    <span>${timeStr}</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span>${timeStr}</span>
+                        ${copyBtnHtml}
+                    </div>
                 </div>
                 <div class="bubble ${isUser ? "bubble-user" : "bubble-assistant"}">
-                    ${isUser ? m.content.replace(/\\n/g, "<br>") : parseMarkdown(m.content)}
+                    ${isUser ? m.content.replace(/\n/g, "<br>") : parseMarkdown(m.content)}
                 </div>
             `;
+            if (!isUser) {
+                container.setAttribute("data-raw-content", m.content);
+            }
 
+            TypingIndicatorManager.hide();
             chatFeed.appendChild(container);
         }
 
@@ -3349,37 +4887,42 @@
             const authParam = "?token=" + encodeURIComponent(authToken);
 
             try {
-                const qRes = await fetch("/api/quota" + authParam);
-                if (qRes.status === 401) { handleSessionExpired(); return; }
-                if (qRes.ok) {
-                    const qData = await qRes.json();
-                    updateQuota(qData);
-                    updateStatus("CONECTADO");
-                }
-            } catch(e) {}
+                const [qRes, sRes, mRes] = await Promise.allSettled([
+                    fetch("/api/quota" + authParam),
+                    fetch("/api/status" + authParam),
+                    fetch("/api/messages" + authParam)
+                ]);
 
-            try {
-                const sRes = await fetch("/api/status" + authParam);
-                if (sRes.status === 401) { handleSessionExpired(); return; }
-                if (sRes.ok) {
-                    const sData = await sRes.json();
-                    if (sData.active_model && modelBadge) modelBadge.innerText = sData.active_model;
-                    if (sData.active_project) updateProjectName(sData.active_project, sData.conversation_title);
-                    if (sData.status) updateStatus(sData.status);
+                if (qRes.status === "fulfilled" && qRes.value) {
+                    if (qRes.value.status === 401) { handleSessionExpired(); return; }
+                    if (qRes.value.ok) {
+                        const qData = await qRes.value.json();
+                        updateQuota(qData);
+                        updateStatus("CONECTADO");
+                    }
                 }
-            } catch(e) {}
 
-            try {
-                const mRes = await fetch("/api/messages" + authParam);
-                if (mRes.status === 401) { handleSessionExpired(); return; }
-                if (mRes.ok) {
-                    const mData = await mRes.json();
-                    if (mData.active_model && modelBadge) modelBadge.innerText = mData.active_model;
-                    if (mData.active_project) updateProjectName(mData.active_project, mData.conversation_title);
-                    if (mData.messages && mData.messages.length > 0) {
-                        chatFeed.innerHTML = "";
-                        mData.messages.forEach(appendMessage);
-                        ScrollManager.scrollToBottom(false);
+                if (sRes.status === "fulfilled" && sRes.value) {
+                    if (sRes.value.status === 401) { handleSessionExpired(); return; }
+                    if (sRes.value.ok) {
+                        const sData = await sRes.value.json();
+                        if (sData.active_model && modelBadge) modelBadge.innerText = sData.active_model;
+                        if (sData.active_project) updateProjectName(sData.active_project, sData.conversation_title);
+                        if (sData.status) updateStatus(sData.status);
+                    }
+                }
+
+                if (mRes.status === "fulfilled" && mRes.value) {
+                    if (mRes.value.status === 401) { handleSessionExpired(); return; }
+                    if (mRes.value.ok) {
+                        const mData = await mRes.value.json();
+                        if (mData.active_model && modelBadge) modelBadge.innerText = mData.active_model;
+                        if (mData.active_project) updateProjectName(mData.active_project, mData.conversation_title);
+                        if (mData.messages && mData.messages.length > 0) {
+                            chatFeed.innerHTML = "";
+                            mData.messages.forEach(appendMessage);
+                            ScrollManager.scrollToBottom(false);
+                        }
                     }
                 }
             } catch(e) {}
@@ -3436,6 +4979,9 @@
                 }
             } else if (evt.event === "task_completed") {
                 triggerSensoryAlert();
+                if (ChatsManager && typeof ChatsManager.updateConversationStatus === "function") {
+                    ChatsManager.updateConversationStatus(ChatsManager.activePcConversationId, false);
+                }
                 NotificationManager.send(
                     (currentI18n && currentI18n.task_completed_notify_title) || "Antigravity • Tarefa Concluída",
                     (evt.data && evt.data.summary) || "Uma tarefa foi concluída com sucesso no PC!"
@@ -3454,7 +5000,7 @@
                     if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
                     if (evt.data.quota) updateQuota(evt.data.quota);
                 }
-            } else if (evt.event === "conclusion_message" || evt.event === "user_message") {
+            } else if (evt.event === "conclusion_message" || evt.event === "user_message" || evt.event === "assistant_step") {
                 if (evt.data) {
                     if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
                     
@@ -3465,15 +5011,43 @@
                         ScrollManager.onNewMessage();
                     }
 
-                    updateStatus(evt.event === "conclusion_message" ? "DONE" : "WORKING");
+                    const isConclusion = evt.event === "conclusion_message";
+                    updateStatus(isConclusion ? "DONE" : "WORKING");
+                    if (ChatsManager && typeof ChatsManager.updateConversationStatus === "function") {
+                        ChatsManager.updateConversationStatus(evt.data.conversation_id || ChatsManager.activePcConversationId, !isConclusion);
+                    }
+
+                    // Aciona alerta sensorial (pisca tela + som) ao concluir a tarefa
+                    if (isConclusion) {
+                        triggerSensoryAlert();
+                    }
                 }
             } else if (evt.event === "status_change") {
-                updateStatus(evt.data && evt.data.status ? evt.data.status : "WORKING");
+                const s = evt.data && evt.data.status ? evt.data.status : "WORKING";
+                updateStatus(s);
                 if (evt.data && evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
+                if (ChatsManager && typeof ChatsManager.updateConversationStatus === "function") {
+                    const isProc = ["WORKING", "THOUGHT", "THINKING", "RUNNING", "TASK_RUNNING", "PROCESSANDO", "TRABALHANDO", "PENSANDO"].some(k => (s || "").toUpperCase().includes(k));
+                    ChatsManager.updateConversationStatus(ChatsManager.activePcConversationId, isProc);
+                }
             } else if (evt.event === "quota_update") {
                 updateQuota(evt.data);
                 if (evt.data && evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
             }
+        }
+
+        let wsReconnectDelay = 2000;
+        let wsReconnectTimer = null;
+
+        function scheduleWsReconnect() {
+            if (wsReconnectTimer) clearTimeout(wsReconnectTimer);
+            if (!authToken) return;
+            const delay = document.hidden ? Math.max(wsReconnectDelay, 20000) : wsReconnectDelay;
+            wsReconnectTimer = setTimeout(() => {
+                wsReconnectTimer = null;
+                connectWS();
+            }, delay);
+            wsReconnectDelay = Math.min(wsReconnectDelay * 1.5, 30000);
         }
 
         function connectWS() {
@@ -3482,6 +5056,7 @@
             ws = new WebSocket(`${protocol}//${window.location.host}/ws?token=${encodeURIComponent(authToken)}`);
 
             ws.onopen = () => {
+                wsReconnectDelay = 2000;
                 updateStatus("CONECTADO");
                 fetchInitialData();
             };
@@ -3513,7 +5088,7 @@
                     return;
                 }
                 if (authToken) {
-                    setTimeout(connectWS, 2000);
+                    scheduleWsReconnect();
                 }
             };
 
@@ -3545,6 +5120,8 @@
             MenuManager.init();
             LogManager.init();
             ChatsManager.init();
+            PromptManager.init();
+            PromptHistoryManager.init();
             ApkUpdateManager.init();
             updateAppVersionBadge();
             await loadI18n();
@@ -3611,6 +5188,96 @@
                 window.location.href = window.location.pathname;
             }
         }
+
+        // GERENCIAMENTO INTELIGENTE DO BOTÃO VOLTAR DO ANDROID
+        window.handleAndroidBack = function() {
+            // 1. Histórico de prompts dentro do modal de prompt
+            const histPanel = document.getElementById("prompt-history-panel");
+            if (histPanel && histPanel.style.display !== "none") {
+                histPanel.style.display = "none";
+                return true;
+            }
+
+            // 2. Modal de envio de Prompt:
+            if (PromptManager && PromptManager.modal && PromptManager.modal.classList.contains("active")) {
+                // Se estiver no Passo 2 (composição), retorna para o Passo 1 (seleção)
+                if (PromptManager.stepCompose && PromptManager.stepCompose.style.display !== "none") {
+                    PromptManager.backToSelect();
+                    return true;
+                }
+                // Se estiver no Passo 1, fecha o modal de prompt
+                PromptManager.close();
+                return true;
+            }
+
+            // 3. Modal de seleção de Chats
+            if (ChatsManager && ChatsManager.modal && ChatsManager.modal.classList.contains("active")) {
+                ChatsManager.close();
+                return true;
+            }
+
+            // 4. Modal de Menu de Configurações
+            if (MenuManager && MenuManager.menuModal && MenuManager.menuModal.classList.contains("active")) {
+                MenuManager.close();
+                return true;
+            }
+
+            // 5. Modal de Log de Conclusões
+            if (LogManager && LogManager.logModal && LogManager.logModal.classList.contains("active")) {
+                LogManager.close();
+                return true;
+            }
+
+            // 6. Modal de Tutorial
+            const tutModal = document.getElementById("tutorial-modal");
+            if (tutModal && tutModal.classList.contains("active")) {
+                tutModal.classList.remove("active");
+                return true;
+            }
+
+            // 7. Retorna à conversa principal/ativa no PC se estiver vendo uma conversa secundária
+            if (ChatsManager && ChatsManager.viewingConversationId && ChatsManager.activePcConversationId && ChatsManager.viewingConversationId !== ChatsManager.activePcConversationId) {
+                ChatsManager.viewingConversationId = null;
+                ChatsManager.loadMessages(ChatsManager.activePcConversationId);
+                return true;
+            }
+
+            // Nenhuma aba/modal aberta e já na conversa principal
+            return false;
+        };
+
+        // Suporte também ao botão voltar do navegador / gestos de navegação web (popstate)
+        window.addEventListener("popstate", function(e) {
+            if (typeof window.handleAndroidBack === "function") {
+                window.handleAndroidBack();
+            }
+        });
+
+        // GERENCIAMENTO DE ENERGIA E SEGUNDO PLANO (PAGE VISIBILITY API)
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.body.classList.add("app-paused");
+                if (LatencyManager && LatencyManager.pingTimer) {
+                    clearInterval(LatencyManager.pingTimer);
+                    LatencyManager.pingTimer = null;
+                }
+            } else {
+                document.body.classList.remove("app-paused");
+                if (LatencyManager) {
+                    LatencyManager.ping();
+                    if (!LatencyManager.pingTimer) {
+                        LatencyManager.pingTimer = setInterval(() => LatencyManager.ping(), LatencyManager.getInterval ? LatencyManager.getInterval() : 3500);
+                    }
+                }
+                if (BatteryManager && typeof BatteryManager.syncNow === "function") {
+                    BatteryManager.syncNow();
+                }
+                if (!ws || ws.readyState !== WebSocket.OPEN) {
+                    wsReconnectDelay = 1000;
+                    connectWS();
+                }
+            }
+        });
 
         initApp();
     </script>

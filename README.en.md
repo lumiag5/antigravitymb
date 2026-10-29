@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v2.4.4-blue?style=flat-square" alt="Version v2.4.4">
+  <img src="https://img.shields.io/badge/version-v2.5.0-blue?style=flat-square" alt="Version v2.5.0">
   <img src="https://img.shields.io/badge/platform-Windows_%7C_Android-success?style=flat-square" alt="Platforms">
   <img src="https://img.shields.io/badge/android-7.0%2B_%28API_24%2B%29-green?style=flat-square" alt="Android 7+">
   <img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" alt="MIT License">
@@ -18,10 +18,19 @@ Mobile app and web dashboard for monitoring **Antigravity IDE** tasks in real ti
 
 ## Features
 
+### Remote Prompting & Quick Actions
+* **Remote prompt dispatch**: Send prompts directly from your phone to Antigravity on PC (`POST /api/prompt`) with AI model selection (Gemini 3.8 Flash, Pro, Claude 3.7 Sonnet, GPT-4o, etc.).
+* **Quick snippets**: One-tap shortcut chips (🔄 *Continue*, 🧪 *Run tests*, 📋 *Summarize progress*, 🐞 *Check errors*).
+* **Prompt history & counter**: Recent prompts recall with arrow-up key navigation and live character/word count.
+* **Response actions**: Quick copy button with visual feedback (📋 ➔ ✅) and native share button (📤 via Web Share API) to send responses to WhatsApp, Telegram, or Notes.
+* **Favorite chats**: Star button (⭐) to pin important conversations to the top with persistent local storage.
+
 ### Chat & Navigation
-* **Real-time chat**: Shows user prompts and final assistant responses without clutter from intermediate tool logs.
-* **Markdown & code**: Syntax-highlighted code blocks, tables, and smooth message scrolling.
-* **Conversations browser (Chats)**: Lists PC conversations and projects with live status dots (`🟠` working / `🟢` idle). Inspect message history from your phone without switching windows on your PC.
+* **Real-time chat**: Displays user prompts and assistant completions without noise from intermediate tool calls.
+* **Native text selection**: Long-press any message bubble to select text and copy using Android's native toolbar.
+* **Smart back navigation**: Pressing back hierarchically closes open modals (History, Prompt, Chats, Menu, Log) or returns to the active PC chat. On the home screen, double-tap cleanly exits without opening the session screen.
+* **Markdown & code**: Syntax highlighting, formatted tables, and smooth history scrolling.
+* **Conversations browser (Chats)**: Lists PC projects and chats with live status dots (`🟠` working / `🟢` idle) and instant search filtering.
 
 ### Status & Alerts
 * **Live status**: Displays current task phase (*Thinking...*, *Working...*, *Task Running...*, and *Done*).
@@ -30,9 +39,12 @@ Mobile app and web dashboard for monitoring **Antigravity IDE** tasks in real ti
 * **Ping indicator**: Real-time WebSocket latency badge.
 * **Real-time battery level**: Current battery percentage displayed in the center of the footer next to latency, keeping the UI clean.
 
-### Native Android App (APK)
-* **Immersive fullscreen**: Hides top system status bars on APK and supports fullscreen mode in browsers/IP for full visual focus.
-* **OLED True Black**: Deep `#000000` background for battery efficiency.
+### Native Android App (APK) & Battery Optimization
+* **Smart energy saving**: WebKit engine enters low-power state when the screen turns off or the app is minimized (`onPause`/`onResume`), pausing GPU animations and idle timers via Page Visibility API.
+* **Exponential backoff reconnection**: Prevents battery drain by spacing out reconnect attempts when the PC server is offline.
+* **Low battery profile**: Disables heavy box-shadows and reduces ping frequency automatically when battery drops <= 20%.
+* **Immersive fullscreen**: Hides top system status bars on APK and supports fullscreen mode in browsers/IP for total focus.
+* **OLED True Black**: Absolute `#000000` theme by default for up to 60% energy savings on AMOLED/OLED displays.
 * **QR Code pairing**: One-tap sign in via camera scanner reading the PC console QR code.
 * **Session resume**: Reconnect to active sessions without retyping the PIN.
 * **In-app updater**: Check and install new releases directly from the settings menu. See APK changelogs: [Português](android/CHANGELOG.md) &bull; [English](android/CHANGELOG.en.md) &bull; [Español](android/CHANGELOG.es.md).

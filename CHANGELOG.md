@@ -10,6 +10,27 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
+## [2.5.0] - 2026-10-29 (Build 2500)
+
+### Adicionado
+* **Envio remoto de prompts**: Envie comandos diretamente do celular para o Antigravity no PC (`POST /api/prompt`) escolhendo o modelo de IA desejado (Gemini 3.8 Flash, Pro, Claude 3.7 Sonnet, GPT-4o, etc.).
+* **Atalhos rápidos (Snippets)**: Barra de chips para preencher o prompt com um toque (🔄 *Continue*, 🧪 *Rode os testes*, 📋 *Resuma o progresso*, 🐞 *Verifique erros*).
+* **Histórico de prompts e contador**: Consulta aos últimos prompts enviados com navegação pela tecla seta para cima e contador dinâmico de caracteres e palavras.
+* **Navegação com botão/gesto voltar do Android**: Fechamento hierárquico de modais abertos (Histórico, Prompt, Chats, Menu, Log, Tutorial) e retorno de conversas secundárias para a conversa ativa no PC. Quando na tela inicial, clique duplo em voltar fecha o app sem abrir a tela de gerenciamento de sessão por engano.
+* **Seleção e cópia nativa de texto**: Remoção da interceptação de toque longo que abria a tela de reconexão. Segurar o dedo no texto da conversa ativa a barra nativa do Android para selecionar e copiar trechos.
+* **Economia de bateria e performance**:
+  - Ciclo de vida nativo com `onPause`/`onResume` no WebView para suspender repaints de GPU quando o app for minimizado ou a tela apagar.
+  - Pausa de animações CSS e timers de rede via Page Visibility API (`body.app-paused`).
+  - Reconexão WebSocket com backoff exponencial para não drenar bateria quando o PC estiver desligado.
+  - Perfil automático para bateria fraca (<= 20% sem carregador) desativando sombras pesadas e reduzindo pings.
+  - Carregamento inicial paralelizado com `Promise.allSettled`.
+* **Ações rápidas nas respostas**: Botão para copiar a resposta completa com confirmação visual (📋 ➔ ✅) e botão de compartilhamento nativo (📤 via Web Share API) para enviar direto para WhatsApp, Telegram ou Notas.
+* **Indicador de pensamento dinâmico**: Animação de bolinhas saltitantes enquanto a IA está processando ou executando tarefas.
+* **Favoritar conversas**: Botão de estrela (⭐) para fixar conversas no topo da lista com persistência local.
+* **Busca rápida de conversas**: Campo de busca instantânea com filtro por nome e projeto nos modais de Chats e Prompt.
+
+---
+
 ## [2.4.4] - 2026-10-28 (Build 2426)
 
 ### Adicionado

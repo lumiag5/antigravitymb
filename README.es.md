@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/versión-v2.4.4-blue?style=flat-square" alt="Versión v2.4.4">
+  <img src="https://img.shields.io/badge/versión-v2.5.0-blue?style=flat-square" alt="Versión v2.5.0">
   <img src="https://img.shields.io/badge/plataforma-Windows_%7C_Android-success?style=flat-square" alt="Plataformas">
   <img src="https://img.shields.io/badge/android-7.0%2B_%28API_24%2B%29-green?style=flat-square" alt="Android 7+">
   <img src="https://img.shields.io/badge/licencia-MIT-yellow?style=flat-square" alt="Licencia MIT">

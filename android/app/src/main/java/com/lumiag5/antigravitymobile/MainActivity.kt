@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity() {
 
     private var hasError = false
     private var currentAttemptUrl = ""
+    private var lastBackPressTime: Long = 0L
 
     private var isBatteryReceiverRegistered = false
     private val batteryReceiver = object : BroadcastReceiver() {
@@ -106,7 +107,7 @@ class MainActivity : AppCompatActivity() {
         // Exigência: Ao fechar e reabrir o app, sempre inicia deslogado na tela de gerenciamento de sessão
         showConnectScreen()
 
-        // Gerenciamento do botão Voltar do Android
+        // Gerenciamento inteligente do botão Voltar do Android
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding.connectView.visibility == View.VISIBLE) {
@@ -116,11 +117,36 @@ class MainActivity : AppCompatActivity() {
                 } else if (binding.errorView.visibility == View.VISIBLE) {
                     showConnectScreen()
                 } else {
-                    // No dashboard: voltar desloga para a tela de sessão
-                    showConnectScreen()
+                    // No dashboard: consulta o JavaScript para fechar abas/modais ou retornar à conversa principal
+                    binding.webView.evaluateJavascript("typeof window.handleAndroidBack === 'function' ? window.handleAndroidBack() : false") { result ->
+                        val handled = result?.trim()?.replace("\"", "")?.equals("true", ignoreCase = true) == true
+                        if (!handled) {
+                            // Se nenhuma aba ou modal foi fechada, o usuário já está na tela inicial.
+                            // Confirma saída com toque duplo sem abrir a tela de gerenciamento de sessão:
+                            val now = System.currentTimeMillis()
+                            if (now - lastBackPressTime < 2000) {
+                                isEnabled = false
+                                finish()
+                            } else {
+                                lastBackPressTime = now
+                                Toast.makeText(this@MainActivity, "Pressione voltar novamente para sair", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 }
             }
         })
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.webView.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.webView.onResume()
+        applyFullScreenImmersive()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -358,11 +384,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Toque longo na tela abre a tela de sessão
-        binding.webView.setOnLongClickListener {
-            showConnectScreen()
-            true
-        }
+        // Habilita seleção de texto nativa do WebView ao segurar o toque
+        binding.webView.setOnLongClickListener(null)
+        binding.webView.isLongClickable = true
     }
 
     private fun startQrScanner() {
@@ -655,9 +679,9 @@ class MainActivity : AppCompatActivity() {
         fun getAppVersion(): String {
             return try {
                 val pInfo = packageManager.getPackageInfo(packageName, 0)
-                pInfo.versionName ?: "2.4.4"
+                pInfo.versionName ?: "2.5.0"
             } catch (e: Exception) {
-                "2.4.4"
+                "2.5.0"
             }
         }
 

@@ -10,7 +10,7 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
 3. **Métricas Oficiais de Quota**: Exibição em tempo real da porcentagem de uso diário (5h) e semanal do modelo de IA via RPC interna com adaptação dinâmica entre grupos de modelos.
 4. **Conectividade Flexível**: Suporte à rede local (Wi-Fi) e acesso remoto global via túnel HTTPS seguro (Cloudflare) sem configuração de portas.
 
-## FUNCIONALIDADES IMPLEMENTADAS (v2.4.4 • Build 2426)
+## FUNCIONALIDADES IMPLEMENTADAS (v2.5.0 • Build 2500)
 - **Tela Cheia Imersiva (Ocultação da HUD do Celular)**:
   - No APK Android: modo imersivo sticky (`WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE`) ocultando a barra de status do topo, com suporte a entalhes de câmera (*short edges cutout*) e área de respiro dinâmica (`safe-area-inset-top`).
   - No Navegador / IP: PWA configurado com `display: fullscreen` em `manifest.json` e suporte à Fullscreen API via toque inicial ou seletor no menu de configurações.
@@ -92,6 +92,16 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
   - `TUTORIAL.txt` (Guia passo a passo de conexão em pt, en, es).
 
 ## ÚLTIMA ALTERAÇÃO
+- **Envio Remoto de Prompts, Gestos de Navegação, Seleção de Texto e Otimizações de Bateria (v2.5.0 • Build 2500)**:
+  - Envio remoto de prompts do celular para o PC com seleção dinâmica de modelo de IA (Gemini, Claude, GPT).
+  - Atalhos rápidos (snippets) para inserção de comandos frequentes com um toque e feedback háptico (vibração tátil).
+  - Histórico de prompts enviados com navegação por tecla de seta para cima e contador dinâmico de palavras/caracteres.
+  - Botão/gesto voltar inteligente no Android com fechamento em pilha de modais e proteção contra encerramento acidental.
+  - Seleção nativa de texto em mensagens com barra de opções do Android para copiar trechos para o clipboard.
+  - Ações rápidas nas respostas da IA: cópia rápida com feedback visual e compartilhamento nativo via Web Share API.
+  - Indicador dinâmico de pensamento com animação de pontos saltitantes e fixação de conversas favoritas (⭐).
+  - Economia de bateria: hooks de ciclo de vida (`onPause`/`onResume`) no WebView, suspensão de animações de GPU e timers via Page Visibility API, reconexão WebSocket com backoff exponencial e perfil automático de bateria fraca.
+
 - **Tela Cheia Imersiva, Monitor de Bateria e Harmonização do Rodapé (v2.4.4 • Build 2426)**:
   - Ocultação da barra de status no APK e suporte a tela cheia no navegador.
   - Indicador de porcentagem de bateria em tempo real centralizado no rodapé.
@@ -107,4 +117,4 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
   - Removidos todos os atalhos rápidos antigos de emulador/rede, deixando a tela minimalista e focada em OLED Black.
 
 ## ESTADO ATUAL
-- Versão v2.4.4 (Build 2426) com tela cheia imersiva, monitor de bateria em tempo real e rodapé harmonizado.
+- Versão v2.5.0 (Build 2500) com envio remoto de prompts, navegação inteligente, cópia nativa, economia de bateria e 328 testes automatizados aprovados.

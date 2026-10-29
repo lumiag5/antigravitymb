@@ -118,4 +118,41 @@ class AntigravityLocalAPI:
                     return None
             return None
 
+    def send_user_message(self, conversation_id: str, message_text: str, model: Optional[str] = None) -> bool:
+        """Envia um prompt/comando para a conversa especificada no Antigravity PC."""
+        if not self.port or not self.csrf_token:
+            if not self.discover_connection():
+                return False
+
+        payload = {
+            "cascade_id": conversation_id,
+            "items": [{"text": message_text}]
+        }
+        if model:
+            payload["model"] = model
+            payload["requested_model"] = model
+        data_bytes = json.dumps(payload).encode("utf-8")
+
+        for attempt in range(2):
+            try:
+                url = f"https://127.0.0.1:{self.port}/exa.language_server_pb.LanguageServerService/SendUserCascadeMessage"
+                req = urllib.request.Request(
+                    url,
+                    data=data_bytes,
+                    headers={
+                        "X-Codeium-Csrf-Token": self.csrf_token,
+                        "Content-Type": "application/json"
+                    }
+                )
+                with urllib.request.urlopen(req, context=self._ssl_ctx, timeout=5.0) as resp:
+                    if resp.status == 200:
+                        return True
+            except Exception as e:
+                # Tenta redescobrir a porta/token caso o language_server tenha reiniciado
+                if attempt == 0 and self.discover_connection():
+                    continue
+                print(f"[AntigravityLocalAPI] Falha ao enviar mensagem: {e}")
+                return False
+        return False
+
 antigravity_api = AntigravityLocalAPI()
