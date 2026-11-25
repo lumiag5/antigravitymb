@@ -1233,10 +1233,10 @@ class AntigravityMonitor:
                 print(f"[Monitor] Erro no polling de segundo plano ({bg_cid}): {e}")
 
     async def poll_updates(self):
-        """Verifica navegação do usuário, tarefas em segundo plano e novos eventos."""
+        """Verifica navegação do usuário, tarefas em segundo plano e novos eventos sem bloquear o event loop."""
         # 1. Se ainda não há conversa ativa, inicializa
         if not self.current_conversation_id:
-            active_id = self.find_active_conversation()
+            active_id = await asyncio.to_thread(self.find_active_conversation)
             if active_id:
                 await self.switch_conversation(active_id)
             return
@@ -1247,15 +1247,15 @@ class AntigravityMonitor:
         # 3. Monitora se alguma tarefa em execução em segundo plano concluiu ("Working..." finalizado)
         await self.poll_background_conversations()
 
-        # 4. Monitora em tempo real se o modelo de IA foi trocado na conversa ativa
+        # 4. Monitora em tempo real se o modelo de IA foi trocado na conversa ativa (em thread separada para não travar ping)
         if self.current_conversation_id:
             old_model = self.active_model
-            new_model = self.detect_model_name(self.current_conversation_id)
+            new_model = await asyncio.to_thread(self.detect_model_name, self.current_conversation_id)
             if new_model and new_model != old_model:
                 print(f"[Monitor] Modelo de IA alterado em tempo real: {old_model} -> {new_model}")
                 self.active_model = new_model
                 self.quota_stats["active_model"] = new_model
-                self.calculate_quota()
+                await asyncio.to_thread(self.calculate_quota)
                 if self.on_event:
                     await self.on_event({
                         "event": "model_changed",
@@ -1265,11 +1265,9 @@ class AntigravityMonitor:
                         }
                     })
             
-        # 4. Monitora em tempo real o status da cascata diretamente do banco da conversa (SQLite)
-        # Permite detectar imediatamente quando o modelo entra em 'Thinking' (Pensando...) no PC,
-        # sem atrasos de buffer de log
+        # 5. Monitora em tempo real o status da cascata diretamente do banco da conversa (SQLite)
         if self.current_conversation_id:
-            live_status = self.detect_live_cascade_status(self.current_conversation_id)
+            live_status = await asyncio.to_thread(self.detect_live_cascade_status, self.current_conversation_id)
             if live_status in ["THOUGHT", "WORKING", "TASK_RUNNING"] and live_status != self.current_turn_status:
                 self.current_turn_status = live_status
                 if self.on_event:
@@ -1508,8 +1506,8 @@ class AntigravityMonitor:
                 if quota_ticker >= 10:
                     quota_ticker = 0
                     if self.current_conversation_id:
-                        self.detect_model_name(self.current_conversation_id)
-                    self.calculate_quota()
+                        await asyncio.to_thread(self.detect_model_name, self.current_conversation_id)
+                    await asyncio.to_thread(self.calculate_quota)
                     if self.on_event:
                         await self.on_event({
                             "event": "quota_update",

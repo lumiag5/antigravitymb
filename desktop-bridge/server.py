@@ -278,9 +278,9 @@ async def send_prompt(request: Request, token: Optional[str] = None):
     if not conversation_id or not prompt_text:
         raise HTTPException(status_code=400, detail="conversation_id e prompt são obrigatórios")
 
-    # Entrega ao Language Server do Antigravity via RPC oficial
+    # Entrega ao Language Server do Antigravity via RPC oficial (em thread separada para não bloquear WebSocket/ping)
     from antigravity_api import antigravity_api
-    success = antigravity_api.send_user_message(conversation_id, prompt_text, model=model)
+    success = await asyncio.to_thread(antigravity_api.send_user_message, conversation_id, prompt_text, model=model)
     if not success:
         err_msg = antigravity_api.last_error or "Falha ao entregar prompt ao Language Server do Antigravity."
         raise HTTPException(status_code=500, detail=err_msg)
@@ -322,7 +322,7 @@ async def cancel_task(request: Request, token: Optional[str] = None):
         raise HTTPException(status_code=400, detail="conversation_id é obrigatório")
 
     from antigravity_api import antigravity_api
-    success = antigravity_api.cancel_cascade(conversation_id)
+    success = await asyncio.to_thread(antigravity_api.cancel_cascade, conversation_id)
     if not success:
         err_msg = antigravity_api.last_error or "Não foi possível parar a tarefa no Antigravity PC."
         raise HTTPException(status_code=500, detail=err_msg)
