@@ -734,21 +734,37 @@
             color: #c084fc !important;
         }
         .btn-stop {
-            background: rgba(239, 68, 68, 0.16) !important;
-            border: 1px solid rgba(239, 68, 68, 0.5) !important;
-            color: #fca5a5 !important;
-            font-weight: 600 !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            position: fixed;
+            left: 16px;
+            bottom: max(62px, calc(54px + env(safe-area-inset-bottom, 8px)));
+            z-index: 80;
+            height: 34px;
+            padding: 0 13px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(127, 29, 29, 0.88);
+            border: 1px solid rgba(239, 68, 68, 0.65);
+            color: #fecaca;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            transition: transform 0.15s ease, background 0.15s ease;
         }
         .btn-stop:hover, .btn-stop:active {
-            background: rgba(239, 68, 68, 0.3) !important;
-            border-color: #ef4444 !important;
-            color: #ffffff !important;
+            background: rgba(185, 28, 28, 0.95);
+            border-color: #ef4444;
+            color: #ffffff;
+            transform: scale(0.96);
         }
         body.theme-oled .btn-stop {
-            background: #080808 !important;
-            border-color: #7f1d1d !important;
-            color: #f87171 !important;
+            background: rgba(18, 6, 6, 0.94);
+            border-color: #991b1b;
+            color: #f87171;
         }
         .prompt-modal {
             position: fixed;
@@ -2546,6 +2562,12 @@
         </div>
     </main>
 
+    <!-- Botão Flutuante de Parar Tarefa (exibido apenas enquanto o agente executa no PC) -->
+    <button id="btn-stop-toggle" type="button" class="btn-stop" onclick="StopManager.cancel()" title="Parar tarefa em andamento" style="display: none;">
+        <svg class="ui-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        <span id="btn-stop-text">Parar</span>
+    </button>
+
     <!-- Botão Flutuante de Scroll Rápido (FAB) com Contador Não Lido -->
     <button id="btn-scroll-bottom" class="fab-scroll hidden" onclick="ScrollManager.scrollToBottom(true)" aria-label="Ir para o final" title="Ir para o fim">
         <span class="fab-arrow">↓</span>
@@ -2572,10 +2594,6 @@
         <button id="btn-prompt-toggle" type="button" class="btn-pill btn-prompt footer-item" onclick="PromptManager.open()" title="Enviar prompt">
             <svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             <span id="btn-prompt-text">Prompt</span>
-        </button>
-        <button id="btn-stop-toggle" type="button" class="btn-pill btn-stop footer-item" onclick="StopManager.cancel()" title="Parar tarefa em andamento" style="display: none;">
-            <svg class="ui-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-            <span id="btn-stop-text">Parar</span>
         </button>
     </footer>
 
