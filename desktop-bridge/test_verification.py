@@ -870,11 +870,22 @@ def run_tests():
         run_txt18 = (bridge_dir / "run.py").read_text(encoding="utf-8")
         assert_true("tunnel_manager.start_tunnel" not in run_txt18, "run.py removeu segundo QR code e inicialização de túnel de emergência")
 
-        # HTML v2.5.2 com Hydrogen e sincronização dinâmica /api/models
+        # HTML v2.5.2 com Hydrogen, sincronização dinâmica /api/models e botão Parar
         html18 = (bridge_dir / "static" / "index.html").read_text(encoding="utf-8")
         assert_true("Gemini 4 Hydrogen (High)" in html18, "index.html inclui opção Gemini 4 Hydrogen (High)")
         assert_true("/api/models" in html18, "index.html sincroniza modelos dinamicamente via /api/models")
         assert_true("v2.5.2 (IP)" in html18, "index.html atualizado para versão v2.5.2")
+        assert_true("btn-stop-toggle" in html18 and "/api/cancel" in html18, "index.html inclui botão Parar e chamada /api/cancel")
+
+        # Teste do endpoint /api/cancel e tray.py
+        assert_true(hasattr(antigravity_api, "cancel_cascade"), "antigravity_api possui método cancel_cascade()")
+        server_txt18 = (bridge_dir / "server.py").read_text(encoding="utf-8")
+        assert_true('/api/cancel' in server_txt18, "server.py expõe endpoint POST /api/cancel")
+        from tray import tray_manager, _build_ico_from_png
+        assert_true(hasattr(tray_manager, "hide_console") and hasattr(tray_manager, "restore_console"), "tray_manager suporta ocultar/restaurar terminal na bandeja")
+        ico_test = _build_ico_from_png(bridge_dir / "static" / "antigravity-icon.png")
+        assert_true(ico_test is not None and ico_test.exists(), "_build_ico_from_png gera .ico válido a partir do ícone PNG")
+        assert_true("char_str == 't'" in run_txt18, "run.py suporta tecla 't' para minimizar na bandeja")
 
     except Exception as e:
         assert_true(False, f"Erro no Teste 18: {e}")

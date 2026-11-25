@@ -306,6 +306,44 @@ async def send_prompt(request: Request, token: Optional[str] = None):
         "message": "Prompt enviado com sucesso ao Antigravity PC!"
     }
 
+@app.post("/api/cancel")
+async def cancel_task(request: Request, token: Optional[str] = None):
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    auth_token = token or body.get("token")
+    if config.REQUIRE_AUTH and not auth_manager.is_valid_token(auth_token):
+        raise HTTPException(status_code=401, detail="PIN de acesso inválido ou expirado")
+
+    conversation_id = str(body.get("conversation_id", "") or monitor.current_conversation_id or "").strip()
+    if not conversation_id:
+        raise HTTPException(status_code=400, detail="conversation_id é obrigatório")
+
+    from antigravity_api import antigravity_api
+    success = antigravity_api.cancel_cascade(conversation_id)
+    if not success:
+        err_msg = antigravity_api.last_error or "Não foi possível parar a tarefa no Antigravity PC."
+        raise HTTPException(status_code=500, detail=err_msg)
+
+    if conversation_id == monitor.current_conversation_id:
+        monitor.current_turn_status = "DONE"
+        if monitor.on_event:
+            await monitor.on_event({
+                "event": "status_change",
+                "data": {
+                    "status": "DONE",
+                    "active_model": monitor.active_model
+                }
+            })
+
+    return {
+        "status": "success",
+        "conversation_id": conversation_id,
+        "message": "Tarefa interrompida no Antigravity PC."
+    }
+
 @app.get("/api/models")
 def get_models(token: Optional[str] = None):
     if config.REQUIRE_AUTH and not auth_manager.is_valid_token(token):

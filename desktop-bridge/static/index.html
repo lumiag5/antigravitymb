@@ -733,6 +733,23 @@
             border-color: #2e1065 !important;
             color: #c084fc !important;
         }
+        .btn-stop {
+            background: rgba(239, 68, 68, 0.16) !important;
+            border: 1px solid rgba(239, 68, 68, 0.5) !important;
+            color: #fca5a5 !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+        .btn-stop:hover, .btn-stop:active {
+            background: rgba(239, 68, 68, 0.3) !important;
+            border-color: #ef4444 !important;
+            color: #ffffff !important;
+        }
+        body.theme-oled .btn-stop {
+            background: #080808 !important;
+            border-color: #7f1d1d !important;
+            color: #f87171 !important;
+        }
         .prompt-modal {
             position: fixed;
             inset: 0;
@@ -2556,6 +2573,10 @@
             <svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             <span id="btn-prompt-text">Prompt</span>
         </button>
+        <button id="btn-stop-toggle" type="button" class="btn-pill btn-stop footer-item" onclick="StopManager.cancel()" title="Parar tarefa em andamento" style="display: none;">
+            <svg class="ui-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+            <span id="btn-stop-text">Parar</span>
+        </button>
     </footer>
 
     <script>
@@ -2793,6 +2814,11 @@
             // Chats Modal i18n
             const elPromptBtnText = document.getElementById("btn-prompt-text");
             if (elPromptBtnText && t.btn_prompt) elPromptBtnText.innerText = t.btn_prompt;
+
+            const elStopBtn = document.getElementById("btn-stop-toggle");
+            if (elStopBtn && t.btn_stop_title) elStopBtn.title = t.btn_stop_title;
+            const elStopBtnText = document.getElementById("btn-stop-text");
+            if (elStopBtnText && t.btn_stop) elStopBtnText.innerText = t.btn_stop;
 
             const elPromptModalTitle = document.getElementById("prompt-modal-title");
             if (elPromptModalTitle && t.prompt_modal_title) elPromptModalTitle.innerText = t.prompt_modal_title;
@@ -4832,7 +4858,48 @@
             const cleanClass = label.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
             statusPill.className = `status-pill state-${state} ${cleanClass}`;
             statusText.innerText = label;
+
+            const stopBtn = document.getElementById("btn-stop-toggle");
+            if (stopBtn) {
+                const isRunning = (state === "task-running" || state === "thought" || state === "working");
+                stopBtn.style.display = isRunning ? "inline-flex" : "none";
+            }
         }
+
+        const StopManager = {
+            isCancelling: false,
+            async cancel() {
+                if (this.isCancelling) return;
+                const t = currentI18n || {};
+                const stopBtn = document.getElementById("btn-stop-toggle");
+                const convId = (window.ChatsManager && ChatsManager.currentConvId) ? ChatsManager.currentConvId : "";
+                this.isCancelling = true;
+                if (stopBtn) stopBtn.disabled = true;
+                try {
+                    const res = await fetch(`/api/cancel?token=${encodeURIComponent(authToken || "")}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ conversation_id: convId })
+                    });
+                    if (res.ok) {
+                        if (typeof showToast === "function") {
+                            showToast(t.stop_sent_success || "Tarefa interrompida no PC.");
+                        }
+                    } else {
+                        if (typeof showToast === "function") {
+                            showToast(t.stop_error || "Não foi possível parar a tarefa.");
+                        }
+                    }
+                } catch (e) {
+                    if (typeof showToast === "function") {
+                        showToast(t.stop_error || "Não foi possível parar a tarefa.");
+                    }
+                } finally {
+                    this.isCancelling = false;
+                    if (stopBtn) stopBtn.disabled = false;
+                }
+            }
+        };
 
         function updateQuota(q) {
             if (!q) return;

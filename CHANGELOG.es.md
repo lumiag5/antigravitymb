@@ -12,6 +12,10 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ## [2.5.2] - 2026-11-24 (Build 2520)
 
+### Añadido
+* **Botón "Detener" en la app (`POST /api/cancel`)**: Mientras hay una tarea ejecutándose en la PC, aparece el botón **Detener** junto a Prompt para cancelar la ejecución desde el móvil vía `CancelCascadeInvocation`.
+* **Icono en la bandeja de Windows (System Tray)**: Nuevo módulo `tray.py` sin dependencias externas y atajo `[T] Bandeja` en terminal para ocultar/restaurar la ventana junto al reloj, con menú contextual.
+
 ### Corregido
 * **Detección del modelo Hydrogen**: Ajuste en el lector de `gen_metadata` y enums protobuf (`MODEL_PLACEHOLDER_M525`..`M528`) para mostrar **Gemini 4 Hydrogen** correctamente sin confundirlo con Argon.
 * **Envío de prompts en Antigravity PC actualizado**: `antigravity_api.py` ahora lee puerto y token desde `daemon/hub_*.json` (formato de `language_server` 2.34+) y envía `cascade_config.planner_config.plan_model`.

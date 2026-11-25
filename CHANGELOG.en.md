@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [2.5.2] - 2026-11-24 (Build 2520)
 
+### Added
+* **In-app "Stop" button (`POST /api/cancel`)**: While a task is running on PC, a **Stop** button appears next to Prompt so you can cancel the execution from your phone via `CancelCascadeInvocation`.
+* **Windows System Tray icon**: New zero-dependency `tray.py` module and `[T] Tray` terminal shortcut to hide/restore the console near the clock, with right-click menu (show terminal, open browser, new PIN, update server, exit).
+
 ### Fixed
 * **Gemini 4 Hydrogen detection**: Fixed model parser and placeholder mapping (`MODEL_PLACEHOLDER_M525`..`M528`) so Hydrogen displays as Hydrogen instead of Argon.
 * **Remote prompt dispatch on newer Antigravity PC**: Updated `antigravity_api.py` to discover ports and CSRF tokens from `daemon/hub_*.json` (Antigravity 2.34+) and forward `cascade_config.planner_config.plan_model` properly.

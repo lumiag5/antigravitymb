@@ -355,5 +355,19 @@ class AntigravityLocalAPI:
         print(f"[AntigravityLocalAPI] Falha ao enviar mensagem: {self.last_error}")
         return False
 
+    def cancel_cascade(self, conversation_id: str) -> bool:
+        """Cancela/interrompe uma tarefa em andamento na conversa especificada."""
+        if not self.base_url or not self.csrf_token:
+            if not self.discover_connection():
+                self.last_error = "Não foi possível localizar o processo do Antigravity PC"
+                return False
+
+        res = self._call_rpc("CancelCascadeInvocation", {"cascade_id": conversation_id}, timeout=5.0)
+        if res is not None:
+            return True
+
+        print(f"[AntigravityLocalAPI] Falha ao cancelar tarefa: {self.last_error}")
+        return False
+
 
 antigravity_api = AntigravityLocalAPI()

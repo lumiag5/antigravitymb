@@ -12,6 +12,10 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ## [2.5.2] - 2026-11-24 (Build 2520)
 
+### Adicionado
+* **Botão "Parar" no app (`POST /api/cancel`)**: Quando uma tarefa está rodando no PC, o botão vermelho **Parar** aparece ao lado do botão Prompt para cancelar a execução pelo celular via `CancelCascadeInvocation`.
+* **Ícone na bandeja do Windows (System Tray)**: Novo módulo `tray.py` sem dependências externas e atalho `[T] Bandeja` no terminal para ocultar/restaurar a janela perto do relógio, com menu de clique direito (mostrar terminal, abrir no navegador, novo PIN, atualizar servidor e sair).
+
 ### Corrigido
 * **Identificação do modelo Hydrogen**: Ajuste no mapeamento de `gen_metadata` e enums protobuf (`MODEL_PLACEHOLDER_M525`..`M528`) para reconhecer **Gemini 4 Hydrogen** corretamente sem confundir com Argon.
 * **Envio remoto de prompts no Antigravity PC recente**: `antigravity_api.py` atualizado para ler porta e token de `daemon/hub_*.json` (novo formato do `language_server` 2.34+) e enviar `cascade_config.planner_config.plan_model` ao usar o botão Prompt.

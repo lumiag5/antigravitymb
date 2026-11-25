@@ -20,6 +20,7 @@ Aplicación móvil y panel web para monitorear las tareas de **Antigravity IDE**
 
 ### Envío de Prompts y Acciones Remotas
 * **Envío remoto de prompts**: Envía comandos desde el móvil a Antigravity en la PC (`POST /api/prompt`) eligiendo el modelo de IA (Gemini 4 Hydrogen, Gemini 3.8 Flash, Pro, Claude, GPT, etc., sincronizados vía `/api/models`).
+* **Detener tarea desde el móvil**: Botón **Detener** visible automáticamente mientras el agente está ejecutando en la PC (`POST /api/cancel`).
 * **Atajos rápidos (Snippets)**: Chips de comandos frecuentes (*Continúa*, *Ejecuta las pruebas*, *Resume el progreso*, *Verifica errores*).
 * **Historial y contador**: Historial de prompts recientes y contador de caracteres/palabras en tiempo real.
 * **Acciones en respuestas**: Botón para copiar la respuesta completa y compartir de forma nativa (vía Web Share API).

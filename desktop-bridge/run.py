@@ -156,13 +156,14 @@ def print_banner(local_ip: str):
     print("-" * 68, flush=True)
     btn_pin = t.get("terminal_btn_pin", "[P] Novo PIN")
     btn_lang = t.get("terminal_btn_lang", "[L] Idioma")
+    btn_tray = t.get("terminal_btn_tray", "[T] Bandeja")
     if available_update:
         btn_upd = t.get("terminal_btn_update_new", "[U] ATUALIZAR PARA {version}").format(version=available_update)
     else:
         btn_upd = t.get("terminal_btn_update", "[U] Atualizar Servidor (GitHub)")
     actions_lbl = t.get("terminal_actions_label", "ATALHOS DO TERMINAL")
     print(f" {actions_lbl}:", flush=True)
-    print(f"   {btn_pin}   |   {btn_lang}   |   {btn_upd}", flush=True)
+    print(f"   {btn_pin}  |  {btn_lang}  |  {btn_tray}  |  {btn_upd}", flush=True)
     print("-" * 68, flush=True)
     print(f" {t['server_notice']}", flush=True)
     print("=" * 68 + "\n", flush=True)
@@ -198,6 +199,14 @@ def start_keyboard_listener(local_ip: str):
                             pass
                         
                         print_banner(local_ip)
+                    elif char_str == 't':
+                        # Tecla T: Minimiza o terminal para a bandeja do Windows (System Tray)
+                        try:
+                            from tray import tray_manager
+                            if tray_manager.is_supported():
+                                tray_manager.hide_console(notify=True)
+                        except Exception:
+                            pass
                     elif char_str == 'u':
                         # Tecla U: Botão para verificar e atualizar o Local Server via GitHub
                         from updater import check_and_update_local_server
@@ -239,8 +248,40 @@ def main():
     local_ip = get_local_ip()
     print_banner(local_ip)
 
-    # 3. Inicia escuta de teclado (P = novo PIN, L = idioma, U = atualizar servidor no GitHub)
+    # 3. Inicia escuta de teclado (P = novo PIN, L = idioma, T = bandeja, U = atualizar servidor no GitHub)
     start_keyboard_listener(local_ip)
+
+    # 3.1. Inicia ícone na bandeja do Windows (System Tray) se disponível
+    try:
+        from tray import tray_manager
+        if tray_manager.is_supported():
+            def _tray_new_pin():
+                auth_manager.generate_pin(notify=False)
+                print_banner(local_ip)
+
+            def _tray_check_update():
+                from updater import check_and_update_local_server
+                if check_and_update_local_server(force_check=False, ask_confirmation=True, server_running=True):
+                    restart_requested.set()
+                    if active_server is not None:
+                        active_server.should_exit = True
+                else:
+                    print_banner(local_ip)
+
+            def _tray_exit():
+                if active_server is not None:
+                    active_server.should_exit = True
+
+            tray_manager.start(
+                icon_png=SCRIPT_DIR / "static" / "antigravity-icon.png",
+                on_new_pin=_tray_new_pin,
+                on_check_update=_tray_check_update,
+                on_exit=_tray_exit,
+                get_url=lambda: f"http://localhost:{config.PORT}?pin={auth_manager.current_pin}",
+                get_labels=language_manager.get_dict,
+            )
+    except Exception:
+        pass
 
     # 4. Inicia o servidor uvicorn gerenciado (permite reinício limpo caso arquivos Python sejam atualizados)
     uvi_config = uvicorn.Config(
@@ -252,7 +293,14 @@ def main():
         reload=False
     )
     active_server = uvicorn.Server(uvi_config)
-    active_server.run()
+    try:
+        active_server.run()
+    finally:
+        try:
+            from tray import tray_manager
+            tray_manager.stop()
+        except Exception:
+            pass
 
     if restart_requested.is_set():
         trigger_in_place_restart()

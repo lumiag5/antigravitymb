@@ -20,6 +20,7 @@ Mobile app and web dashboard for monitoring **Antigravity IDE** tasks in real ti
 
 ### Remote Prompting & Quick Actions
 * **Remote prompt dispatch**: Send prompts directly from your phone to Antigravity on PC (`POST /api/prompt`) with live AI model selection (Gemini 4 Hydrogen, Gemini 3.8 Flash, Pro, Claude, GPT, etc., synced via `/api/models`).
+* **Remote stop button**: **Stop** button automatically appears while a task is running on PC (`POST /api/cancel`).
 * **Quick snippets**: One-tap shortcut chips (*Continue*, *Run tests*, *Summarize progress*, *Check errors*).
 * **Prompt history & counter**: Recent prompts recall with arrow-up key navigation and live character/word count.
 * **Response actions**: Quick copy button with visual feedback and native share button (via Web Share API) to send responses to WhatsApp, Telegram, or Notes.
