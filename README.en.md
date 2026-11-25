@@ -12,18 +12,18 @@
   <img src="https://img.shields.io/badge/build-GitHub_Actions_Passing-brightgreen?style=flat-square" alt="GitHub Actions">
 </p>
 
-Mobile app and web dashboard for monitoring **Antigravity IDE** tasks in real time from your phone. Displays filtered chat output, notifies you when a task completes (audio chime, screen flash, vibration), tracks AI quota usage, and lets you browse conversations and projects. Works over local Wi-Fi or Cloudflare tunnels via native Android app (APK) or browser.
+Mobile app and web dashboard for monitoring **Antigravity IDE** tasks in real time from your phone. Displays filtered chat output, notifies you when a task completes (audio chime, screen flash, vibration), tracks AI quota usage, and lets you browse conversations and projects. Works over local Wi-Fi via native Android app (APK) or browser.
 
 ---
 
 ## Features
 
 ### Remote Prompting & Quick Actions
-* **Remote prompt dispatch**: Send prompts directly from your phone to Antigravity on PC (`POST /api/prompt`) with AI model selection (Gemini 3.8 Flash, Pro, Claude 3.7 Sonnet, GPT-4o, etc.).
-* **Quick snippets**: One-tap shortcut chips (🔄 *Continue*, 🧪 *Run tests*, 📋 *Summarize progress*, 🐞 *Check errors*).
+* **Remote prompt dispatch**: Send prompts directly from your phone to Antigravity on PC (`POST /api/prompt`) with live AI model selection (Gemini 4 Hydrogen, Gemini 3.8 Flash, Pro, Claude, GPT, etc., synced via `/api/models`).
+* **Quick snippets**: One-tap shortcut chips (*Continue*, *Run tests*, *Summarize progress*, *Check errors*).
 * **Prompt history & counter**: Recent prompts recall with arrow-up key navigation and live character/word count.
-* **Response actions**: Quick copy button with visual feedback (📋 ➔ ✅) and native share button (📤 via Web Share API) to send responses to WhatsApp, Telegram, or Notes.
-* **Favorite chats**: Star button (⭐) to pin important conversations to the top with persistent local storage.
+* **Response actions**: Quick copy button with visual feedback and native share button (via Web Share API) to send responses to WhatsApp, Telegram, or Notes.
+* **Favorite chats**: Pin important conversations to the top with persistent local storage.
 
 ### Chat & Navigation
 * **Real-time chat**: Displays user prompts and assistant completions without noise from intermediate tool calls.
@@ -47,7 +47,7 @@ Mobile app and web dashboard for monitoring **Antigravity IDE** tasks in real ti
 * **OLED True Black**: Absolute `#000000` theme by default for up to 60% energy savings on AMOLED/OLED displays.
 * **QR Code pairing**: One-tap sign in via camera scanner reading the PC console QR code.
 * **Session resume**: Reconnect to active sessions without retyping the PIN.
-* **In-app updater**: Check and install new releases directly from the settings menu. See APK changelogs: [Português](android/CHANGELOG.md) &bull; [English](android/CHANGELOG.en.md) &bull; [Español](android/CHANGELOG.es.md).
+* **Built-in updater**: On the PC terminal, startup GitHub check with `[Y/N]` confirmation and `[U]` button to download updates with a progress bar (applies static updates without restarting, or auto-restarts in the same window for Python changes). On Android, check and install new releases directly from the settings menu. See APK changelogs: [Português](android/CHANGELOG.md) &bull; [English](android/CHANGELOG.en.md) &bull; [Español](android/CHANGELOG.es.md).
 
 ---
 

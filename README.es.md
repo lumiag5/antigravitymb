@@ -12,11 +12,18 @@
   <img src="https://img.shields.io/badge/build-GitHub_Actions_Passing-brightgreen?style=flat-square" alt="GitHub Actions">
 </p>
 
-Aplicación móvil y panel web para monitorear las tareas de **Antigravity IDE** desde el teléfono en tiempo real. Muestra el chat filtrado, avisa cuando una tarea finaliza (sonido, parpadeo de pantalla y vibración), consulta cuotas de IA y permite navegar entre proyectos y conversaciones. Funciona mediante Wi-Fi local o túnel Cloudflare, por app nativa Android (APK) o navegador.
+Aplicación móvil y panel web para monitorear las tareas de **Antigravity IDE** desde el teléfono en tiempo real. Muestra el chat filtrado, avisa cuando una tarea finaliza (sonido, parpadeo de pantalla y vibración), consulta cuotas de IA y permite navegar entre proyectos y conversaciones. Funciona mediante Wi-Fi local, por app nativa Android (APK) o navegador.
 
 ---
 
 ## Características
+
+### Envío de Prompts y Acciones Remotas
+* **Envío remoto de prompts**: Envía comandos desde el móvil a Antigravity en la PC (`POST /api/prompt`) eligiendo el modelo de IA (Gemini 4 Hydrogen, Gemini 3.8 Flash, Pro, Claude, GPT, etc., sincronizados vía `/api/models`).
+* **Atajos rápidos (Snippets)**: Chips de comandos frecuentes (*Continúa*, *Ejecuta las pruebas*, *Resume el progreso*, *Verifica errores*).
+* **Historial y contador**: Historial de prompts recientes y contador de caracteres/palabras en tiempo real.
+* **Acciones en respuestas**: Botón para copiar la respuesta completa y compartir de forma nativa (vía Web Share API).
+* **Fijar chats**: Fija conversaciones importantes arriba con guardado local.
 
 ### Chat y Navegación
 * **Chat en tiempo real**: Muestra las instrucciones del usuario y la respuesta final del asistente, sin registros internos de herramientas.
@@ -35,7 +42,7 @@ Aplicación móvil y panel web para monitorear las tareas de **Antigravity IDE**
 * **Modo OLED Black**: Fondo `#000000` para ahorrar batería.
 * **Acceso por código QR**: Emparejamiento con la cámara leyendo el código QR de la terminal.
 * **Reanudación de sesión**: Opción de volver a la sesión activa sin volver a ingresar el PIN.
-* **Actualizador integrado**: Búsqueda e instalación de nuevas versiones directamente desde el menú de la app. Consulta los changelogs del APK: [Português](android/CHANGELOG.md) &bull; [English](android/CHANGELOG.en.md) &bull; [Español](android/CHANGELOG.es.md).
+* **Actualizador integrado**: En la terminal de la PC, comprobación inicial en GitHub con confirmación `[S/N]` y botón `[U]` con barra de progreso (sin reiniciar cuando solo cambian archivos estáticos, o reinicio automático en la misma ventana para cambios en Python). En Android, búsqueda e instalación directamente desde el menú de la app. Consulta los changelogs del APK: [Português](android/CHANGELOG.md) &bull; [English](android/CHANGELOG.en.md) &bull; [Español](android/CHANGELOG.es.md).
 
 ---
 
