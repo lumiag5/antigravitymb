@@ -20,6 +20,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 ### Cambiado
 * **Código QR único**: Se eliminó el segundo código QR y el túnel Cloudflare de respaldo en la terminal, dejando solo el QR local Wi-Fi principal.
 * **Interfaz más limpia**: Menos emojis innecesarios, iconos SVG discretos, textos más directos y lista de modelos sincronizada vía `/api/models`.
+* **Actualizador interactivo en terminal**: Comprobación inicial en GitHub con confirmación `[S/N]`, barra de atajos con botón `[U] Actualizar Servidor` y barra de progreso, actualización en caliente sin reiniciar para archivos estáticos y reinicio automático en la misma ventana cuando cambia código Python.
 
 ---
 

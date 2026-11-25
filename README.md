@@ -47,7 +47,7 @@ Aplicativo e painel web para acompanhar as tarefas do **Antigravity IDE** no cel
 * **Tema OLED Black**: Fundo `#000000` absoluto por padrão para economia de até 60% em telas AMOLED/OLED.
 * **Login por QR Code**: Pareamento com a câmera lendo o QR Code do terminal do PC.
 * **Reconexão automática**: Opção de voltar à sessão ativa sem precisar redigitar o PIN.
-* **Atualizador integrado**: Verificação e instalação de novas versões direto pelo menu do app. Veja os changelogs do APK: [Português](android/CHANGELOG.md) &bull; [English](android/CHANGELOG.en.md) &bull; [Español](android/CHANGELOG.es.md).
+* **Atualizador integrado**: No terminal do PC, verificação inicial com confirmação `[S/N]` e botão `[U]` para baixar a última versão do GitHub com barra de progresso (sem reiniciar quando não há mudanças em código Python, ou reinício automático na mesma janela). No Android, verificação e instalação direto pelo menu do app. Veja os changelogs do APK: [Português](android/CHANGELOG.md) &bull; [English](android/CHANGELOG.en.md) &bull; [Español](android/CHANGELOG.es.md).
 
 ---
 

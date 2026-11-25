@@ -96,12 +96,35 @@ def print_qr_code(url: str, title: str = ""):
     except Exception:
         pass
 
+MANAGED_RESTART = "--managed" in sys.argv
+JUST_UPDATED_MARKER = SCRIPT_DIR / ".just_updated"
+active_server = None
+restart_requested = threading.Event()
+
+def trigger_in_place_restart():
+    """Reinicia o Local Server na mesma janela do terminal após atualização de código."""
+    try:
+        JUST_UPDATED_MARKER.write_text("1", encoding="utf-8")
+    except Exception:
+        pass
+    if MANAGED_RESTART:
+        sys.exit(42)
+    else:
+        rc = subprocess.call([sys.executable, str(SCRIPT_DIR / "run.py")])
+        sys.exit(rc)
+
 def print_banner(local_ip: str):
     port = config.PORT
     t = language_manager.get_dict()
     lang = language_manager.current_lang
     lang_names = {"pt": "Português (Brasil)", "en": "English", "es": "Español"}
     ver_label = t.get("terminal_version", "Versão do Servidor")
+
+    try:
+        import updater
+        available_update = updater.AVAILABLE_UPDATE
+    except Exception:
+        available_update = None
 
     print("\n" + "=" * 68, flush=True)
     print(f"        [*] ANTIGRAVITY MOBILE - {t['terminal_title']} (v{config.VERSION})", flush=True)
@@ -111,6 +134,12 @@ def print_banner(local_ip: str):
     print(f" * {t['terminal_local_pc']}:             http://localhost:{port}", flush=True)
     print(f" * {t['terminal_mobile_wifi']}:       http://{local_ip}:{port}", flush=True)
     print(f" * {t['terminal_active_lang']}:         {lang_names.get(lang, lang)}", flush=True)
+    if available_update:
+        avail_msg = t.get(
+            "updater_available_banner",
+            "Atualização disponível no GitHub: {version} (pressione [U] para atualizar)"
+        ).format(version=available_update)
+        print(f" ! {avail_msg}", flush=True)
     print("-" * 68, flush=True)
     
     # Exibe QR Code único para conexão imediata via câmera do celular
@@ -125,16 +154,25 @@ def print_banner(local_ip: str):
     print(f" {step2}", flush=True)
     print(f" {t.get('terminal_tutorial_step3', '  3. Digite o PIN gerado no terminal para liberar (salvo em cache por 24h).')}", flush=True)
     print("-" * 68, flush=True)
+    btn_pin = t.get("terminal_btn_pin", "[P] Novo PIN")
+    btn_lang = t.get("terminal_btn_lang", "[L] Idioma")
+    if available_update:
+        btn_upd = t.get("terminal_btn_update_new", "[U] ATUALIZAR PARA {version}").format(version=available_update)
+    else:
+        btn_upd = t.get("terminal_btn_update", "[U] Atualizar Servidor (GitHub)")
+    actions_lbl = t.get("terminal_actions_label", "ATALHOS DO TERMINAL")
+    print(f" {actions_lbl}:", flush=True)
+    print(f"   {btn_pin}   |   {btn_lang}   |   {btn_upd}", flush=True)
+    print("-" * 68, flush=True)
     print(f" {t['server_notice']}", flush=True)
-    print(f" {t['press_key_notice']}", flush=True)
     print("=" * 68 + "\n", flush=True)
 
 def start_keyboard_listener(local_ip: str):
-    """Thread que detecta pressionamento de tecla para gerar novo PIN, alternar idioma ou verificar atualizações."""
+    """Thread que detecta pressionamento de tecla para gerar novo PIN, alternar idioma ou atualizar Local Server."""
     def listener():
         try:
             import msvcrt
-            while True:
+            while not restart_requested.is_set():
                 if msvcrt.kbhit():
                     ch = msvcrt.getch()
                     char_str = ch.decode("utf-8", errors="ignore").lower().strip()
@@ -161,13 +199,16 @@ def start_keyboard_listener(local_ip: str):
                         
                         print_banner(local_ip)
                     elif char_str == 'u':
-                        # Tecla U: Verificação de atualizações do Local Server
+                        # Tecla U: Botão para verificar e atualizar o Local Server via GitHub
                         from updater import check_and_update_local_server
-                        if check_and_update_local_server(force_check=True):
-                            sys.exit(0)
+                        if check_and_update_local_server(force_check=False, ask_confirmation=True, server_running=True):
+                            restart_requested.set()
+                            if active_server is not None:
+                                active_server.should_exit = True
+                            break
                         print_banner(local_ip)
                     else:
-                        # Qualquer outra tecla: gera novo PIN e atualiza o banner
+                        # Tecla P ou qualquer outra tecla: gera novo PIN e atualiza o banner
                         auth_manager.generate_pin(notify=False)
                         print_banner(local_ip)
                 time.sleep(0.12)
@@ -178,31 +219,43 @@ def start_keyboard_listener(local_ip: str):
     t.start()
 
 def main():
+    global active_server
+
     # 1. Solicita e salva o idioma do usuário se ainda não estiver configurado
     language_manager.prompt_language_selection()
 
-    # 1.1. Verifica atualizações automáticas do Local Server no GitHub (com 2 tentativas se falhar)
-    from updater import check_and_update_local_server
-    if check_and_update_local_server():
-        sys.exit(0)
+    # 1.1. Verificação inicial de atualização no GitHub (usuário decide S/N se houver versão nova)
+    if JUST_UPDATED_MARKER.exists():
+        try:
+            JUST_UPDATED_MARKER.unlink()
+        except Exception:
+            pass
+    else:
+        from updater import check_and_update_local_server
+        if check_and_update_local_server(force_check=False, ask_confirmation=True, server_running=False):
+            trigger_in_place_restart()
 
-    # 2. Detecta IP e imprime o banner único no idioma selecionado com PIN inicial e QR Code
+    # 2. Detecta IP e imprime o banner único no idioma selecionado com PIN inicial, QR Code e botões de atalho
     local_ip = get_local_ip()
     print_banner(local_ip)
 
-    # 3. Inicia escuta de teclado (gerar novo PIN, pressionar L para alternar idioma ou U para buscar atualizações)
+    # 3. Inicia escuta de teclado (P = novo PIN, L = idioma, U = atualizar servidor no GitHub)
     start_keyboard_listener(local_ip)
 
-    # 4. Inicia o servidor uvicorn sem access_log ruidoso (elimina o spam de 403 no terminal)
-    uvicorn.run(
+    # 4. Inicia o servidor uvicorn gerenciado (permite reinício limpo caso arquivos Python sejam atualizados)
+    uvi_config = uvicorn.Config(
         "server:app",
         host=config.HOST,
         port=config.PORT,
         log_level="warning",
         access_log=False,
-        reload=False,
-        app_dir=str(SCRIPT_DIR)
+        reload=False
     )
+    active_server = uvicorn.Server(uvi_config)
+    active_server.run()
+
+    if restart_requested.is_set():
+        trigger_in_place_restart()
 
 if __name__ == "__main__":
     main()

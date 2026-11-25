@@ -22,6 +22,12 @@ def get_installed_version() -> str:
 
 class BridgeConfig:
     VERSION: str = get_installed_version()
+
+    @classmethod
+    def refresh_version(cls) -> str:
+        """Atualiza a versão carregada em memória a partir de version.json."""
+        cls.VERSION = get_installed_version()
+        return cls.VERSION
     GITHUB_REPO: str = os.getenv("BRIDGE_GITHUB_REPO", "lumiag5/antigravitymb")
     HOST: str = os.getenv("BRIDGE_HOST", "0.0.0.0")
     PORT: int = int(os.getenv("BRIDGE_PORT", "8765"))

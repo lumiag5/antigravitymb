@@ -29,6 +29,9 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = SCRIPT_DIR.parent
 VERSION_FILE = SCRIPT_DIR / "version.json"
 
+AVAILABLE_UPDATE: Optional[str] = None
+LAST_UPDATE_NEEDS_RESTART: bool = False
+
 def parse_semver(tag: str) -> Tuple[int, int, int]:
     """Extrai versão semver (major, minor, patch) de uma tag como 'v2.5.1' ou '2.5.1'."""
     match = re.search(r"(\d+)\.(\d+)(?:\.(\d+))?", tag)
@@ -237,31 +240,70 @@ def get_file_mappings(extract_dir: Path) -> List[Tuple[Path, Path]]:
 
     return mappings
 
+def get_changed_files(extract_dir: Path) -> Tuple[List[Tuple[Path, Path]], int]:
+    """Retorna a lista de pares (src, dst) que diferem dos arquivos locais e o total de arquivos analisados."""
+    mappings = get_file_mappings(extract_dir)
+    total_count = len(mappings)
+    changed: List[Tuple[Path, Path]] = []
+
+    for src_file, dst_file in mappings:
+        if not dst_file.exists():
+            changed.append((src_file, dst_file))
+            continue
+        if dst_file.stat().st_size != src_file.stat().st_size:
+            changed.append((src_file, dst_file))
+            continue
+        if compute_file_hash(dst_file) != compute_file_hash(src_file):
+            changed.append((src_file, dst_file))
+            continue
+
+    return changed, total_count
+
 def analyze_extracted_files(extract_dir: Path) -> Tuple[bool, int, int]:
     """Analisa todos os arquivos extraídos e compara com os arquivos locais via tamanho e hash SHA-256.
     
     Retorna:
         (has_changes, changed_count, total_count)
     """
-    mappings = get_file_mappings(extract_dir)
-    total_count = len(mappings)
-    changed_count = 0
-    
-    for src_file, dst_file in mappings:
-        if not dst_file.exists():
-            changed_count += 1
-            continue
-        # Se os tamanhos forem diferentes, houve modificação
-        if dst_file.stat().st_size != src_file.stat().st_size:
-            changed_count += 1
-            continue
-        # Se os hashes diferirem, houve modificação
-        if compute_file_hash(dst_file) != compute_file_hash(src_file):
-            changed_count += 1
-            continue
-            
-    has_changes = (changed_count > 0)
-    return (has_changes, changed_count, total_count)
+    changed, total_count = get_changed_files(extract_dir)
+    changed_count = len(changed)
+    return (changed_count > 0, changed_count, total_count)
+
+def requires_process_restart(changed_mappings: List[Tuple[Path, Path]]) -> bool:
+    """Retorna True se algum arquivo Python/batch/dependência foi alterado e exige recarregar o processo."""
+    for _, dst_file in changed_mappings:
+        suffix = dst_file.suffix.lower()
+        name = dst_file.name.lower()
+        if suffix in (".py", ".bat") or name == "requirements.txt":
+            return True
+    return False
+
+def prompt_yes_no(prompt_text: str) -> bool:
+    """Pergunta S/N no terminal de forma imediata e responsiva sem bloquear buffer."""
+    is_interactive = bool(sys.stdin and hasattr(sys.stdin, "isatty") and sys.stdin.isatty())
+    if not is_interactive:
+        return False
+
+    print(prompt_text, end="", flush=True)
+    try:
+        import msvcrt
+        while msvcrt.kbhit():
+            msvcrt.getch()
+        while True:
+            ch = msvcrt.getch()
+            char = ch.decode("utf-8", errors="ignore").lower().strip()
+            if char in ("s", "y"):
+                print("S", flush=True)
+                return True
+            if char in ("n", "\x1b", "\x03"):
+                print("N", flush=True)
+                return False
+    except Exception:
+        try:
+            ans = input().strip().lower()
+            return ans in ("s", "sim", "si", "y", "yes")
+        except Exception:
+            return False
 
 def apply_extracted_files(extract_dir: Path, remote_tag: str = "") -> bool:
     """Aplica os arquivos extraídos na instalação local, atualizando arquivos e gravando version.json."""
@@ -288,16 +330,24 @@ def apply_extracted_files(extract_dir: Path, remote_tag: str = "") -> bool:
         print(f" [!] Erro ao aplicar atualização: {e}", flush=True)
         return False
 
-def check_and_update_local_server(force_check: bool = False) -> bool:
+def check_and_update_local_server(
+    force_check: bool = False,
+    ask_confirmation: bool = True,
+    server_running: bool = False
+) -> bool:
     """Verifica e atualiza o Local Server via GitHub. Realiza 2 tentativas automáticas caso haja falha de conexão.
     
-    Analisa todos os arquivos para garantir que não haja downloads repetidos se os arquivos locais
-    já estiverem 100% atualizados.
+    Caso haja nova versão disponível e ask_confirmation=True, pergunta ao usuário [S/N] se deseja atualizar.
+    Se apenas arquivos estáticos/docs forem alterados, aplica sem exigir reinício do servidor.
+    Se arquivos Python forem alterados, retorna True para o caller reiniciar automaticamente na mesma janela.
     
     Retorna:
-        True: uma atualização com alterações reais foi instalada (o processo deve ser reiniciado).
-        False: nenhuma atualização necessária ou arquivos já idênticos (continuar fluxo normal).
+        True: arquivos Python/código foram atualizados e o processo deve recarregar.
+        False: já atualizado, recusado, erro de rede ou atualizado a quente sem precisar reiniciar.
     """
+    global AVAILABLE_UPDATE, LAST_UPDATE_NEEDS_RESTART
+    LAST_UPDATE_NEEDS_RESTART = False
+
     t = language_manager.get_dict()
     current_ver = config.VERSION
     repo = config.GITHUB_REPO
@@ -336,6 +386,7 @@ def check_and_update_local_server(force_check: bool = False) -> bool:
     
     # 1. Verificação prévia de semver: se a versão remota não for mais nova, dispensa download
     if not force_check and not is_newer_version(remote_tag, current_ver):
+        AVAILABLE_UPDATE = None
         up_to_date_msg = t.get(
             "updater_up_to_date",
             "Local Server já está na versão mais recente ({version})!"
@@ -343,11 +394,23 @@ def check_and_update_local_server(force_check: bool = False) -> bool:
         print(f" [OK] {up_to_date_msg}\n", flush=True)
         return False
         
+    AVAILABLE_UPDATE = remote_tag
     found_msg = t.get(
         "updater_found",
         "Nova versão encontrada: {new_version} (versão atual: {current_version})"
     ).format(new_version=remote_tag, current_version=current_ver)
     print(f"\n [*] {found_msg}", flush=True)
+
+    # Pergunta ao usuário se deseja atualizar agora
+    if ask_confirmation:
+        confirm_prompt = t.get("updater_ask_confirm", "Deseja atualizar o Local Server agora? [S/N]:")
+        if not prompt_yes_no(f" [?] {confirm_prompt} "):
+            cancel_msg = t.get(
+                "updater_cancelled",
+                "Atualização adiada. Pressione [U] no terminal quando quiser atualizar."
+            )
+            print(f" [i] {cancel_msg}\n", flush=True)
+            return False
     
     # 2. Localiza asset do Local Server (.7z ou .zip)
     asset = find_server_asset(release)
@@ -392,10 +455,15 @@ def check_and_update_local_server(force_check: bool = False) -> bool:
             return False
             
         # 4. ANÁLISE DE ARQUIVOS: compara arquivos locais vs arquivos baixados
-        has_changes, changed_count, total_count = analyze_extracted_files(extract_dir)
+        changed_mappings, total_count = get_changed_files(extract_dir)
+        changed_count = len(changed_mappings)
+        has_changes = changed_count > 0
         
         if not has_changes:
-            # Todos os arquivos locais já estão idênticos e atualizados!
+            AVAILABLE_UPDATE = None
+            if remote_tag:
+                update_local_version_file(remote_tag)
+                config.refresh_version()
             identical_msg = t.get(
                 "updater_files_identical",
                 "Todos os arquivos locais já estão atualizados e idênticos aos do GitHub!"
@@ -407,29 +475,39 @@ def check_and_update_local_server(force_check: bool = False) -> bool:
         if not apply_extracted_files(extract_dir, remote_tag=remote_tag):
             print(" [!] Falha ao substituir os arquivos da versão atual.\n", flush=True)
             return False
+
+        AVAILABLE_UPDATE = None
+        config.refresh_version()
+        needs_restart = requires_process_restart(changed_mappings)
+        LAST_UPDATE_NEEDS_RESTART = needs_restart
             
-        # 6. Sucesso! Notifica que arquivos foram atualizados e solicita reiniciar
+        # 6. Verifica se dá para continuar sem reiniciar ou se precisa recarregar processo Python
         success_title = t.get("updater_success_title", "ATUALIZAÇÃO DO SERVIDOR CONCLUÍDA COM SUCESSO!")
-        restart_prompt = t.get(
-            "updater_restart_prompt",
-            "Os arquivos do Local Server foram atualizados para a versão {version}.\n Por favor, feche esta janela do terminal e abra-a novamente para carregar as alterações."
-        ).format(version=remote_tag)
-        enter_prompt = t.get("updater_press_enter", "Pressione Enter para encerrar este terminal...")
-        
         print("\n" + "=" * 68, flush=True)
         print(f"        [*] ANTIGRAVITY MOBILE - {success_title}", flush=True)
         print("=" * 68, flush=True)
-        print(f" [*] {changed_count} de {total_count} arquivos atualizados.")
-        print(f"\n {restart_prompt}\n", flush=True)
+        print(f" [*] {changed_count} de {total_count} arquivos atualizados.", flush=True)
+
+        if not needs_restart:
+            if server_running and "server" in sys.modules:
+                try:
+                    sys.modules["server"].app.version = config.VERSION
+                except Exception:
+                    pass
+            no_restart_msg = t.get(
+                "updater_no_restart_needed",
+                "Atualizado para {version} sem precisar reiniciar o servidor!"
+            ).format(version=remote_tag)
+            print(f" [OK] {no_restart_msg}", flush=True)
+            print("=" * 68 + "\n", flush=True)
+            return False
+
+        auto_restart_msg = t.get(
+            "updater_auto_restarting",
+            "Atualização aplicada ({version}). Reiniciando o servidor automaticamente nesta janela..."
+        ).format(version=remote_tag)
+        print(f" [*] {auto_restart_msg}", flush=True)
         print("=" * 68 + "\n", flush=True)
-        
-        is_interactive = bool(sys.stdin and hasattr(sys.stdin, "isatty") and sys.stdin.isatty())
-        if is_interactive:
-            try:
-                input(f" {enter_prompt} ")
-            except Exception:
-                pass
-                
         return True
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)

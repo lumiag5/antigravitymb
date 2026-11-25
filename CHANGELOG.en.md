@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Changed
 * **Single QR code**: Removed the emergency Cloudflare tunnel startup and second QR code banner in the terminal, keeping only the primary local Wi-Fi QR code.
 * **Cleaner UI**: Replaced heavy emoji clutter with crisp inline SVG icons, trimmed robotic copy across screens, and added `/api/models` live model syncing.
+* **Interactive terminal updater**: Startup GitHub check now asks `[Y/N]` before downloading, terminal action bar includes `[U] Update Server (GitHub)` with progress bar, applies static updates without restarting, and auto-restarts in the same window when Python files change.
 
 ---
 

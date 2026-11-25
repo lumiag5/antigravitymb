@@ -2,6 +2,7 @@
 title Antigravity Mobile - Desktop Bridge
 cd /d "%~dp0"
 
+:run_bridge
 where python >nul 2>nul
 if errorlevel 1 (
     where py >nul 2>nul
@@ -18,12 +19,14 @@ if errorlevel 1 (
         pause
         exit /b 1
     ) else (
-        py -3 run.py
+        py -3 run.py --managed
+        if errorlevel 42 if not errorlevel 43 goto run_bridge
         goto end
     )
 )
 
-python run.py
+python run.py --managed
+if errorlevel 42 if not errorlevel 43 goto run_bridge
 
 :end
 if errorlevel 1 (

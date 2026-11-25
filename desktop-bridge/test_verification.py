@@ -766,12 +766,19 @@ def run_tests():
         assert_true(hasattr(config, "VERSION") and config.VERSION == "2.5.2", "BridgeConfig.VERSION configurado como 2.5.2")
         assert_true(hasattr(config, "GITHUB_REPO") and "antigravitymb" in config.GITHUB_REPO, "BridgeConfig.GITHUB_REPO configurado")
 
-        from updater import parse_semver, is_newer_version, find_server_asset, compute_file_hash, analyze_extracted_files
+        from updater import (
+            parse_semver, is_newer_version, find_server_asset,
+            compute_file_hash, analyze_extracted_files,
+            get_changed_files, requires_process_restart, prompt_yes_no
+        )
         assert_true(parse_semver("v2.5.2") == (2, 5, 2), "parse_semver('v2.5.2') retorna (2, 5, 2)")
         assert_true(parse_semver("v2.6.0") == (2, 6, 0), "parse_semver('v2.6.0') retorna (2, 6, 0)")
         assert_true(is_newer_version("v2.5.3", "2.5.2") is True, "is_newer_version identifica versão mais recente (2.5.3 > 2.5.2)")
         assert_true(is_newer_version("v2.5.2", "2.5.2") is False, "is_newer_version identifica versão idêntica como não mais recente")
         assert_true(is_newer_version("v2.5.1", "2.5.2") is False, "is_newer_version identifica versão anterior como não mais recente")
+        assert_true(requires_process_restart([(Path("a.html"), Path("static/index.html"))]) is False, "requires_process_restart retorna False para arquivos estáticos (sem reinício)")
+        assert_true(requires_process_restart([(Path("s.py"), Path("server.py"))]) is True, "requires_process_restart retorna True para arquivos Python")
+        assert_true(hasattr(config, "refresh_version"), "BridgeConfig possui método refresh_version()")
 
         # Mock de assets de release
         mock_release = {
@@ -800,23 +807,32 @@ def run_tests():
         from language_manager import TRANSLATIONS
         updater_keys = [
             "updater_checking", "updater_retry", "updater_failed", "updater_up_to_date",
-            "updater_found", "updater_downloading", "updater_extracting",
-            "updater_success_title", "updater_restart_prompt", "updater_press_enter",
-            "updater_no_asset", "updater_files_identical", "terminal_version"
+            "updater_found", "updater_ask_confirm", "updater_cancelled",
+            "updater_downloading", "updater_extracting",
+            "updater_success_title", "updater_restart_prompt", "updater_no_restart_needed",
+            "updater_auto_restarting", "updater_available_banner", "updater_press_enter",
+            "updater_no_asset", "updater_files_identical", "terminal_version",
+            "terminal_actions_label", "terminal_btn_pin", "terminal_btn_lang",
+            "terminal_btn_update", "terminal_btn_update_new"
         ]
         for lang in ["pt", "en", "es"]:
             d = TRANSLATIONS[lang]
             for key in updater_keys:
                 assert_true(key in d, f"Idioma '{lang}' possui chave de updater '{key}'")
 
-        # Verificação do requirements.txt e run.py
+        # Verificação do requirements.txt, Start_Server.bat e run.py
         req_txt = (bridge_dir / "requirements.txt").read_text(encoding="utf-8")
         assert_true("py7zr" in req_txt, "requirements.txt contém 'py7zr'")
+
+        bat_txt = (bridge_dir / "Start_Server.bat").read_text(encoding="utf-8")
+        assert_true("--managed" in bat_txt and "errorlevel 42" in bat_txt, "Start_Server.bat suporta reinício automático limpo via exit code 42")
 
         run_txt = (bridge_dir / "run.py").read_text(encoding="utf-8")
         assert_true("check_and_update_local_server" in run_txt, "run.py invoca check_and_update_local_server()")
         assert_true("py7zr" in run_txt, "run.py ensure_dependencies() inclui verificação de py7zr")
         assert_true("char_str == 'u'" in run_txt, "run.py start_keyboard_listener suporta tecla 'u' para buscar atualizações")
+        assert_true("terminal_btn_update" in run_txt, "run.py exibe botão de atualização no terminal")
+        assert_true("trigger_in_place_restart" in run_txt, "run.py possui trigger_in_place_restart()")
         assert_true("terminal_version" in run_txt, "run.py exibe a versão no terminal")
 
     except Exception as e:
