@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 * **Gemini 4 Hydrogen detection**: Fixed model parser and placeholder mapping (`MODEL_PLACEHOLDER_M525`..`M528`) so Hydrogen displays as Hydrogen instead of Argon.
 * **Remote prompt dispatch on newer Antigravity PC**: Updated `antigravity_api.py` to discover ports and CSRF tokens from `daemon/hub_*.json` (Antigravity 2.34+) and forward `cascade_config.planner_config.plan_model` properly.
 * **Stale orange activity dot**: Fixed false-positive processing dots in Chats by checking `GetAllCascadeTrajectories` and SQLite timestamp freshness on idle conversations.
+* **Hydrogen tier detection & stable latency**: Live detection of Hydrogen tiers (*High*, *Medium*, *Low*, *XHigh*) via `GetCascadeTrajectory` and offloaded blocking RPC/SQLite calls via `asyncio.to_thread` to keep WebSocket ping latency steady.
 
 ### Changed
 * **Single QR code**: Removed the emergency Cloudflare tunnel startup and second QR code banner in the terminal, keeping only the primary local Wi-Fi QR code.

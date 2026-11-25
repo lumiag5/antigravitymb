@@ -20,6 +20,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 * **Identificação do modelo Hydrogen**: Ajuste no mapeamento de `gen_metadata` e enums protobuf (`MODEL_PLACEHOLDER_M525`..`M528`) para reconhecer **Gemini 4 Hydrogen** corretamente sem confundir com Argon.
 * **Envio remoto de prompts no Antigravity PC recente**: `antigravity_api.py` atualizado para ler porta e token de `daemon/hub_*.json` (novo formato do `language_server` 2.34+) e enviar `cascade_config.planner_config.plan_model` ao usar o botão Prompt.
 * **Ícone laranja em conversas paradas**: Correção no `monitor.py` cruzando o status real em memória (`GetAllCascadeTrajectories`) e data de modificação do banco SQLite para evitar falso positivo em conversas antigas ou canceladas.
+* **Detecção de modo do Hydrogen e latência estável**: Leitura em tempo real dos modos (*High*, *Medium*, *Low*, *XHigh*) via `GetCascadeTrajectory` e execução de chamadas RPC/SQLite em threads (`asyncio.to_thread`) para evitar picos de latência no WebSocket.
 
 ### Alterado
 * **Terminal simplificado**: Remoção do segundo QR Code e da inicialização automática do túnel Cloudflare de emergência, mantendo apenas a conexão local via Wi-Fi com um único QR Code.

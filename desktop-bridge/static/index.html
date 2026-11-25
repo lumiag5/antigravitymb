@@ -733,9 +733,17 @@
             border-color: #2e1065 !important;
             color: #c084fc !important;
         }
+        @keyframes stop-pulse {
+            0%, 100% {
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(239, 68, 68, 0.45);
+            }
+            50% {
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), 0 0 0 6px rgba(239, 68, 68, 0);
+            }
+        }
         .btn-stop {
             position: fixed;
-            right: 66px;
+            right: 16px;
             bottom: max(62px, calc(54px + env(safe-area-inset-bottom, 8px)));
             z-index: 80;
             height: 34px;
@@ -752,7 +760,7 @@
             background: rgba(127, 29, 29, 0.88);
             border: 1px solid rgba(239, 68, 68, 0.65);
             color: #fecaca;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            animation: stop-pulse 1.8s ease-in-out infinite;
             transition: transform 0.15s ease, background 0.15s ease;
         }
         .btn-stop:hover, .btn-stop:active {
