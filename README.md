@@ -12,18 +12,18 @@
   <img src="https://img.shields.io/badge/build-GitHub_Actions_Passing-brightgreen?style=flat-square" alt="GitHub Actions">
 </p>
 
-Aplicativo e painel web para acompanhar as tarefas do **Antigravity IDE** no celular em tempo real. Exibe o chat filtrado, avisa quando uma tarefa termina (som, flash na tela e vibração), monitora cotas de IA e permite navegar entre conversas e projetos. Funciona via Wi-Fi local ou túnel Cloudflare, por aplicativo nativo Android (APK) ou navegador.
+Aplicativo e painel web para acompanhar as tarefas do **Antigravity IDE** no celular em tempo real. Exibe o chat filtrado, avisa quando uma tarefa termina (som, flash na tela e vibração), monitora cotas de IA e permite navegar entre conversas e projetos. Funciona via Wi-Fi local, por aplicativo nativo Android (APK) ou navegador.
 
 ---
 
 ## Recursos
 
 ### Envio de Prompts e Ações Remotas
-* **Envio remoto de prompts**: Dispare comandos diretamente do celular para o Antigravity no PC (`POST /api/prompt`) escolhendo o modelo de IA desejado (Gemini 3.8 Flash, Pro, Claude 3.7 Sonnet, GPT-4o, etc.).
-* **Atalhos rápidos (Snippets)**: Chips de comandos frequentes (🔄 *Continue*, 🧪 *Rode os testes*, 📋 *Resuma o progresso*, 🐞 *Verifique erros*) para preencher com um toque.
+* **Envio remoto de prompts**: Dispare comandos diretamente do celular para o Antigravity no PC (`POST /api/prompt`) escolhendo o modelo de IA desejado (Gemini 4 Hydrogen, Gemini 3.8 Flash, Pro, Claude, GPT, etc., carregados dinamicamente via `/api/models`).
+* **Atalhos rápidos (Snippets)**: Chips de comandos frequentes (*Continue*, *Rode os testes*, *Resuma o progresso*, *Verifique erros*) para preencher com um toque.
 * **Histórico e contador**: Histórico dos últimos prompts enviados (navegação com tecla seta para cima) e contador de caracteres/palavras em tempo real.
-* **Ações nas respostas**: Botão para copiar a resposta completa com confirmação visual (📋 ➔ ✅) e botão de compartilhamento nativo (📤 via Web Share API) para WhatsApp, Telegram e notas.
-* **Favoritar conversas**: Fixação de conversas importantes no topo da lista com persistência local (⭐).
+* **Ações nas respostas**: Botão para copiar a resposta completa com confirmação visual e botão de compartilhamento nativo (via Web Share API) para WhatsApp, Telegram e notas.
+* **Favoritar conversas**: Fixação de conversas importantes no topo da lista com persistência local.
 
 ### Chat e Navegação
 * **Chat em tempo real**: Exibe as mensagens do usuário e a resposta final do assistente, sem poluição de logs intermediários de ferramentas.
