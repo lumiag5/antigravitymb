@@ -27,7 +27,7 @@ class SuppressAuthSpamFilter(logging.Filter):
 logging.getLogger("uvicorn.access").addFilter(SuppressAuthSpamFilter())
 logging.getLogger("uvicorn.error").addFilter(SuppressAuthSpamFilter())
 
-app = FastAPI(title="Antigravity Mobile Bridge", version="2.0.0")
+app = FastAPI(title="Antigravity Mobile Bridge", version="2.5.2")
 
 app.add_middleware(
     CORSMiddleware,
@@ -282,7 +282,8 @@ async def send_prompt(request: Request, token: Optional[str] = None):
     from antigravity_api import antigravity_api
     success = antigravity_api.send_user_message(conversation_id, prompt_text, model=model)
     if not success:
-        raise HTTPException(status_code=500, detail="Falha ao entregar prompt ao Language Server do Antigravity.")
+        err_msg = antigravity_api.last_error or "Falha ao entregar prompt ao Language Server do Antigravity."
+        raise HTTPException(status_code=500, detail=err_msg)
 
     # Sincroniza o monitor imediatamente com a conversa onde o prompt foi enviado
     if conversation_id != monitor.current_conversation_id:
@@ -303,6 +304,16 @@ async def send_prompt(request: Request, token: Optional[str] = None):
         "conversation_id": conversation_id,
         "model": model,
         "message": "Prompt enviado com sucesso ao Antigravity PC!"
+    }
+
+@app.get("/api/models")
+def get_models(token: Optional[str] = None):
+    if config.REQUIRE_AUTH and not auth_manager.is_valid_token(token):
+        raise HTTPException(status_code=401, detail="PIN de acesso inválido ou expirado")
+    from antigravity_api import antigravity_api
+    return {
+        "active_model": monitor.active_model,
+        "models": antigravity_api.get_available_models()
     }
 
 @app.get("/api/quota")

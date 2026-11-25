@@ -10,6 +10,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ---
 
+## [2.5.2] - 2026-11-24 (Build 2520)
+
+### Changed
+* **Cleaner connection screen**: Removed button emojis and simplified copy in `activity_main.xml`.
+* **v2.5.2 sync**: Bumped APK version to `2.5.2` (Build 2520) with updated Antigravity PC model compatibility.
+
+---
+
+## [2.5.1] - 2026-10-29 (Build 2510)
+
+### Changed
+* **Ecosystem version sync**: Android app version bumped to v2.5.1 (Build 2510) in full parity with Desktop Bridge and Web Companion.
+* **Compatibility & stability**: Internal refinements for seamless bridge communication and terminal updater support.
+
+---
+
 ## [2.5.0] - 2026-10-29 (Build 2500)
 
 ### Added

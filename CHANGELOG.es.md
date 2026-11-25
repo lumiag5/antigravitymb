@@ -10,6 +10,36 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
+## [2.5.2] - 2026-11-24 (Build 2520)
+
+### Corregido
+* **Detección del modelo Hydrogen**: Ajuste en el lector de `gen_metadata` y enums protobuf (`MODEL_PLACEHOLDER_M525`..`M528`) para mostrar **Gemini 4 Hydrogen** correctamente sin confundirlo con Argon.
+* **Envío de prompts en Antigravity PC actualizado**: `antigravity_api.py` ahora lee puerto y token desde `daemon/hub_*.json` (formato de `language_server` 2.34+) y envía `cascade_config.planner_config.plan_model`.
+* **Punto naranja en chats inactivos**: Se corrigió el falso positivo de actividad cruzando el estado en memoria (`GetAllCascadeTrajectories`) y la marca de tiempo del SQLite en conversaciones antiguas.
+
+### Cambiado
+* **Código QR único**: Se eliminó el segundo código QR y el túnel Cloudflare de respaldo en la terminal, dejando solo el QR local Wi-Fi principal.
+* **Interfaz más limpia**: Menos emojis innecesarios, iconos SVG discretos, textos más directos y lista de modelos sincronizada vía `/api/models`.
+
+---
+
+## [2.5.1] - 2026-10-29 (Build 2510)
+
+### Añadido
+* **Actualizador de Local Server en terminal**:
+  - Comprobación automática de actualizaciones del servidor de PC en GitHub justo después de seleccionar el idioma.
+  - Reintento doble (2x) con degradación elegante si no hay conexión, iniciando normalmente sin bloquear el uso sin conexión.
+  - Descarga del paquete del servidor con barra de progreso gráfica, velocidad en MB/s y porcentaje (`%`) en vivo en la consola.
+  - Extracción automática de paquetes (`.7z` y `.zip`) y reemplazo seguro de archivos del servidor.
+  - Visualización destacada de la versión activa de Local Server (`v2.5.1`) en la cabecera del terminal y aviso solicitando reiniciar tras actualizar.
+  - Atajo en el teclado: pulse la tecla `U` en cualquier momento para comprobar actualizaciones de Local Server.
+
+### Corregido
+* **Bucle de actualización infinita**: El actualizador ahora analiza el hash SHA-256 y el tamaño de todos los archivos extraídos; si todos los archivos locales ya son idénticos a los de la versión remota, el servidor no solicita reiniciar y comienza de inmediato.
+* **Persistencia de versión**: Creación del archivo `version.json` y sincronización estricta para evitar que `config.py` regrese a versiones anteriores.
+
+---
+
 ## [2.5.0] - 2026-10-29 (Build 2500)
 
 ### Añadido

@@ -32,7 +32,7 @@ class AntigravityMonitor:
         # Estado do turno atual
         self.current_turn_status: str = "IDLE"  # IDLE, RUNNING, DONE
         self.last_notified_step: int = -1
-        self.active_model: str = "Gemini 3.8 Flash High"
+        self.active_model: str = "Gemini 4 Hydrogen (High)"
         self.active_project: str = "Antigravity"
         self.current_conversation_title: str = ""
         
@@ -266,6 +266,18 @@ class AntigravityMonitor:
             return "IDLE"
 
         try:
+            now = time.time()
+            db_mtime = 0.0
+            for p in (db_path, Path(f"{db_path}-wal")):
+                if p.exists():
+                    try:
+                        db_mtime = max(db_mtime, os.path.getmtime(p))
+                    except Exception:
+                        pass
+            recently_updated_15s = (now - db_mtime) < 15.0 if db_mtime > 0 else False
+            recently_updated_45s = (now - db_mtime) < 45.0 if db_mtime > 0 else False
+            recently_updated_5m = (now - db_mtime) < 300.0 if db_mtime > 0 else False
+
             con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=0.5)
             cur = con.cursor()
             rows = cur.execute(
@@ -279,12 +291,14 @@ class AntigravityMonitor:
             latest_idx, latest_type, latest_status, latest_payload = rows[0]
             payload_bytes = latest_payload or b""
 
-            # 1. Se a última etapa for USER_INPUT (14): o usuário acabou de enviar a mensagem e o modelo começou a pensar!
+            # 1. Se a última etapa for USER_INPUT (14): só considera THOUGHT se acabou de acontecer
             if latest_type == 14:
-                return "THOUGHT"
+                return "THOUGHT" if recently_updated_45s else "IDLE"
 
             # 2. Se a etapa atual estiver RUNNING (status == 2):
             if latest_status == 2:
+                if not recently_updated_5m and not self.has_active_background_tasks(target_cid):
+                    return "IDLE"
                 if latest_type == 15:
                     # Model está ativamente gerando o raciocínio ("Thinking..." no PC -> "Pensando..." no app)
                     return "THOUGHT"
@@ -305,13 +319,15 @@ class AntigravityMonitor:
                             return "TASK_RUNNING"
                         return "DONE"
                     else:
+                        if not recently_updated_5m and not self.has_active_background_tasks(target_cid):
+                            return "IDLE"
                         # Chamou ferramenta que vai rodar
                         if any(k in payload_bytes for k in [b"manage_task", b"schedule", b"invoke_subagent", b"task-", b"background"]) or self.has_active_background_tasks(target_cid):
                             return "TASK_RUNNING"
                         return "WORKING"
                 elif latest_type in [132, 133]:
-                    # Ferramenta acabou de concluir, o modelo volta a pensar para a próxima ação
-                    return "THOUGHT"
+                    # Ferramenta acabou de concluir: só considera THOUGHT se a atividade é recente (não conversa antiga parada)
+                    return "THOUGHT" if recently_updated_15s else "IDLE"
 
         except Exception:
             pass
@@ -549,11 +565,20 @@ class AntigravityMonitor:
                     if row and row[0]:
                         raw_data = row[0]
 
+                        # 0. Busca direta pelos enums oficiais modernos (ex: MODEL_PLACEHOLDER_M525 para Gemini 4 Hydrogen High)
+                        m_enum = re.search(
+                            rb'(MODEL_PLACEHOLDER_M(?:525|526|527|528|318|319|320|35|26|421|670|536)|MODEL_OPENAI_GPT_OSS_120B_MEDIUM)',
+                            raw_data
+                        )
+                        if m_enum:
+                            model_found = m_enum.group(1).decode("utf-8", errors="ignore")
+                            break
+
                         # 1. Procura pela tag de modelo protobuf (campo 28 \xe2\x01\xlen <model> - comum no Claude)
                         m_claude = re.search(rb'\xe2\x01[\x01-\x40]((?:claude|gemini|gpt)[a-zA-Z0-9_.-]+)', raw_data)
                         if m_claude and len(m_claude.group(1)) >= 4:
                             cand = m_claude.group(1).decode("utf-8", errors="ignore")
-                            if any(k in cand.lower() for k in ["claude", "gemini", "gpt", "sonnet", "opus", "flash", "pro"]):
+                            if any(k in cand.lower() for k in ["claude", "gemini", "gpt", "sonnet", "opus", "flash", "pro", "hydrogen", "argon", "carbon", "neon"]):
                                 model_found = cand
                                 break
 
@@ -561,21 +586,23 @@ class AntigravityMonitor:
                         m = re.search(rb'\x9a\x01[\x01-\x40]((?:claude|gemini|gpt)[a-zA-Z0-9_.-]+)', raw_data)
                         if m and len(m.group(1)) >= 4:
                             cand = m.group(1).decode("utf-8", errors="ignore")
-                            if any(k in cand.lower() for k in ["claude", "gemini", "gpt", "sonnet", "opus", "flash", "pro"]):
+                            if any(k in cand.lower() for k in ["claude", "gemini", "gpt", "sonnet", "opus", "flash", "pro", "hydrogen", "argon", "carbon", "neon"]):
                                 model_found = cand
                                 break
 
-                        # 3. Busca por strings literais de modelos (prioriza Claude/GPT para evitar falso positivo do prompt de sistema)
+                        # 3. Busca por strings literais de modelos (ordem específica antes dos genéricos)
                         for candidate in [
-                            "claude-sonnet-4-6", "claude-opus-4-6",
+                            "gemini-4-hydrogen-xhigh", "gemini-4-hydrogen-high", "gemini-4-hydrogen-medium", "gemini-4-hydrogen-low", "gemini-4-hydrogen",
+                            "claude-opus-4-6", "claude-sonnet-4-6",
                             "claude-3-7-sonnet", "claude-3.7-sonnet",
                             "claude-3-5-sonnet", "claude-3.5-sonnet",
                             "claude-3-5-haiku", "claude-3.5-haiku",
                             "claude-sonnet", "claude-opus", "claude-haiku",
                             "gpt-oss-120b", "gpt-4o", "gpt-4",
-                            "gemini-3.8-pro", "gemini-4-argon",
-                            "gemini-3.8-flash-control", "gemini-3.8-flash-n",
-                            "gemini-3.8-flash-high", "gemini-3.8-flash"
+                            "gemini-4-argon", "gemini-4-carbon", "gemini-4-neon",
+                            "gemini-3.8-pro",
+                            "gemini-3.8-flash-high", "gemini-3.8-flash-medium", "gemini-3.8-flash-low",
+                            "gemini-3.8-flash-control", "gemini-3.8-flash-n", "gemini-3.8-flash"
                         ]:
                             if candidate.encode("utf-8") in raw_data:
                                 model_found = candidate
@@ -599,12 +626,46 @@ class AntigravityMonitor:
     def format_model_display_name(raw: str) -> str:
         """Mapeia identificadores internos para os nomes visuais oficiais do Antigravity."""
         r = raw.lower().strip()
+        enum_map = {
+            "model_placeholder_m525": "Gemini 4 Hydrogen (High)",
+            "model_placeholder_m528": "Gemini 4 Hydrogen (XHigh)",
+            "model_placeholder_m526": "Gemini 4 Hydrogen (Medium)",
+            "model_placeholder_m527": "Gemini 4 Hydrogen (Low)",
+            "model_placeholder_m318": "Gemini 3.8 Flash (High)",
+            "model_placeholder_m319": "Gemini 3.8 Flash (Medium)",
+            "model_placeholder_m320": "Gemini 3.8 Flash (Low)",
+            "model_placeholder_m35": "Claude Sonnet 4.6 (Thinking)",
+            "model_placeholder_m26": "Claude Opus 4.6 (Thinking)",
+            "model_openai_gpt_oss_120b_medium": "GPT-OSS 120B (Medium)",
+            "model_placeholder_m421": "Gemini 4 Argon",
+            "model_placeholder_m670": "Gemini 4 Carbon",
+            "model_placeholder_m536": "Gemini 4 Neon",
+        }
+        if r in enum_map:
+            return enum_map[r]
+
+        if "hydrogen" in r:
+            if "xhigh" in r:
+                return "Gemini 4 Hydrogen (XHigh)"
+            if "medium" in r:
+                return "Gemini 4 Hydrogen (Medium)"
+            if "low" in r:
+                return "Gemini 4 Hydrogen (Low)"
+            return "Gemini 4 Hydrogen (High)"
+        if "argon" in r:
+            return "Gemini 4 Argon"
+        if "carbon" in r:
+            return "Gemini 4 Carbon"
+        if "neon" in r:
+            return "Gemini 4 Neon"
         if "gemini-3.8-flash" in r or "gemini-3-8-flash" in r or "flash-n" in r or "flash-high" in r:
-            return "Gemini 3.8 Flash High"
+            if "medium" in r:
+                return "Gemini 3.8 Flash (Medium)"
+            if "low" in r:
+                return "Gemini 3.8 Flash (Low)"
+            return "Gemini 3.8 Flash (High)"
         if "gemini-3.8-pro" in r or "gemini-3-8-pro" in r:
             return "Gemini 3.8 Pro"
-        if "gemini-4" in r or "argon" in r:
-            return "Gemini 4 Argon"
         if "claude-sonnet-4" in r or "sonnet-4" in r:
             return "Claude Sonnet 4.6 (Thinking)"
         if "claude-opus" in r or "opus-4" in r:
@@ -621,8 +682,10 @@ class AntigravityMonitor:
             return "GPT-4"
         if "claude" in r:
             return "Claude Sonnet"
+        if "gemini-4" in r:
+            return "Gemini 4 Hydrogen (High)"
         if "gemini" in r:
-            return "Gemini 3.8 Flash High"
+            return "Gemini 3.8 Flash (High)"
         return raw
 
     def calculate_quota(self) -> Dict[str, Any]:
@@ -764,6 +827,7 @@ class AntigravityMonitor:
         """Retorna a lista de conversas recentes do Antigravity agregadas do SQLite e diretórios brain/."""
         conversations: List[Dict[str, Any]] = []
         seen_cids = set()
+        api_summaries = antigravity_api.get_all_cascade_summaries()
 
         summaries_db = config.ANTIGRAVITY_DIR / "conversation_summaries.db"
         if summaries_db.exists():
@@ -793,14 +857,20 @@ class AntigravityMonitor:
                     except Exception:
                         pass
 
-                    # Detecta se está processando/trabalhando em tempo real
+                    # Detecta se está processando/trabalhando em tempo real (sem falso positivo em conversas paradas)
                     is_proc = False
                     if cid == self.current_conversation_id:
                         is_proc = (self.current_turn_status not in ["IDLE", "DONE", "CONNECTED"])
+                    elif cid in api_summaries:
+                        is_proc = (api_summaries[cid].get("status") == "CASCADE_RUN_STATUS_RUNNING")
                     elif cid in self.background_working_conversations:
-                        is_proc = True
-                    else:
+                        is_proc = self._is_conversation_working(cid)
+                    elif st == "CASCADE_RUN_STATUS_RUNNING" or bool(not_idle):
                         is_proc = self._is_conversation_working(cid) or self.is_project_active(cid)
+                    else:
+                        # Para conversas marcadas como IDLE no SQLite de resumo, só checa novamente se houver atividade recente em disco
+                        live_st = self.detect_live_cascade_status(cid)
+                        is_proc = (live_st in ["WORKING", "TASK_RUNNING", "THOUGHT"]) or self.has_active_background_tasks(cid)
 
                     clean_time = ""
                     if lmt:
@@ -1040,7 +1110,7 @@ class AntigravityMonitor:
         
         # Se a conversa anterior estava em andamento ("Working..."), move para monitoramento em segundo plano!
         prev_cid = self.current_conversation_id
-        if prev_cid and (self.current_turn_status == "PROCESSANDO" or self._is_conversation_working(prev_cid)):
+        if prev_cid and (self.current_turn_status not in ["IDLE", "DONE", "CONNECTED"] or self._is_conversation_working(prev_cid)):
             self.background_working_conversations[prev_cid] = {
                 "offset": self.file_offset,
                 "transcript_path": self.current_transcript_path

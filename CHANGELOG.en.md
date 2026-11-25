@@ -10,6 +10,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ---
 
+## [2.5.2] - 2026-11-24 (Build 2520)
+
+### Fixed
+* **Gemini 4 Hydrogen detection**: Fixed model parser and placeholder mapping (`MODEL_PLACEHOLDER_M525`..`M528`) so Hydrogen displays as Hydrogen instead of Argon.
+* **Remote prompt dispatch on newer Antigravity PC**: Updated `antigravity_api.py` to discover ports and CSRF tokens from `daemon/hub_*.json` (Antigravity 2.34+) and forward `cascade_config.planner_config.plan_model` properly.
+* **Stale orange activity dot**: Fixed false-positive processing dots in Chats by checking `GetAllCascadeTrajectories` and SQLite timestamp freshness on idle conversations.
+
+### Changed
+* **Single QR code**: Removed the emergency Cloudflare tunnel startup and second QR code banner in the terminal, keeping only the primary local Wi-Fi QR code.
+* **Cleaner UI**: Replaced heavy emoji clutter with crisp inline SVG icons, trimmed robotic copy across screens, and added `/api/models` live model syncing.
+
+---
+
+## [2.5.1] - 2026-10-29 (Build 2510)
+
+### Added
+* **Local Server Terminal Updater**:
+  - Automatic update check against GitHub releases right after language selection.
+  - Dual attempt (2x) retry mechanism that gracefully falls back without blocking offline startup if unreachable.
+  - Live console progress bar displaying download percentage (`%`), downloaded megabytes, and transfer speed in MB/s.
+  - Archive extraction (`.7z` and `.zip`) and safe replacement of server files.
+  - Prominent server version display (`v2.5.1`) in the terminal banner and restart prompt on update completion.
+  - On-demand keyboard shortcut: press `U` at any time in the terminal to check for Local Server updates.
+
+### Fixed
+* **Infinite update loop**: The updater now analyzes SHA-256 hashes and file sizes of all extracted files; if all local files are already identical to remote release files, the server does not ask to restart and starts immediately.
+* **Version persistence**: Added `version.json` state tracking and hard synchronization to prevent `config.py` from downgrading to previous releases.
+
+---
+
 ## [2.5.0] - 2026-10-29 (Build 2500)
 
 ### Added

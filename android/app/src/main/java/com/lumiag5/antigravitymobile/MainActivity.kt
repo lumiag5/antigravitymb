@@ -679,9 +679,9 @@ class MainActivity : AppCompatActivity() {
         fun getAppVersion(): String {
             return try {
                 val pInfo = packageManager.getPackageInfo(packageName, 0)
-                pInfo.versionName ?: "2.5.0"
+                pInfo.versionName ?: "2.5.2"
             } catch (e: Exception) {
-                "2.5.0"
+                "2.5.2"
             }
         }
 

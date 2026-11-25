@@ -19,8 +19,8 @@ if sys.stdout and hasattr(sys.stdout, "reconfigure"):
         pass
 
 def ensure_dependencies():
-    """Verifica e instala automaticamente dependências ausentes (FastAPI, Uvicorn, etc.) caso o usuário ainda não as tenha instalado."""
-    required = ["fastapi", "uvicorn", "websockets", "pydantic", "qrcode"]
+    """Verifica e instala automaticamente dependências ausentes (FastAPI, Uvicorn, py7zr, etc.) caso o usuário ainda não as tenha instalado."""
+    required = ["fastapi", "uvicorn", "websockets", "pydantic", "qrcode", "py7zr"]
     missing = []
     for pkg in required:
         try:
@@ -65,10 +65,7 @@ import uvicorn
 from config import config
 from auth import auth_manager
 from language_manager import language_manager
-from tunnel import tunnel_manager
 import atexit
-
-atexit.register(tunnel_manager.stop_tunnel)
 
 def get_local_ip() -> str:
     """Detecta o IP da máquina na rede local Wi-Fi/Ethernet."""
@@ -104,22 +101,20 @@ def print_banner(local_ip: str):
     t = language_manager.get_dict()
     lang = language_manager.current_lang
     lang_names = {"pt": "Português (Brasil)", "en": "English", "es": "Español"}
+    ver_label = t.get("terminal_version", "Versão do Servidor")
 
     print("\n" + "=" * 68, flush=True)
-    print(f"        [*] ANTIGRAVITY MOBILE - {t['terminal_title']}", flush=True)
+    print(f"        [*] ANTIGRAVITY MOBILE - {t['terminal_title']} (v{config.VERSION})", flush=True)
     print("                 Desenvolvido por Dev LumiaG5", flush=True)
     print("=" * 68, flush=True)
+    print(f" * {ver_label}:             v{config.VERSION}", flush=True)
     print(f" * {t['terminal_local_pc']}:             http://localhost:{port}", flush=True)
     print(f" * {t['terminal_mobile_wifi']}:       http://{local_ip}:{port}", flush=True)
-    if tunnel_manager.public_url:
-        https_label = t.get("terminal_mobile_https", "Mobile (HTTPS Seguro)")
-        print(f" * {https_label}:     {tunnel_manager.public_url}", flush=True)
     print(f" * {t['terminal_active_lang']}:         {lang_names.get(lang, lang)}", flush=True)
     print("-" * 68, flush=True)
     
-    # Exibe QR Code para conexão imediata via câmera do celular
-    base_target = tunnel_manager.public_url if tunnel_manager.public_url else f"http://{local_ip}:{port}"
-    target_url = f"{base_target}?pin={auth_manager.current_pin}"
+    # Exibe QR Code único para conexão imediata via câmera do celular
+    target_url = f"http://{local_ip}:{port}?pin={auth_manager.current_pin}"
     qr_title = t.get("terminal_qr_title", "[QR CODE - ESCANEIE COM A CÂMERA DO CELULAR PARA CONECTAR]:")
     print_qr_code(target_url, qr_title)
     print("-" * 68, flush=True)
@@ -129,15 +124,13 @@ def print_banner(local_ip: str):
     step2 = t.get('terminal_tutorial_step2', '  2. No navegador do celular, abra: http://{ip}:{port}').format(ip=local_ip, port=port)
     print(f" {step2}", flush=True)
     print(f" {t.get('terminal_tutorial_step3', '  3. Digite o PIN gerado no terminal para liberar (salvo em cache por 24h).')}", flush=True)
-    if t.get('terminal_tutorial_step4'):
-        print(f" {t['terminal_tutorial_step4']}", flush=True)
     print("-" * 68, flush=True)
     print(f" {t['server_notice']}", flush=True)
     print(f" {t['press_key_notice']}", flush=True)
     print("=" * 68 + "\n", flush=True)
 
 def start_keyboard_listener(local_ip: str):
-    """Thread que detecta pressionamento de tecla para gerar novo PIN ou alternar idioma em tempo real."""
+    """Thread que detecta pressionamento de tecla para gerar novo PIN, alternar idioma ou verificar atualizações."""
     def listener():
         try:
             import msvcrt
@@ -167,6 +160,12 @@ def start_keyboard_listener(local_ip: str):
                             pass
                         
                         print_banner(local_ip)
+                    elif char_str == 'u':
+                        # Tecla U: Verificação de atualizações do Local Server
+                        from updater import check_and_update_local_server
+                        if check_and_update_local_server(force_check=True):
+                            sys.exit(0)
+                        print_banner(local_ip)
                     else:
                         # Qualquer outra tecla: gera novo PIN e atualiza o banner
                         auth_manager.generate_pin(notify=False)
@@ -182,32 +181,19 @@ def main():
     # 1. Solicita e salva o idioma do usuário se ainda não estiver configurado
     language_manager.prompt_language_selection()
 
-    # 2. Detecta IP e imprime o banner no idioma selecionado com PIN inicial
+    # 1.1. Verifica atualizações automáticas do Local Server no GitHub (com 2 tentativas se falhar)
+    from updater import check_and_update_local_server
+    if check_and_update_local_server():
+        sys.exit(0)
+
+    # 2. Detecta IP e imprime o banner único no idioma selecionado com PIN inicial e QR Code
     local_ip = get_local_ip()
     print_banner(local_ip)
 
-    # 3. Inicia o túnel Cloudflare HTTPS em segundo plano para notificações e acesso seguro
-    def run_tunnel():
-        url = tunnel_manager.start_tunnel(port=config.PORT)
-        if url:
-            print_banner(local_ip)
-            try:
-                from server import manager
-                loop = asyncio.new_event_loop()
-                loop.run_until_complete(manager.broadcast({
-                    "event": "tunnel_ready",
-                    "data": {"https_url": url}
-                }))
-                loop.close()
-            except Exception:
-                pass
-
-    threading.Thread(target=run_tunnel, daemon=True).start()
-
-    # 4. Inicia escuta de teclado (gerar novo PIN ou pressionar L para alternar idioma)
+    # 3. Inicia escuta de teclado (gerar novo PIN, pressionar L para alternar idioma ou U para buscar atualizações)
     start_keyboard_listener(local_ip)
 
-    # 5. Inicia o servidor uvicorn sem access_log ruidoso (elimina o spam de 403 no terminal)
+    # 4. Inicia o servidor uvicorn sem access_log ruidoso (elimina o spam de 403 no terminal)
     uvicorn.run(
         "server:app",
         host=config.HOST,

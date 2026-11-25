@@ -10,6 +10,22 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
+## [2.5.2] - 2026-11-24 (Build 2520)
+
+### Modificado
+* **Visual mais direto na tela inicial**: Remoção de emojis dos botões e rótulos mais simples em `activity_main.xml`.
+* **Sincronização v2.5.2**: Versão do APK atualizada para `2.5.2` (Build 2520) junto com suporte aos novos modelos do Antigravity PC.
+
+---
+
+## [2.5.1] - 2026-10-29 (Build 2510)
+
+### Modificado
+* **Sincronização de versão do ecossistema**: Atualização do número de versão do aplicativo Android para v2.5.1 (Build 2510) em paridade total com o Desktop Bridge e o Web Companion.
+* **Compatibilidade e estabilidade**: Aprimoramentos na comunicação local e suporte ao atualizador automatizado do servidor.
+
+---
+
 ## [2.5.0] - 2026-10-29 (Build 2500)
 
 ### Adicionado

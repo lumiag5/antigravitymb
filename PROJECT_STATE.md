@@ -10,7 +10,16 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
 3. **Métricas Oficiais de Quota**: Exibição em tempo real da porcentagem de uso diário (5h) e semanal do modelo de IA via RPC interna com adaptação dinâmica entre grupos de modelos.
 4. **Conectividade Flexível**: Suporte à rede local (Wi-Fi) e acesso remoto global via túnel HTTPS seguro (Cloudflare) sem configuração de portas.
 
-## FUNCIONALIDADES IMPLEMENTADAS (v2.5.0 • Build 2500)
+## FUNCIONALIDADES IMPLEMENTADAS (v2.5.1 • Build 2510)
+- **Verificador e Atualizador do Local Server no Terminal**:
+  - Verificação automática de atualizações do servidor do PC no GitHub logo após a seleção de idioma.
+  - Tentativa dupla (2x) com recuperação inteligente se a conexão falhar, continuando a inicialização normalmente sem travar o uso offline.
+  - Download do pacote do Local Server com barra de progresso visual, velocidade em MB/s e percentual (`%`) ao vivo no console.
+  - Extração automática de arquivos (`.7z` e `.zip`) e substituição segura dos arquivos do servidor.
+  - Análise rigorosa de arquivos: comparação de hash SHA-256 e tamanho de cada arquivo antes de aplicar; se os arquivos já forem idênticos aos remotos, o servidor dispensa reinicializações e inicia instantaneamente.
+  - Persistência e blindagem de versão via `version.json` e `config.py` para impedir regressão acidental de versões.
+  - Exibição destacada da versão ativa do Local Server (`v2.5.1`) no cabeçalho do terminal e aviso após atualizar solicitando reiniciar a janela.
+  - Atalho sob demanda no teclado: pressione a tecla `U` a qualquer momento para buscar atualizações do Local Server.
 - **Tela Cheia Imersiva (Ocultação da HUD do Celular)**:
   - No APK Android: modo imersivo sticky (`WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE`) ocultando a barra de status do topo, com suporte a entalhes de câmera (*short edges cutout*) e área de respiro dinâmica (`safe-area-inset-top`).
   - No Navegador / IP: PWA configurado com `display: fullscreen` em `manifest.json` e suporte à Fullscreen API via toque inicial ou seletor no menu de configurações.
@@ -92,6 +101,27 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
   - `TUTORIAL.txt` (Guia passo a passo de conexão em pt, en, es).
 
 ## ÚLTIMA ALTERAÇÃO
+- **Compatibilidade Antigravity 2.34+ (Hydrogen), Prompt, Fix Dot Laranja, QR Único e Visual Orgânico (v2.5.2 • Build 2520)**:
+  - Corrigida detecção de modelo para identificar `Gemini 4 Hydrogen` (`MODEL_PLACEHOLDER_M525`..`M528`) corretamente em vez de Argon.
+  - Descoberta da API local atualizada em `antigravity_api.py` lendo `daemon/hub_*.json` (`httpsPort`/`httpPort` + `csrfToken`) e enviando `cascade_config.planner_config.plan_model` no `SendUserCascadeMessage`.
+  - Novo endpoint `GET /api/models` sincronizando os modelos ativos do `GetUserStatus` no app.
+  - Corrigido bug do ponto laranja em conversas antigas/paradas usando `GetAllCascadeTrajectories` e verificação temporal em `detect_live_cascade_status`.
+  - Removido o segundo QR Code e túnel Cloudflare de emergência na inicialização do terminal em `run.py`, mantendo apenas o QR Code Wi-Fi principal.
+  - Interface web e tela inicial Android simplificadas com ícones SVG limpos, menos emojis e textos naturais/orgânicos.
+
+- **Verificador e Atualizador Automático do Local Server no Terminal (v2.5.1 • Build 2510)**:
+  - Verificação automática de atualizações do Local Server diretamente no terminal do computador logo após a seleção/carregamento do idioma.
+  - Resiliência de conexão: 2 tentativas automáticas com intervalo de espera caso a primeira tentativa falhe (offline ou erro temporário de rede), prosseguindo sem bloquear a inicialização.
+  - Filtro dedicado para arquivos do Local Server (`.7z` ou `.zip`), ignorando os instaladores do APK Android.
+  - Barra de progresso gráfica ao vivo no terminal com indicador em percentual (`%`), download em megabytes e velocidade de transferência (`MB/s`).
+  - Análise rigorosa por SHA-256 e tamanho de arquivo: se todos os arquivos já forem idênticos aos remotos, o servidor dispensa re-downloads e reinicializações, iniciando de imediato.
+  - Persistência e blindagem de versão via `version.json` e `config.py` para impedir downloads em loop.
+  - Exibição destacada da versão do Local Server no banner do terminal.
+  - Mensagem clara orientando o fechamento e reabertura do terminal após a atualização.
+  - Atalho manual no terminal (`Tecla U`) para verificar atualizações sob demanda enquanto o servidor estiver rodando.
+  - Suporte completo trilíngue (PT, EN, ES) com textos orgânicos e naturais.
+  - Suite de testes expandida para 382 testes automatizados 100% aprovados.
+
 - **Envio Remoto de Prompts, Gestos de Navegação, Seleção de Texto e Otimizações de Bateria (v2.5.0 • Build 2500)**:
   - Envio remoto de prompts do celular para o PC com seleção dinâmica de modelo de IA (Gemini, Claude, GPT).
   - Atalhos rápidos (snippets) para inserção de comandos frequentes com um toque e feedback háptico (vibração tátil).
@@ -117,4 +147,4 @@ Desenvolver o "Antigravity Mobile", um companion para celular que atua como uma 
   - Removidos todos os atalhos rápidos antigos de emulador/rede, deixando a tela minimalista e focada em OLED Black.
 
 ## ESTADO ATUAL
-- Versão v2.5.0 (Build 2500) com envio remoto de prompts, navegação inteligente, cópia nativa, economia de bateria e 328 testes automatizados aprovados.
+- Versão v2.5.2 (Build 2520) compatível com Antigravity 2.34+ (Gemini 4 Hydrogen), envio de prompts via daemon JSON, QR Code único, visual orgânico e 396 testes automatizados aprovados.

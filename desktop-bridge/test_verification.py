@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Dev LumiaG5. All rights reserved.
-# Automated Verification Suite for Antigravity Mobile v2.5.0
+# Automated Verification Suite for Antigravity Mobile v2.5.2
 
 import os
 import sys
@@ -14,7 +14,7 @@ sys.path.insert(0, str(bridge_dir))
 
 def run_tests():
     print("=" * 60)
-    print("INICIANDO SUITE DE TESTES COMPLETOS - ANTIGRAVITY MOBILE v2.5.0")
+    print("INICIANDO SUITE DE TESTES COMPLETOS - ANTIGRAVITY MOBILE v2.5.2")
     print("=" * 60)
     passed = 0
     failed = 0
@@ -253,9 +253,12 @@ def run_tests():
         finally:
             api_instance.send_user_message = orig_send
 
-        # /api/quota (com auth)
+        # /api/quota e /api/models (com auth)
         r_quota = client.get(f"/api/quota?token={token}")
         assert_true(r_quota.status_code == 200 and "groups" in r_quota.json(), "GET /api/quota com token -> 200 OK")
+
+        r_models = client.get(f"/api/models?token={token}")
+        assert_true(r_models.status_code == 200 and "models" in r_models.json(), "GET /api/models com token -> 200 OK")
 
         # / (index.html delivery)
         r_root = client.get("/")
@@ -506,9 +509,9 @@ def run_tests():
             assert_true("menu_sec_system" in d, f"Idioma '{lang}' possui chave 'menu_sec_system'")
             assert_true("menu_apk_installed_label" in d, f"Idioma '{lang}' possui chave 'menu_apk_installed_label'")
 
-        assert_true(TRANSLATIONS["pt"]["menu_btn_logout"] == "Sair / Desconectar da Sessão", "PT: Sair / Desconectar da Sessão")
-        assert_true(TRANSLATIONS["en"]["menu_btn_logout"] == "Sign Out / Disconnect Session", "EN: Sign Out / Disconnect Session")
-        assert_true(TRANSLATIONS["es"]["menu_btn_logout"] == "Salir / Desconectar Sesión", "ES: Salir / Desconectar Sesión")
+        assert_true(TRANSLATIONS["pt"]["menu_btn_logout"] == "Sair da sessão", "PT: Sair da sessão")
+        assert_true(TRANSLATIONS["en"]["menu_btn_logout"] == "Sign out", "EN: Sign out")
+        assert_true(TRANSLATIONS["es"]["menu_btn_logout"] == "Cerrar sesión", "ES: Cerrar sesión")
 
         # Verificação do HTML
         index_file = bridge_dir / "static" / "index.html"
@@ -753,6 +756,112 @@ def run_tests():
 
     except Exception as e:
         assert_true(False, f"Erro no Teste 16: {e}")
+
+    # ---------------------------------------------------------
+    # TESTE 17: ATUALIZADOR AUTOMÁTICO DO LOCAL SERVER (TERMINAL & GITHUB)
+    # ---------------------------------------------------------
+    print("\n--- TESTE 17: ATUALIZADOR DO LOCAL SERVER (TERMINAL & GITHUB) ---")
+    try:
+        from config import config
+        assert_true(hasattr(config, "VERSION") and config.VERSION == "2.5.2", "BridgeConfig.VERSION configurado como 2.5.2")
+        assert_true(hasattr(config, "GITHUB_REPO") and "antigravitymb" in config.GITHUB_REPO, "BridgeConfig.GITHUB_REPO configurado")
+
+        from updater import parse_semver, is_newer_version, find_server_asset, compute_file_hash, analyze_extracted_files
+        assert_true(parse_semver("v2.5.2") == (2, 5, 2), "parse_semver('v2.5.2') retorna (2, 5, 2)")
+        assert_true(parse_semver("v2.6.0") == (2, 6, 0), "parse_semver('v2.6.0') retorna (2, 6, 0)")
+        assert_true(is_newer_version("v2.5.3", "2.5.2") is True, "is_newer_version identifica versão mais recente (2.5.3 > 2.5.2)")
+        assert_true(is_newer_version("v2.5.2", "2.5.2") is False, "is_newer_version identifica versão idêntica como não mais recente")
+        assert_true(is_newer_version("v2.5.1", "2.5.2") is False, "is_newer_version identifica versão anterior como não mais recente")
+
+        # Mock de assets de release
+        mock_release = {
+            "tag_name": "v2.5.1",
+            "assets": [
+                {"name": "antigravitymb-v2.5.1.apk", "browser_download_url": "http://example.com/app.apk"},
+                {"name": "app.antigravity.7z", "browser_download_url": "http://example.com/server.7z"}
+            ]
+        }
+        asset = find_server_asset(mock_release)
+        assert_true(asset is not None and asset["name"] == "app.antigravity.7z", "find_server_asset seleciona o pacote .7z do servidor e ignora o APK")
+
+        mock_apk_only = {
+            "tag_name": "v2.5.1",
+            "assets": [
+                {"name": "app-release.apk", "browser_download_url": "http://example.com/app.apk"}
+            ]
+        }
+        assert_true(find_server_asset(mock_apk_only) is None, "find_server_asset não seleciona arquivo APK")
+
+        # Verificação do hash de integridade de arquivos
+        this_file_hash = compute_file_hash(Path(__file__))
+        assert_true(len(this_file_hash) == 64, "compute_file_hash gera hash SHA-256 válido (64 hex)")
+
+        # Verificação das chaves de i18n do atualizador em todos os idiomas
+        from language_manager import TRANSLATIONS
+        updater_keys = [
+            "updater_checking", "updater_retry", "updater_failed", "updater_up_to_date",
+            "updater_found", "updater_downloading", "updater_extracting",
+            "updater_success_title", "updater_restart_prompt", "updater_press_enter",
+            "updater_no_asset", "updater_files_identical", "terminal_version"
+        ]
+        for lang in ["pt", "en", "es"]:
+            d = TRANSLATIONS[lang]
+            for key in updater_keys:
+                assert_true(key in d, f"Idioma '{lang}' possui chave de updater '{key}'")
+
+        # Verificação do requirements.txt e run.py
+        req_txt = (bridge_dir / "requirements.txt").read_text(encoding="utf-8")
+        assert_true("py7zr" in req_txt, "requirements.txt contém 'py7zr'")
+
+        run_txt = (bridge_dir / "run.py").read_text(encoding="utf-8")
+        assert_true("check_and_update_local_server" in run_txt, "run.py invoca check_and_update_local_server()")
+        assert_true("py7zr" in run_txt, "run.py ensure_dependencies() inclui verificação de py7zr")
+        assert_true("char_str == 'u'" in run_txt, "run.py start_keyboard_listener suporta tecla 'u' para buscar atualizações")
+        assert_true("terminal_version" in run_txt, "run.py exibe a versão no terminal")
+
+    except Exception as e:
+        assert_true(False, f"Erro no Teste 17: {e}")
+
+    # ---------------------------------------------------------
+    # TESTE 18: MODELOS ANTIGRAVITY 2.34+, PROMPT DAEMON JSON, QR ÚNICO & CONVERSAS IDLE
+    # ---------------------------------------------------------
+    print("\n--- TESTE 18: HYDROGEN, DAEMON JSON, QR ÚNICO & BUG DOT LARANJA ---")
+    try:
+        from monitor import AntigravityMonitor
+        mon18 = AntigravityMonitor()
+
+        assert_true(mon18.format_model_display_name("gemini-4-hydrogen") == "Gemini 4 Hydrogen (High)", "gemini-4-hydrogen mapeado corretamente para Gemini 4 Hydrogen (não Argon)")
+        assert_true(mon18.format_model_display_name("MODEL_PLACEHOLDER_M525") == "Gemini 4 Hydrogen (High)", "MODEL_PLACEHOLDER_M525 -> Gemini 4 Hydrogen (High)")
+        assert_true(mon18.format_model_display_name("MODEL_PLACEHOLDER_M528") == "Gemini 4 Hydrogen (XHigh)", "MODEL_PLACEHOLDER_M528 -> Gemini 4 Hydrogen (XHigh)")
+        assert_true(mon18.format_model_display_name("MODEL_PLACEHOLDER_M318") == "Gemini 3.8 Flash (High)", "MODEL_PLACEHOLDER_M318 -> Gemini 3.8 Flash (High)")
+        assert_true(mon18.format_model_display_name("gemini-4-argon") == "Gemini 4 Argon", "gemini-4-argon continua mapeado para Gemini 4 Argon")
+
+        from antigravity_api import antigravity_api
+        assert_true(antigravity_api.resolve_model_enum("Gemini 4 Hydrogen (High)") == "MODEL_PLACEHOLDER_M525", "resolve_model_enum resolve Hydrogen High -> MODEL_PLACEHOLDER_M525")
+        assert_true(antigravity_api.resolve_model_enum("Gemini 4 Hydrogen (XHigh)") == "MODEL_PLACEHOLDER_M528", "resolve_model_enum resolve Hydrogen XHigh -> MODEL_PLACEHOLDER_M528")
+        assert_true(antigravity_api.discover_connection() is True, "discover_connection conecta com sucesso via daemon/hub_*.json")
+
+        # Garante que conversas antigas/paradas em conversation_summaries não mostram is_processing=True indevidamente
+        convs18 = mon18.get_conversations_list()
+        idle_false_positives = [
+            c for c in convs18
+            if c.get("is_processing") and c.get("conversation_id") != mon18.current_conversation_id
+            and c.get("conversation_id") not in antigravity_api.get_all_cascade_summaries()
+        ]
+        assert_true(len(idle_false_positives) == 0, "Nenhuma conversa ociosa antiga marcada com ponto laranja indevido")
+
+        # QR code único (sem túnel Cloudflare de emergência imprimindo segundo QR code)
+        run_txt18 = (bridge_dir / "run.py").read_text(encoding="utf-8")
+        assert_true("tunnel_manager.start_tunnel" not in run_txt18, "run.py removeu segundo QR code e inicialização de túnel de emergência")
+
+        # HTML v2.5.2 com Hydrogen e sincronização dinâmica /api/models
+        html18 = (bridge_dir / "static" / "index.html").read_text(encoding="utf-8")
+        assert_true("Gemini 4 Hydrogen (High)" in html18, "index.html inclui opção Gemini 4 Hydrogen (High)")
+        assert_true("/api/models" in html18, "index.html sincroniza modelos dinamicamente via /api/models")
+        assert_true("v2.5.2 (IP)" in html18, "index.html atualizado para versão v2.5.2")
+
+    except Exception as e:
+        assert_true(False, f"Erro no Teste 18: {e}")
 
     # ---------------------------------------------------------
     print("\n" + "=" * 60)

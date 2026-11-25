@@ -10,6 +10,36 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
+## [2.5.2] - 2026-11-24 (Build 2520)
+
+### Corrigido
+* **Identificação do modelo Hydrogen**: Ajuste no mapeamento de `gen_metadata` e enums protobuf (`MODEL_PLACEHOLDER_M525`..`M528`) para reconhecer **Gemini 4 Hydrogen** corretamente sem confundir com Argon.
+* **Envio remoto de prompts no Antigravity PC recente**: `antigravity_api.py` atualizado para ler porta e token de `daemon/hub_*.json` (novo formato do `language_server` 2.34+) e enviar `cascade_config.planner_config.plan_model` ao usar o botão Prompt.
+* **Ícone laranja em conversas paradas**: Correção no `monitor.py` cruzando o status real em memória (`GetAllCascadeTrajectories`) e data de modificação do banco SQLite para evitar falso positivo em conversas antigas ou canceladas.
+
+### Alterado
+* **Terminal simplificado**: Remoção do segundo QR Code e da inicialização automática do túnel Cloudflare de emergência, mantendo apenas a conexão local via Wi-Fi com um único QR Code.
+* **Visual mais limpo**: Substituição do excesso de emojis por ícones simples em SVG, textos mais diretos no app e lista de modelos atualizada dinamicamente via `/api/models`.
+
+---
+
+## [2.5.1] - 2026-10-29 (Build 2510)
+
+### Adicionado
+* **Verificador e atualizador do Local Server no terminal**:
+  - Verificação automática de atualizações do servidor do PC no GitHub logo após a seleção de idioma.
+  - Tentativa dupla (2x) com recuperação inteligente se a conexão falhar, continuando a inicialização normalmente sem travar o uso offline.
+  - Download do pacote do Local Server com barra de progresso visual, velocidade em MB/s e percentual (`%`) ao vivo no console.
+  - Extração automática de arquivos (`.7z` e `.zip`) e substituição segura dos arquivos do servidor.
+  - Exibição destacada da versão ativa do Local Server (`v2.5.1`) no cabeçalho do terminal e aviso após atualizar solicitando reiniciar a janela.
+  - Atalho sob demanda no teclado: pressione a tecla `U` a qualquer momento para buscar atualizações do Local Server.
+
+### Corrigido
+* **Loop de atualização infinita**: O atualizador agora analisa o hash SHA-256 e o tamanho de todos os arquivos extraídos; se todos os arquivos locais já estiverem idênticos aos da versão remota, o servidor não solicita reinicialização e inicia imediatamente.
+* **Persistência de versão**: Criação do arquivo de controle `version.json` e sincronização rígida para impedir que `config.py` regrida para versões anteriores.
+
+---
+
 ## [2.5.0] - 2026-10-29 (Build 2500)
 
 ### Adicionado

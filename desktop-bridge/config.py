@@ -2,9 +2,27 @@
 # Licensed under the MIT License.
 
 import os
+import json
 from pathlib import Path
 
+VERSION_FILE = Path(__file__).parent / "version.json"
+
+def get_installed_version() -> str:
+    """Carrega a versão oficial do Local Server com garantia de persistência."""
+    if VERSION_FILE.exists():
+        try:
+            with open(VERSION_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                ver = data.get("version", "").strip()
+                if ver:
+                    return ver
+        except Exception:
+            pass
+    return "2.5.2"
+
 class BridgeConfig:
+    VERSION: str = get_installed_version()
+    GITHUB_REPO: str = os.getenv("BRIDGE_GITHUB_REPO", "lumiag5/antigravitymb")
     HOST: str = os.getenv("BRIDGE_HOST", "0.0.0.0")
     PORT: int = int(os.getenv("BRIDGE_PORT", "8765"))
     

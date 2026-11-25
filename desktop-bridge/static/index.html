@@ -289,7 +289,13 @@
         .status-pill.CONCLUÍDO .status-dot,
         .status-pill.COMPLETADO .status-dot {
             background: #10b981 !important;
-            box-shadow: 0 0 10px #10b981 !important;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.22) !important;
+        }
+        .ui-svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            vertical-align: -2px;
         }
         /* Âmbar quando TRABALHANDO / PROCESSANDO / WORKING */
         .status-pill.state-working,
@@ -2124,9 +2130,9 @@
                 <img src="/antigravity-icon.png" alt="Antigravity" class="pin-logo">
             </div>
             <h1 class="pin-title">Antigravity Mobile</h1>
-            <div class="pin-badge">PAREAMENTO SEGURO</div>
+            <div class="pin-badge">ACESSO LOCAL</div>
             <p class="pin-instruction" id="pin-instruction">
-                Digite o PIN de 4 dígitos exibido no terminal do computador para liberar o acesso.
+                Digite o PIN de 4 dígitos exibido no terminal do PC.
             </p>
             
             <div class="pin-inputs" id="pin-inputs">
@@ -2139,17 +2145,17 @@
             <div id="pin-error" class="pin-error"></div>
 
             <button type="button" class="btn-unlock" id="btn-unlock" onclick="submitPin()">
-                <span>Desbloquear Acesso</span>
+                <span>Conectar</span>
                 <span>→</span>
             </button>
 
             <button type="button" class="btn-new-pin" onclick="requestNewPin(true)">
-                🔄 Gerar Novo PIN no Terminal
+                Gerar novo PIN
             </button>
 
             <div>
                 <button type="button" class="btn-help" id="btn-tutorial" onclick="toggleTutorial(true)">
-                    ❓ Como Conectar ao Celular
+                    Como conectar
                 </button>
             </div>
         </div>
@@ -2159,31 +2165,31 @@
     <div id="tutorial-modal" class="tutorial-modal" onclick="if(event.target===this) toggleTutorial(false)">
         <div class="tutorial-card">
             <div class="tutorial-header">
-                <h2 id="tut-title">Guia Rápido de Conexão</h2>
+                <h2 id="tut-title">Como conectar</h2>
             </div>
             
             <div class="tutorial-step">
-                <span class="tutorial-step-title" id="tut-step1-t">1. Mesma Rede Wi-Fi</span>
-                <span class="tutorial-step-desc" id="tut-step1-d">Certifique-se de que o computador e o celular estão conectados na mesma rede Wi-Fi.</span>
+                <span class="tutorial-step-title" id="tut-step1-t">1. Mesma rede Wi-Fi</span>
+                <span class="tutorial-step-desc" id="tut-step1-d">Deixe o computador e o celular conectados no mesmo Wi-Fi.</span>
             </div>
 
             <div class="tutorial-step">
-                <span class="tutorial-step-title" id="tut-step2-t">2. Acesse o Endereço no Celular</span>
-                <span class="tutorial-step-desc" id="tut-step2-d">Abra o navegador no celular e digite o endereço IP mostrado no terminal (ex: http://192.168.0.6:8765).</span>
+                <span class="tutorial-step-title" id="tut-step2-t">2. Abra o endereço no celular</span>
+                <span class="tutorial-step-desc" id="tut-step2-d">Digite o endereço IP exibido no terminal (ex: http://192.168.0.6:8765) ou escaneie o QR Code.</span>
             </div>
 
             <div class="tutorial-step">
-                <span class="tutorial-step-title" id="tut-step3-t">3. Digite o PIN de 4 Dígitos</span>
-                <span class="tutorial-step-desc" id="tut-step3-d">Insira o PIN exibido no terminal do computador. A sessão é gravada em cache por 24 horas!</span>
+                <span class="tutorial-step-title" id="tut-step3-t">3. Informe o PIN</span>
+                <span class="tutorial-step-desc" id="tut-step3-d">Digite os 4 números mostrados no terminal. A sessão fica salva por 24 horas.</span>
             </div>
 
             <div class="tutorial-step">
-                <span class="tutorial-step-title" id="tut-step4-t">4. Pronto!</span>
-                <span class="tutorial-step-desc" id="tut-step4-d">Acompanhe as respostas, cotas de IA oficiais e receba alertas sonoros e flash de tela.</span>
+                <span class="tutorial-step-title" id="tut-step4-t">4. Tudo pronto</span>
+                <span class="tutorial-step-desc" id="tut-step4-d">Acompanhe respostas, uso do modelo e envie prompts direto do celular.</span>
             </div>
 
             <button type="button" class="btn-tutorial-close" id="tut-close" onclick="toggleTutorial(false)">
-                Entendido
+                Fechar
             </button>
         </div>
     </div>
@@ -2192,27 +2198,25 @@
     <div id="menu-modal" class="menu-modal" onclick="if(event.target===this) MenuManager.close()">
         <div class="menu-card">
             <div class="menu-header">
-                <h2 id="menu-title-text">⚙️ Configurações</h2>
+                <h2 id="menu-title-text">Configurações</h2>
             </div>
 
             <!-- Seção 1: Alertas e Notificações -->
             <div class="menu-section">
-                <div class="menu-section-title" id="menu-sec-alerts">Alertas & Notificações</div>
+                <div class="menu-section-title" id="menu-sec-alerts">Alertas</div>
                 
                 <div class="menu-row">
                     <label for="btn-notif-toggle">
-                        <span>🔔</span>
-                        <span id="menu-notif-text">Notificações no Navegador</span>
+                        <span id="menu-notif-text">Notificações no navegador</span>
                     </label>
                     <button id="btn-notif-toggle" type="button" class="btn-pill" onclick="NotificationManager.toggle()">
-                        <span id="btn-notif-icon">🔔</span> <span id="btn-notif-text">Ativar</span>
+                        <span id="btn-notif-text">Ativar</span>
                     </button>
                 </div>
 
                 <div class="menu-row">
                     <label for="alert-enabled">
-                        <span>⚡</span>
-                        <span id="menu-alert-label">Som & Flash de Tela</span>
+                        <span id="menu-alert-label">Som e flash de alerta</span>
                     </label>
                     <input type="checkbox" id="alert-enabled" class="menu-checkbox" checked onchange="SoundManager.savePreferences()">
                 </div>
@@ -2220,29 +2224,29 @@
 
             <!-- Seção 2: Toque & Volume -->
             <div class="menu-section">
-                <div class="menu-section-title" id="menu-sec-sound">Áudio & Toques</div>
+                <div class="menu-section-title" id="menu-sec-sound">Áudio</div>
                 
                 <div class="menu-row">
                     <label for="tone-select">
-                        <span>🎵</span>
                         <span id="menu-tone-label">Toque</span>
                     </label>
                     <div style="display: flex; gap: 6px; align-items: center;">
                         <select id="tone-select" class="menu-select" onchange="SoundManager.setTone(this.value)">
-                            <option value="modern" id="opt-tone-modern">Chime Moderno</option>
-                            <option value="bell" id="opt-tone-bell">Sino Zen</option>
-                            <option value="scifi" id="opt-tone-scifi">Pulso Sci-Fi</option>
-                            <option value="classic" id="opt-tone-classic">Bip Clássico</option>
+                            <option value="modern" id="opt-tone-modern">Chime moderno</option>
+                            <option value="bell" id="opt-tone-bell">Sino</option>
+                            <option value="scifi" id="opt-tone-scifi">Pulso</option>
+                            <option value="classic" id="opt-tone-classic">Bip clássico</option>
                         </select>
-                        <button type="button" class="btn-menu-test" onclick="SoundManager.testTone()" title="Testar toque">▶️</button>
+                        <button type="button" class="btn-menu-test" onclick="SoundManager.testTone()" title="Testar toque">
+                            <svg class="ui-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                        </button>
                     </div>
                 </div>
 
                 <div class="menu-row" style="flex-direction: column; align-items: flex-start; gap: 6px;">
                     <div style="display: flex; justify-content: space-between; width: 100%;">
                         <label for="volume-slider">
-                            <span>🔊</span>
-                            <span id="menu-volume-label">Volume do Toque</span>
+                            <span id="menu-volume-label">Volume</span>
                         </label>
                         <span id="volume-val" class="menu-slider-val">80%</span>
                     </div>
@@ -2252,70 +2256,66 @@
                 </div>
             </div>
 
-            <!-- Seção 3: Rede & Histórico -->
+            <!-- Seção 3: Sistema -->
             <div class="menu-section">
-                <div class="menu-section-title" id="menu-sec-system">Rede & Histórico</div>
+                <div class="menu-section-title" id="menu-sec-system">Sistema</div>
                 
                 <div class="menu-row">
                     <label for="latency-toggle">
-                        <span>📶</span>
-                        <span id="menu-latency-label">Exibir Latência em Tempo Real</span>
+                        <span id="menu-latency-label">Mostrar latência (ping)</span>
                     </label>
                     <input type="checkbox" id="latency-toggle" class="menu-checkbox" checked onchange="LatencyManager.toggleVisibility(this.checked)">
                 </div>
 
                 <div class="menu-row">
                     <label for="battery-toggle">
-                        <span>🔋</span>
-                        <span id="menu-battery-label">Exibir Nível de Bateria</span>
+                        <span id="menu-battery-label">Mostrar bateria</span>
                     </label>
                     <input type="checkbox" id="battery-toggle" class="menu-checkbox" checked onchange="BatteryManager.toggleVisibility(this.checked)">
                 </div>
 
                 <div class="menu-row" id="row-oled-toggle" style="display: flex;">
                     <label for="btn-oled-toggle">
-                        <span>🌓</span>
-                        <span id="menu-oled-label">Tema OLED True Black</span>
+                        <span id="menu-oled-label">Modo OLED puro</span>
                     </label>
                     <button id="btn-oled-toggle" type="button" class="btn-pill" onclick="ThemeManager.toggle()">
-                        <span id="btn-oled-icon">🌓</span> <span id="btn-oled-text">Alternar</span>
+                        <span id="btn-oled-text">Alternar</span>
                     </button>
                 </div>
 
                 <div class="menu-row" id="row-fullscreen-toggle" style="display: flex;">
                     <label for="btn-fullscreen-toggle">
-                        <span>📱</span>
-                        <span id="menu-fullscreen-label">Modo Tela Cheia</span>
+                        <span id="menu-fullscreen-label">Tela cheia</span>
                     </label>
                     <button id="btn-fullscreen-toggle" type="button" class="btn-pill" onclick="FullscreenHelper.toggle()">
-                        <span id="btn-fullscreen-icon">⛶</span> <span id="btn-fullscreen-text">Alternar</span>
+                        <span id="btn-fullscreen-text">Alternar</span>
                     </button>
                 </div>
 
                 <button type="button" class="btn-menu-action" onclick="LogManager.open()">
-                    <span>📜</span>
-                    <span id="menu-btn-log-text">Ver Histórico de Conclusões</span>
+                    <svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span id="menu-btn-log-text">Histórico de conclusões</span>
                 </button>
 
                 <!-- Seção Exclusiva APK Android: Atualização Automática -->
                 <div id="menu-apk-update-section" class="menu-section" style="display: none; border-top: 1px solid var(--border-subtle); padding-top: 10px; margin-top: 6px;">
-                    <span class="menu-section-title" id="menu-update-section-title">📱 Aplicativo Android</span>
+                    <span class="menu-section-title" id="menu-update-section-title">Aplicativo Android</span>
                     <div class="menu-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span id="menu-apk-installed-label" style="font-size: 12px; font-weight: 500;">Versão Instalada:</span>
+                            <span id="menu-apk-installed-label" style="font-size: 12px; font-weight: 500;">Versão instalada:</span>
                             <span id="menu-apk-version-label" style="font-size: 12px; font-weight: 700; color: #38bdf8;">--</span>
                         </div>
                         <button type="button" class="btn-menu-action" id="btn-check-update" onclick="ApkUpdateManager.checkAndUpdate(false)" style="border-color: rgba(59, 130, 246, 0.4); color: #93c5fd;">
-                            <span>🔄</span>
-                            <span id="btn-check-update-text">Atualização Automática do APK</span>
+                            <svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                            <span id="btn-check-update-text">Verificar atualização</span>
                         </button>
                         <div id="apk-update-status" style="font-size: 11px; color: var(--text-muted); text-align: center; display: none;"></div>
                     </div>
                 </div>
 
                 <button type="button" class="btn-menu-action" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.35); margin-top: 6px;" onclick="disconnectSession()">
-                    <span>🚪</span>
-                    <span id="menu-btn-logout-text">Sair / Desconectar da Sessão</span>
+                    <svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span id="menu-btn-logout-text">Sair da sessão</span>
                 </button>
             </div>
 
@@ -2329,7 +2329,7 @@
     <div id="log-modal" class="log-modal" onclick="if(event.target===this) LogManager.close()">
         <div class="log-card">
             <div class="log-header">
-                <h2 id="log-title-text">📜 Histórico de Conclusões</h2>
+                <h2 id="log-title-text">Histórico de conclusões</h2>
             </div>
 
             <div id="log-list" class="log-list">
@@ -2338,10 +2338,10 @@
 
             <div class="log-actions">
                 <button type="button" class="btn-clear-log" onclick="LogManager.clear()" id="btn-clear-log-text">
-                    🗑️ Limpar
+                    Limpar
                 </button>
                 <button type="button" class="btn-close-log" onclick="LogManager.close()" id="btn-close-log-text">
-                    Voltar ao Menu
+                    Fechar
                 </button>
             </div>
         </div>
@@ -2353,12 +2353,12 @@
             <!-- Etapa 1: Escolher Chat/Projeto -->
             <div id="prompt-step-select" class="prompt-step">
                 <div class="prompt-header">
-                    <h2 id="prompt-modal-title">✍️ Enviar Prompt ao PC</h2>
-                    <p class="prompt-subtitle" id="prompt-subtitle-select">1º Passo: Escolha o chat ou projeto de destino</p>
+                    <h2 id="prompt-modal-title">Enviar prompt</h2>
+                    <p class="prompt-subtitle" id="prompt-subtitle-select">Escolha a conversa de destino</p>
                 </div>
 
                 <div class="chats-search-box" style="margin-top: 8px;">
-                    <span class="chats-search-icon">🔍</span>
+                    <svg class="chats-search-icon ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="prompt-search-input" class="chats-search-input" placeholder="Buscar chat ou projeto..." oninput="PromptManager.onSearch(this.value)">
                     <button type="button" id="prompt-search-clear" class="chats-search-clear" onclick="PromptManager.clearSearch()" style="display: none;">✕</button>
                 </div>
@@ -2379,25 +2379,26 @@
                         <button type="button" class="btn-prompt-back" onclick="PromptManager.backToSelect()" id="prompt-back-btn">
                             ← Voltar
                         </button>
-                        <span class="prompt-step-badge" id="prompt-step2-badge">2º Passo</span>
+                        <span class="prompt-step-badge" id="prompt-step2-badge">Mensagem</span>
                     </div>
                     <div class="prompt-target-bar" id="prompt-target-info">
                         <div class="prompt-target-left">
-                            <span class="prompt-target-project" id="prompt-target-project">📁 Projeto</span>
+                            <span class="prompt-target-project" id="prompt-target-project">Projeto</span>
                             <span class="prompt-target-title" id="prompt-target-title">Conversa</span>
                         </div>
                         <div class="prompt-target-divider" aria-hidden="true"></div>
                         <div class="prompt-target-right">
-                            <label for="prompt-model-select" class="prompt-model-label" id="prompt-model-label">🤖 Modelo IA:</label>
+                            <label for="prompt-model-select" class="prompt-model-label" id="prompt-model-label">Modelo:</label>
                             <select id="prompt-model-select" class="prompt-model-select">
-                                <option value="Gemini 3.8 Flash High">Gemini 3.8 Flash High</option>
-                                <option value="Gemini 3.8 Flash Low">Gemini 3.8 Flash Low</option>
-                                <option value="Gemini 3.8 Pro">Gemini 3.8 Pro</option>
-                                <option value="Claude 3.7 Sonnet">Claude 3.7 Sonnet</option>
-                                <option value="Claude 3.5 Sonnet">Claude 3.5 Sonnet</option>
+                                <option value="Gemini 4 Hydrogen (High)">Gemini 4 Hydrogen (High)</option>
+                                <option value="Gemini 4 Hydrogen (XHigh)">Gemini 4 Hydrogen (XHigh)</option>
+                                <option value="Gemini 4 Hydrogen (Medium)">Gemini 4 Hydrogen (Medium)</option>
+                                <option value="Gemini 4 Hydrogen (Low)">Gemini 4 Hydrogen (Low)</option>
+                                <option value="Gemini 3.8 Flash (High)">Gemini 3.8 Flash (High)</option>
+                                <option value="Gemini 3.8 Flash (Medium)">Gemini 3.8 Flash (Medium)</option>
+                                <option value="Gemini 3.8 Flash (Low)">Gemini 3.8 Flash (Low)</option>
                                 <option value="Claude Sonnet 4.6 (Thinking)">Claude Sonnet 4.6 (Thinking)</option>
                                 <option value="Claude Opus 4.6 (Thinking)">Claude Opus 4.6 (Thinking)</option>
-                                <option value="GPT-4o">GPT-4o</option>
                                 <option value="GPT-OSS 120B (Medium)">GPT-OSS 120B (Medium)</option>
                             </select>
                         </div>
@@ -2406,30 +2407,30 @@
 
                 <div class="prompt-compose-body">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label for="prompt-textarea" class="prompt-input-label" id="prompt-input-label" style="margin-bottom: 0;">Escreva sua solicitação para a IA:</label>
-                        <button type="button" id="btn-prompt-history" class="btn-prompt-history" onclick="PromptHistoryManager.toggle()" title="Ver histórico de prompts enviados">
-                            ⏱️ <span id="prompt-history-btn-text">Histórico</span>
+                        <label for="prompt-textarea" class="prompt-input-label" id="prompt-input-label" style="margin-bottom: 0;">Mensagem:</label>
+                        <button type="button" id="btn-prompt-history" class="btn-prompt-history" onclick="PromptHistoryManager.toggle()" title="Prompts recentes">
+                            <span id="prompt-history-btn-text">Recentes</span>
                         </button>
                     </div>
 
                     <div id="prompt-history-panel" class="prompt-history-panel" style="display: none;">
                         <div class="prompt-history-header">
-                            <span id="prompt-history-title-text" style="font-weight: 600; font-size: 11px; color: var(--text-muted);">⏱️ Prompts Recentes</span>
+                            <span id="prompt-history-title-text" style="font-weight: 600; font-size: 11px; color: var(--text-muted);">Prompts recentes</span>
                             <button type="button" class="btn-history-clear" onclick="PromptHistoryManager.clear()" id="prompt-history-clear-btn">Limpar</button>
                         </div>
                         <div id="prompt-history-list" class="prompt-history-list"></div>
                     </div>
 
-                    <!-- Atalhos Rápidos de Prompt -->
+                    <!-- Atalhos de Prompt -->
                     <div class="quick-snippets-bar" id="quick-snippets-bar">
-                        <span class="snippets-label" id="snippets-label">⚡ Atalhos:</span>
-                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('continue')">🔄 <span class="snippet-text" data-snippet="continue">Continue</span></button>
-                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('run_tests')">🧪 <span class="snippet-text" data-snippet="run_tests">Rode os testes</span></button>
-                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('summarize')">📋 <span class="snippet-text" data-snippet="summarize">Resuma o progresso</span></button>
-                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('check_errors')">🐞 <span class="snippet-text" data-snippet="check_errors">Verifique erros</span></button>
+                        <span class="snippets-label" id="snippets-label">Atalhos:</span>
+                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('continue')"><span class="snippet-text" data-snippet="continue">Continue</span></button>
+                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('run_tests')"><span class="snippet-text" data-snippet="run_tests">Rode os testes</span></button>
+                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('summarize')"><span class="snippet-text" data-snippet="summarize">Resuma o progresso</span></button>
+                        <button type="button" class="snippet-chip" onclick="PromptManager.insertSnippet('check_errors')"><span class="snippet-text" data-snippet="check_errors">Verifique erros</span></button>
                     </div>
 
-                    <textarea id="prompt-textarea" class="prompt-textarea" rows="5" placeholder="Digite aqui o que você deseja que o Antigravity faça..."></textarea>
+                    <textarea id="prompt-textarea" class="prompt-textarea" rows="5" placeholder="Escreva seu prompt..."></textarea>
                     
                     <div class="prompt-textarea-footer">
                         <div id="prompt-char-count" class="prompt-char-count">0 caracteres • 0 palavras</div>
@@ -2437,8 +2438,8 @@
 
                     <div class="prompt-compose-actions">
                         <button type="button" id="btn-send-prompt" class="btn-send-prompt" onclick="PromptManager.submitPrompt()">
-                            <span id="btn-send-prompt-icon">🚀</span>
-                            <span id="btn-send-prompt-text">Enviar para o PC</span>
+                            <svg class="ui-svg" id="btn-send-prompt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            <span id="btn-send-prompt-text">Enviar</span>
                         </button>
                     </div>
                 </div>
@@ -2450,18 +2451,18 @@
     <div id="chats-modal" class="chats-modal" onclick="if(event.target===this) ChatsManager.close()">
         <div class="chats-card">
             <div class="chats-header">
-                <h2 id="chats-modal-title">💬 Conversas & Projetos</h2>
+                <h2 id="chats-modal-title">Conversas no PC</h2>
             </div>
 
             <div id="chats-custom-banner" class="chat-banner-custom" style="display: none;">
-                <span id="chats-viewing-text">👁️ Lendo conversa paralela</span>
+                <span id="chats-viewing-text">Vendo outra conversa</span>
                 <button type="button" class="btn-live-pc" onclick="ChatsManager.resumePcLive()" id="chats-live-btn-text">
-                    Voltar ao PC ao Vivo
+                    Voltar ao chat ativo
                 </button>
             </div>
 
             <div class="chats-search-box" style="margin-top: 6px;">
-                <span class="chats-search-icon">🔍</span>
+                <svg class="chats-search-icon ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input type="text" id="chats-search-input" class="chats-search-input" placeholder="Buscar chat ou projeto..." oninput="ChatsManager.onSearch(this.value)">
                 <button type="button" id="chats-search-clear" class="chats-search-clear" onclick="ChatsManager.clearSearch()" style="display: none;">✕</button>
             </div>
@@ -2486,11 +2487,10 @@
                 <div class="brand-title-row">
                     <span class="brand-title">Antigravity Mobile</span>
                     <span id="project-badge" class="project-badge" title="Projeto Ativo" style="display: none;">
-                        <span class="project-icon">📁</span>
                         <span id="project-name">...</span>
                     </span>
                 </div>
-                <span id="model-badge" class="model-badge">Gemini 3.8 Flash High</span>
+                <span id="model-badge" class="model-badge">Gemini 4 Hydrogen (High)</span>
             </div>
         </div>
         <div class="status-wrapper">
@@ -2498,7 +2498,7 @@
                 <span class="status-dot"></span>
                 <span id="status-text">CONECTANDO...</span>
             </div>
-            <span class="app-version" id="app-version-badge">v2.5.0 (IP) • Dev LumiaG5</span>
+            <span class="app-version" id="app-version-badge">v2.5.2 (IP) • Dev LumiaG5</span>
         </div>
     </header>
 
@@ -2524,9 +2524,8 @@
 
     <main id="chat-feed">
         <div id="empty-state" class="empty-state">
-            <div class="empty-icon">📡</div>
-            <div class="empty-title">Aguardando edições no PC</div>
-            <div class="empty-sub">As conclusões das tarefas aparecerão aqui automaticamente.</div>
+            <div class="empty-title">Nenhuma atividade ainda</div>
+            <div class="empty-sub">As respostas aparecem aqui quando uma tarefa rodar no PC.</div>
         </div>
     </main>
 
@@ -2537,22 +2536,25 @@
     </button>
 
     <footer>
-        <button id="btn-menu-toggle" type="button" class="btn-pill footer-item" onclick="MenuManager.toggle()" title="Abrir Menu de Configurações">
-            ⚙️ <span id="btn-menu-text">Menu</span>
+        <button id="btn-menu-toggle" type="button" class="btn-pill footer-item" onclick="MenuManager.toggle()" title="Configurações">
+            <svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span id="btn-menu-text">Menu</span>
         </button>
-        <div id="latency-badge" class="latency-badge latency-good footer-item" title="Latência de Conexão (Ping)">
+        <div id="latency-badge" class="latency-badge latency-good footer-item" title="Latência (Ping)">
             <span id="latency-dot" class="latency-dot"></span>
             <span id="latency-val">-- ms</span>
         </div>
-        <div id="battery-badge" class="battery-badge battery-good footer-item" title="Bateria do Dispositivo">
-            <span id="battery-icon" class="battery-icon">🔋</span>
+        <div id="battery-badge" class="battery-badge battery-good footer-item" title="Bateria">
+            <span id="battery-icon" class="battery-icon"><svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="18" height="12" rx="2" ry="2"/><line x1="23" y1="13" x2="23" y2="11"/></svg></span>
             <span id="battery-val">--%</span>
         </div>
-        <button id="btn-chats-toggle" type="button" class="btn-pill btn-chats footer-item" onclick="ChatsManager.open()" title="Explorar Chats do PC">
-            💬 <span id="btn-chats-text">Chats</span>
+        <button id="btn-chats-toggle" type="button" class="btn-pill btn-chats footer-item" onclick="ChatsManager.open()" title="Conversas no PC">
+            <svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span id="btn-chats-text">Chats</span>
         </button>
-        <button id="btn-prompt-toggle" type="button" class="btn-pill btn-prompt footer-item" onclick="PromptManager.open()" title="Enviar Prompt ao PC">
-            ✍️ <span id="btn-prompt-text">Prompt</span>
+        <button id="btn-prompt-toggle" type="button" class="btn-pill btn-prompt footer-item" onclick="PromptManager.open()" title="Enviar prompt">
+            <svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <span id="btn-prompt-text">Prompt</span>
         </button>
     </footer>
 
@@ -2698,7 +2700,7 @@
             if (elBtnMenuText && t.btn_menu) elBtnMenuText.innerText = t.btn_menu.replace("⚙️ ", "");
 
             const elMenuTitleText = document.getElementById("menu-title-text");
-            if (elMenuTitleText && t.menu_title) elMenuTitleText.innerText = `⚙️ ${t.menu_title}`;
+            if (elMenuTitleText && t.menu_title) elMenuTitleText.innerText = t.menu_title;
 
             const elMenuNotifText = document.getElementById("menu-notif-text");
             if (elMenuNotifText && t.menu_notifications_label) elMenuNotifText.innerText = t.menu_notifications_label;
@@ -2755,13 +2757,13 @@
             if (elPromptHistBtn && t.prompt_history_btn) elPromptHistBtn.innerText = t.prompt_history_btn;
 
             const elPromptHistTitle = document.getElementById("prompt-history-title-text");
-            if (elPromptHistTitle && t.prompt_history_title) elPromptHistTitle.innerText = `⏱️ ${t.prompt_history_title}`;
+            if (elPromptHistTitle && t.prompt_history_title) elPromptHistTitle.innerText = t.prompt_history_title;
 
             const elPromptHistClear = document.getElementById("prompt-history-clear-btn");
             if (elPromptHistClear && t.prompt_history_clear) elPromptHistClear.innerText = t.prompt_history_clear;
 
             const elSnippetsLabel = document.getElementById("snippets-label");
-            if (elSnippetsLabel && t.quick_prompts_title) elSnippetsLabel.innerText = `⚡ ${t.quick_prompts_title}`;
+            if (elSnippetsLabel && t.quick_prompts_title) elSnippetsLabel.innerText = t.quick_prompts_title;
 
             const elSnipContinue = document.querySelector('[data-snippet="continue"]');
             if (elSnipContinue && t.snippet_continue) elSnipContinue.innerText = t.snippet_continue;
@@ -2780,10 +2782,10 @@
             }
 
             const elLogTitleText = document.getElementById("log-title-text");
-            if (elLogTitleText && t.log_title) elLogTitleText.innerText = `📜 ${t.log_title}`;
+            if (elLogTitleText && t.log_title) elLogTitleText.innerText = t.log_title;
 
             const elBtnClearLog = document.getElementById("btn-clear-log-text");
-            if (elBtnClearLog && t.log_clear) elBtnClearLog.innerText = `🗑️ ${t.log_clear}`;
+            if (elBtnClearLog && t.log_clear) elBtnClearLog.innerText = t.log_clear;
             
             const elBtnCloseLog = document.getElementById("btn-close-log-text");
             if (elBtnCloseLog && t.menu_close) elBtnCloseLog.innerText = t.menu_close;
@@ -2820,16 +2822,16 @@
             if (elMenuBatteryLabel && t.menu_battery_label) elMenuBatteryLabel.innerText = t.menu_battery_label;
 
             const elPromptModelLabel = document.getElementById("prompt-model-label");
-            if (elPromptModelLabel && t.prompt_model_label) elPromptModelLabel.innerText = `🤖 ${t.prompt_model_label}`;
+            if (elPromptModelLabel && t.prompt_model_label) elPromptModelLabel.innerText = t.prompt_model_label;
 
             const elBtnChatsText = document.getElementById("btn-chats-text");
             if (elBtnChatsText && t.btn_chats) elBtnChatsText.innerText = t.btn_chats.replace("💬 ", "");
 
             const elChatsModalTitle = document.getElementById("chats-modal-title");
-            if (elChatsModalTitle && t.chats_modal_title) elChatsModalTitle.innerText = `💬 ${t.chats_modal_title}`;
+            if (elChatsModalTitle && t.chats_modal_title) elChatsModalTitle.innerText = t.chats_modal_title;
 
             const elChatsViewingText = document.getElementById("chats-viewing-text");
-            if (elChatsViewingText && t.chats_viewing_custom) elChatsViewingText.innerText = `👁️ ${t.chats_viewing_custom}`;
+            if (elChatsViewingText && t.chats_viewing_custom) elChatsViewingText.innerText = t.chats_viewing_custom;
 
             const elChatsLiveBtnText = document.getElementById("chats-live-btn-text");
             if (elChatsLiveBtnText && t.chats_live_pc_btn) elChatsLiveBtnText.innerText = t.chats_live_pc_btn;
@@ -2839,7 +2841,7 @@
 
             // APK Updater i18n
             const elMenuUpdateTitle = document.getElementById("menu-update-section-title");
-            if (elMenuUpdateTitle && t.menu_update_section_title) elMenuUpdateTitle.innerText = `📱 ${t.menu_update_section_title}`;
+            if (elMenuUpdateTitle && t.menu_update_section_title) elMenuUpdateTitle.innerText = t.menu_update_section_title;
 
             const elBtnCheckUpdate = document.getElementById("btn-check-update-text");
             if (elBtnCheckUpdate && t.btn_check_update) elBtnCheckUpdate.innerText = t.btn_check_update;
@@ -3156,7 +3158,11 @@
                 if (this.valEl) this.valEl.innerText = `${level}%`;
 
                 if (this.iconEl) {
-                    this.iconEl.innerText = charging ? "⚡" : "🔋";
+                    if (charging) {
+                        this.iconEl.innerHTML = `<svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+                    } else {
+                        this.iconEl.innerHTML = `<svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="18" height="12" rx="2" ry="2"/><line x1="23" y1="13" x2="23" y2="11"/></svg>`;
+                    }
                 }
 
                 if (this.badgeEl) {
@@ -3262,18 +3268,15 @@
                 if (this.isEnabled()) {
                     btn.classList.add("active-green");
                     btn.classList.remove("muted");
-                    if (iconEl) iconEl.textContent = "🔔";
                     btn.title = `${t.notifications_enabled || "Notificações ativadas"} (${t.notifications_turn_off || "Toque para desativar"})`;
                 } else if (Notification.permission === "granted") {
                     btn.classList.remove("active-green");
                     btn.classList.add("muted");
-                    if (iconEl) iconEl.textContent = "🔕";
                     btn.title = `${t.notifications_disabled || "Notificações desativadas"} (${t.notifications_turn_on || "Toque para ativar"})`;
                 } else {
                     btn.classList.remove("active-green");
                     btn.classList.remove("muted");
-                    if (iconEl) iconEl.textContent = "🔔";
-                    btn.title = t.btn_notifications || "Ativar Notificações";
+                    btn.title = t.btn_notifications || "Ativar notificações";
                 }
             },
 
@@ -3502,12 +3505,12 @@
                 if (window.AndroidBridge && typeof window.AndroidBridge.getAppVersion === "function") {
                     const apkVer = window.AndroidBridge.getAppVersion();
                     el.innerText = `v${apkVer} (APK) • Dev LumiaG5`;
-                    el.title = `Antigravity Mobile Nativo Android (APK v${apkVer})`;
+                    el.title = `Antigravity Mobile Android (APK v${apkVer})`;
                     return;
                 }
             } catch(e) {}
-            el.innerText = `v2.5.0 (IP) • Dev LumiaG5`;
-            el.title = `Antigravity Mobile Web Companion (IP v2.5.0)`;
+            el.innerText = `v2.5.2 (IP) • Dev LumiaG5`;
+            el.title = `Antigravity Mobile Web (IP v2.5.2)`;
         }
 
         // GERENCIADOR DE ATUALIZAÇÃO AUTOMÁTICA DO APK ANDROID
@@ -3673,12 +3676,12 @@
                 this.listEl.innerHTML = this.logs.map(item => `
                     <div class="log-item">
                         <div class="log-item-header">
-                            <span class="log-item-project">📁 ${esc(item.project)}</span>
+                            <span class="log-item-project">${esc(item.project)}</span>
                             <span class="log-item-time">${item.time}</span>
                         </div>
                         <div class="log-item-title">${esc(item.title)}</div>
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
-                            <span class="log-item-model">🤖 ${esc(item.model)}</span>
+                            <span class="log-item-model">${esc(item.model)}</span>
                         </div>
                     </div>
                 `).join("");
@@ -3797,11 +3800,11 @@
                     document.body.removeChild(ta);
                 }
                 const icon = btn.querySelector(".copy-icon");
-                if (icon) icon.innerText = "✅";
+                if (icon) icon.innerHTML = `<svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
                 btn.classList.add("copied");
-                showToastNotification(t.response_copied || "Resposta copiada para a área de transferência!");
+                showToastNotification(t.response_copied || "Copiado para a área de transferência.");
                 setTimeout(() => {
-                    if (icon) icon.innerText = "📋";
+                    if (icon) icon.innerHTML = `<svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
                     btn.classList.remove("copied");
                 }, 1800);
             } catch(e) {
@@ -4088,15 +4091,15 @@
                     row.className = `chat-row ${c.is_active_on_pc ? "active-pc" : ""} ${isFav ? "is-fav-row" : ""}`;
                     const dotClass = c.is_processing ? "dot-orange" : "dot-green";
                     const dotHtml = `<span class="chat-status-indicator"><span class="chat-dot ${dotClass}" data-dot-cid="${c.conversation_id}"></span></span>`;
-                    const tagPc = c.is_active_on_pc ? `<span class="chat-tag-pc">🖥️ PC</span>` : "";
-                    const favBtn = `<button type="button" class="chat-star-btn ${isFav ? "is-fav" : ""}" onclick="FavoritesManager.toggle('${c.conversation_id}', event)" title="${isFav ? (t.unfavorite_chat_title || "Remover dos favoritos") : (t.favorite_chat_title || "Favoritar conversa")}">${isFav ? "⭐" : "☆"}</button>`;
+                    const tagPc = c.is_active_on_pc ? `<span class="chat-tag-pc">PC</span>` : "";
+                    const favBtn = `<button type="button" class="chat-star-btn ${isFav ? "is-fav" : ""}" onclick="FavoritesManager.toggle('${c.conversation_id}', event)" title="${isFav ? (t.unfavorite_chat_title || "Desafixar conversa") : (t.favorite_chat_title || "Fixar conversa")}">${isFav ? "★" : "☆"}</button>`;
 
                     row.innerHTML = `
                         ${dotHtml}
                         <div class="chat-info">
                             <div class="chat-title-line">${ChatsManager.escapeHtml(c.title || "Conversa sem título")}</div>
                             <div class="chat-meta-line">
-                                <span>📁 ${ChatsManager.escapeHtml(c.project || "Antigravity")}</span>
+                                <span>${ChatsManager.escapeHtml(c.project || "Antigravity")}</span>
                                 <span>• ${ChatsManager.escapeHtml(c.last_modified || "")}</span>
                                 ${tagPc}
                             </div>
@@ -4110,6 +4113,43 @@
                 });
             },
 
+            syncModels(models) {
+                const modelSelect = document.getElementById("prompt-model-select");
+                if (!modelSelect || !Array.isArray(models) || models.length === 0) return;
+                const prevVal = modelSelect.value;
+                modelSelect.innerHTML = "";
+                models.forEach(m => {
+                    const label = m.label || m;
+                    if (!label) return;
+                    const opt = document.createElement("option");
+                    opt.value = label;
+                    opt.textContent = label;
+                    modelSelect.appendChild(opt);
+                });
+                if (prevVal) {
+                    for (let i = 0; i < modelSelect.options.length; i++) {
+                        if (modelSelect.options[i].value === prevVal) {
+                            modelSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+            },
+
+            async loadAvailableModels() {
+                try {
+                    const token = authToken || localStorage.getItem("antigravity_auth_token") || "";
+                    if (!token) return;
+                    const res = await fetch(`/api/models?token=${encodeURIComponent(token)}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && Array.isArray(data.models) && data.models.length > 0) {
+                            this.syncModels(data.models);
+                        }
+                    }
+                } catch(e) {}
+            },
+
             chooseConversation(cid, title, project) {
                 this.selectedConv = { id: cid, title, project };
                 if (this.stepSelect) this.stepSelect.style.display = "none";
@@ -4117,13 +4157,14 @@
 
                 const projEl = document.getElementById("prompt-target-project");
                 const titleEl = document.getElementById("prompt-target-title");
-                if (projEl) projEl.innerText = `📁 ${project || "Antigravity"}`;
+                if (projEl) projEl.innerText = project || "Antigravity";
                 if (titleEl) titleEl.innerText = title || "Conversa";
 
                 // Sincroniza modelo ativo atual se disponível
                 const modelSelect = document.getElementById("prompt-model-select");
-                if (modelSelect && window.lastStatusData && window.lastStatusData.active_model) {
-                    const active = window.lastStatusData.active_model.trim().toLowerCase();
+                const activeName = (window.lastStatusData && window.lastStatusData.active_model) || (modelBadge ? modelBadge.innerText : "");
+                if (modelSelect && activeName) {
+                    const active = activeName.trim().toLowerCase();
                     for (let i = 0; i < modelSelect.options.length; i++) {
                         const optVal = modelSelect.options[i].value.toLowerCase();
                         if (optVal === active || optVal.includes(active) || active.includes(optVal)) {
@@ -4347,14 +4388,14 @@
                     const dotClass = c.is_processing ? "dot-orange" : "dot-green";
                     const dotHtml = `<span class="chat-status-indicator"><span class="chat-dot ${dotClass}" data-dot-cid="${c.conversation_id}"></span></span>`;
 
-                    const tagPc = c.is_active_on_pc ? `<span class="chat-tag-pc">🖥️ PC</span>` : "";
+                    const tagPc = c.is_active_on_pc ? `<span class="chat-tag-pc">PC</span>` : "";
 
                     row.innerHTML = `
                         ${dotHtml}
                         <div class="chat-info">
                             <div class="chat-title-line">${this.escapeHtml(c.title || "Conversa sem título")}</div>
                             <div class="chat-meta-line">
-                                <span>📁 ${this.escapeHtml(c.project || "Antigravity")}</span>
+                                <span>${this.escapeHtml(c.project || "Antigravity")}</span>
                                 <span>• ${this.escapeHtml(c.last_modified || "")}</span>
                                 ${tagPc}
                             </div>
@@ -4835,14 +4876,14 @@
 
             const timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
             const t = currentI18n || {};
-            const senderName = isUser ? (t.msg_user || "Você") : (t.msg_assistant || "Antigravity (Conclusão)");
+            const senderName = isUser ? (t.msg_user || "Você") : (t.msg_assistant || "Antigravity");
             
             const copyBtnHtml = !isUser ? `
                 <button type="button" class="btn-copy-msg" onclick="copyMessageText(this)" title="${t.copy_response || "Copiar resposta"}">
-                    <span class="copy-icon">📋</span>
+                    <span class="copy-icon"><svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
                 </button>
                 <button type="button" class="btn-share-msg" onclick="shareMessageText(this)" title="${t.share_response || "Compartilhar resposta"}">
-                    <span>📤</span>
+                    <span><svg class="ui-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
                 </button>
             ` : "";
 
@@ -4906,10 +4947,14 @@
                     if (sRes.value.status === 401) { handleSessionExpired(); return; }
                     if (sRes.value.ok) {
                         const sData = await sRes.value.json();
+                        window.lastStatusData = sData;
                         if (sData.active_model && modelBadge) modelBadge.innerText = sData.active_model;
                         if (sData.active_project) updateProjectName(sData.active_project, sData.conversation_title);
                         if (sData.status) updateStatus(sData.status);
                     }
+                }
+                if (PromptManager && typeof PromptManager.loadAvailableModels === "function") {
+                    PromptManager.loadAvailableModels();
                 }
 
                 if (mRes.status === "fulfilled" && mRes.value) {
@@ -4932,7 +4977,10 @@
             if (evt.event === "init") {
                 if (evt.data.https_url) serverHttpsUrl = evt.data.https_url;
                 if (evt.data.quota) updateQuota(evt.data.quota);
-                if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
+                if (evt.data.active_model) {
+                    window.lastStatusData = Object.assign({}, window.lastStatusData || {}, { active_model: evt.data.active_model });
+                    if (modelBadge) modelBadge.innerText = evt.data.active_model;
+                }
                 if (evt.data.active_project) updateProjectName(evt.data.active_project, evt.data.conversation_title);
                 if (evt.data.status) updateStatus(evt.data.status);
                 const msgs = evt.data.messages || [];
@@ -4965,9 +5013,8 @@
                             emptyDiv.className = "empty-state";
                             const subPrefix = evt.data.conversation_title ? `[${evt.data.conversation_title}] — ` : "";
                             emptyDiv.innerHTML = `
-                                <div class="empty-icon">📡</div>
-                                <div class="empty-title">${t.empty_title || "Aguardando edições no PC"}</div>
-                                <div class="empty-sub">${subPrefix}${t.empty_sub || "As conclusões das tarefas aparecerão aqui automaticamente."}</div>
+                                <div class="empty-title">${t.empty_title || "Nenhuma atividade ainda"}</div>
+                                <div class="empty-sub">${subPrefix}${t.empty_sub || "As respostas aparecem aqui quando uma tarefa rodar no PC."}</div>
                             `;
                             chatFeed.appendChild(emptyDiv);
                         } else {
@@ -4997,7 +5044,10 @@
                 if (evt.data && evt.data.quota) updateQuota(evt.data.quota);
             } else if (evt.event === "model_changed") {
                 if (evt.data) {
-                    if (evt.data.active_model && modelBadge) modelBadge.innerText = evt.data.active_model;
+                    if (evt.data.active_model) {
+                        window.lastStatusData = Object.assign({}, window.lastStatusData || {}, { active_model: evt.data.active_model });
+                        if (modelBadge) modelBadge.innerText = evt.data.active_model;
+                    }
                     if (evt.data.quota) updateQuota(evt.data.quota);
                 }
             } else if (evt.event === "conclusion_message" || evt.event === "user_message" || evt.event === "assistant_step") {
@@ -5217,13 +5267,13 @@
             }
 
             // 4. Modal de Menu de Configurações
-            if (MenuManager && MenuManager.menuModal && MenuManager.menuModal.classList.contains("active")) {
+            if (MenuManager && MenuManager.modal && MenuManager.modal.classList.contains("active")) {
                 MenuManager.close();
                 return true;
             }
 
             // 5. Modal de Log de Conclusões
-            if (LogManager && LogManager.logModal && LogManager.logModal.classList.contains("active")) {
+            if (LogManager && LogManager.modal && LogManager.modal.classList.contains("active")) {
                 LogManager.close();
                 return true;
             }
