@@ -547,15 +547,37 @@ class AntigravityMonitor:
         return proj
 
     def detect_model_name(self, conv_id: Optional[str] = None) -> str:
-        """Detecta o nome oficial e formatado do modelo ativo a partir do banco da conversa ou logs."""
+        """Detecta o nome oficial e formatado do modelo ativo via API do language_server ou banco SQLite."""
         cid = conv_id or self.current_conversation_id
         if not cid:
             return self.active_model
 
-        db_path = config.CONVERSATIONS_DIR / f"{cid}.db"
         model_found = None
 
-        if db_path.exists():
+        # 0. Consulta estruturada em memória no language_server (com throttle de 2s para não sobrecarregar RPC)
+        now_ts = time.time()
+        last_rpc_ts = getattr(self, "_last_model_rpc_ts", 0.0)
+        last_rpc_cid = getattr(self, "_last_model_rpc_cid", None)
+        if cid != last_rpc_cid or (now_ts - last_rpc_ts) >= 2.0:
+            self._last_model_rpc_ts = now_ts
+            self._last_model_rpc_cid = cid
+            try:
+                from antigravity_api import antigravity_api
+                if antigravity_api.base_url or antigravity_api.discover_connection():
+                    traj_info = antigravity_api.get_trajectory_info(cid)
+                    if traj_info:
+                        plan_model = ((traj_info.get("user_config") or {}).get("plannerConfig") or {}).get("planModel")
+                        if plan_model:
+                            model_found = plan_model
+                        elif traj_info.get("model_display_name"):
+                            model_found = traj_info["model_display_name"]
+                        elif traj_info.get("model_raw"):
+                            model_found = traj_info["model_raw"]
+            except Exception:
+                pass
+
+        db_path = config.CONVERSATIONS_DIR / f"{cid}.db"
+        if not model_found and db_path.exists():
             try:
                 # Conecta em modo somente leitura com URI para nunca travar com locks ativos do Antigravity
                 con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=0.8)
@@ -564,14 +586,16 @@ class AntigravityMonitor:
                 for row in rows:
                     if row and row[0]:
                         raw_data = row[0]
+                        # O campo chatModel/model_enum fica no final do blob protobuf (após o texto do prompt)
+                        tail = raw_data[-2048:] if len(raw_data) > 2048 else raw_data
 
-                        # 0. Busca direta pelos enums oficiais modernos (ex: MODEL_PLACEHOLDER_M525 para Gemini 4 Hydrogen High)
-                        m_enum = re.search(
+                        # 0. Busca direta pelos enums oficiais modernos (pega o último enum do bloco para evitar texto do chat)
+                        enum_matches = re.findall(
                             rb'(MODEL_PLACEHOLDER_M(?:525|526|527|528|318|319|320|35|26|421|670|536)|MODEL_OPENAI_GPT_OSS_120B_MEDIUM)',
-                            raw_data
+                            tail
                         )
-                        if m_enum:
-                            model_found = m_enum.group(1).decode("utf-8", errors="ignore")
+                        if enum_matches:
+                            model_found = enum_matches[-1].decode("utf-8", errors="ignore")
                             break
 
                         # 1. Procura pela tag de modelo protobuf (campo 28 \xe2\x01\xlen <model> - comum no Claude)

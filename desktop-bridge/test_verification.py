@@ -848,6 +848,7 @@ def run_tests():
 
         assert_true(mon18.format_model_display_name("gemini-4-hydrogen") == "Gemini 4 Hydrogen (High)", "gemini-4-hydrogen mapeado corretamente para Gemini 4 Hydrogen (não Argon)")
         assert_true(mon18.format_model_display_name("MODEL_PLACEHOLDER_M525") == "Gemini 4 Hydrogen (High)", "MODEL_PLACEHOLDER_M525 -> Gemini 4 Hydrogen (High)")
+        assert_true(mon18.format_model_display_name("MODEL_PLACEHOLDER_M526") == "Gemini 4 Hydrogen (Medium)", "MODEL_PLACEHOLDER_M526 -> Gemini 4 Hydrogen (Medium)")
         assert_true(mon18.format_model_display_name("MODEL_PLACEHOLDER_M528") == "Gemini 4 Hydrogen (XHigh)", "MODEL_PLACEHOLDER_M528 -> Gemini 4 Hydrogen (XHigh)")
         assert_true(mon18.format_model_display_name("MODEL_PLACEHOLDER_M318") == "Gemini 3.8 Flash (High)", "MODEL_PLACEHOLDER_M318 -> Gemini 3.8 Flash (High)")
         assert_true(mon18.format_model_display_name("gemini-4-argon") == "Gemini 4 Argon", "gemini-4-argon continua mapeado para Gemini 4 Argon")
